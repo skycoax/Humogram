@@ -40,10 +40,15 @@ public class URLSpanBrowser extends URLSpan {
 
     @Override
     public void updateDrawState(TextPaint p) {
+        int color = p.getColor();
         super.updateDrawState(p);
         if (style != null) {
             style.applyStyle(p);
         }
         p.setUnderlineText(true);
+        // Humogram: a link to a site that is not on the trusted list is drawn
+        // red. "color" is the bubble's own text colour from before super, so
+        // the red can be one that is legible on this bubble.
+        uz.jac.secure.android.LinkGuardUi.tint(this, p, color);
     }
 }

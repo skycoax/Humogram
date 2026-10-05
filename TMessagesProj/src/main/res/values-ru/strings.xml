@@ -279,7 +279,7 @@
 
     <string name="jac_about_scanner_heading">Что делает проверка</string>
 
-    <string name="jac_about_scanner_body">Каждый полученный файл проверяется, прежде чем его можно открыть или переслать, а каждая ссылка — прежде чем она откроется. Все проверки выполняются полностью на вашем устройстве — ни файлы, ни цифровые отпечатки, ни ссылки, ни имена файлов, ни тексты сообщений никуда не отправляются для проверки.\n\nСекретные чаты проверяются так же — только на вашем устройстве.</string>
+    <string name="jac_about_scanner_body">Каждый полученный файл проверяется, прежде чем его можно открыть или переслать, а каждая ссылка — прежде чем она откроется. Эти проверки выполняются полностью на вашем устройстве — ни файлы, ни цифровые отпечатки, ни ссылки, ни имена файлов, ни тексты сообщений для них никуда не отправляются. Секретные чаты проверяются так же — только на вашем устройстве.\n\nПроверка установленных приложений на вирусы тоже работает полностью на устройстве; о ваших приложениях ничего никуда не отправляется.\n\nСписки доверенных и заблокированных сайтов загружаются с lists.skycoax.uz одним общедоступным файлом; о ваших ссылках ничего не отправляется.</string>
 
     <string name="jac_about_licence_heading">Лицензия и исходный код</string>
 
@@ -368,19 +368,6 @@
     <string name="jac_quarantine_confirm_cancel">Отмена</string>
 
 
-    <string name="jac_deepscan_title">Отправить файл на углублённую проверку?</string>
-
-    <string name="jac_deepscan_body">Чтобы проверить файл тщательнее, <b>его копия будет отправлена с вашего телефона в сервис проверки Humogram</b>.\n\nТам файл будет проанализирован и удалён в течение 24 часов. Он не будет передан никому и не будет опубликован ни в одном общедоступном антивирусном сервисе.\n\nНе отправляйте файлы с личными данными, которые не должны покидать ваш телефон.</string>
-
-    <string name="jac_deepscan_file_info">Файл: %1$s · %2$s</string>
-
-    <string name="jac_deepscan_accept">Отправить и проверить</string>
-
-    <string name="jac_deepscan_decline">Не отправлять</string>
-
-    <string name="jac_deepscan_running">Проверяем… это может занять несколько минут</string>
-
-
     <string name="jac_link_dangerous_title">Эта ссылка — известное мошенничество</string>
 
     <string name="jac_link_suspicious_title">Ссылка выглядит подозрительно</string>
@@ -405,6 +392,7 @@
     <string name="jac_reason_homograph">Этот адрес написан буквами, которые выглядят точно как %1$s, но это другой сайт.</string>
 
     <string name="jac_reason_typo">Этот адрес отличается от %1$s на одну-две буквы.</string>
+    <string name="jac_reason_tld_swap">У этого адреса то же имя, что у %1$s, но другое окончание. Он может принадлежать другому владельцу.</string>
 
     <string name="jac_reason_subdomain">В адресе видно %1$s, но настоящий сайт — %2$s.</string>
 
@@ -511,47 +499,167 @@
     <string name="jac_ornament_off">Без узора</string>
     <string name="jac_ornament_note">Узор рисуется еле заметно сверху и снизу списка чатов. Он подстраивается под вашу тему и никогда не перекрывает переписку.</string>
     <string name="jac_security_header">Безопасность</string>
-    <string name="jac_checkup">Проверка устройства</string>
-    <string name="jac_checkup_results">Результаты</string>
-    <string name="jac_checkup_ok">ОК</string>
-    <string name="jac_checkup_warn">Внимание</string>
-    <string name="jac_checkup_risk">Риск</string>
-    <string name="jac_checkup_unknown">Не удалось проверить</string>
-    <string name="jac_checkup_screen_lock">Блокировка экрана</string>
-    <string name="jac_checkup_screen_lock_advice">Без блокировки экрана любой, кто возьмёт телефон в руки, получит все ваши переписки. Установите PIN-код, графический ключ или отпечаток в настройках системы.</string>
-    <string name="jac_checkup_root">Root-доступ</string>
-    <string name="jac_checkup_root_advice">Похоже, на устройстве есть root. Root позволяет любому приложению читать данные других приложений, включая ваши сообщения. Если вы не делали root сами — покажите телефон специалисту.</string>
-    <string name="jac_checkup_adb">Отладка по USB</string>
-    <string name="jac_checkup_adb_advice">Отладка по USB позволяет компьютеру управлять телефоном по кабелю. Удобно разработчику, опасно всем остальным — выключите, если не пользуетесь прямо сейчас.</string>
-    <string name="jac_checkup_patch">Обновления безопасности</string>
-    <string name="jac_checkup_patch_advice">Последнему обновлению безопасности на этом телефоне больше года, известные уязвимости остаются открытыми. Проверьте обновления системы; если их нет — доверяйте этому устройству меньше.</string>
-    <string name="jac_checkup_2fa">Облачный пароль (2FA)</string>
-    <string name="jac_checkup_2fa_advice">Облачный пароль защищает аккаунт, даже если кто-то перехватит код входа из SMS. Это самая важная настройка Telegram.</string>
-    <string name="jac_checkup_open_settings">Открыть настройки</string>
-    <string name="jac_checkup_set_up">Настроить</string>
-    <string name="jac_checkup_note">Проверки устройства выполняются здесь, на телефоне. У Telegram запрашивается только статус облачного пароля — так же, как это делают Настройки. Больше никуда ничего не отправляется.</string>
-    <string name="jac_checkup_remind">Вы давно не проверяли безопасность, а на этом устройстве есть что исправить.</string>
-    <string name="jac_checkup_remind_open">Проверить</string>
-    <string name="jac_link_hygiene">Убирать трекеры из ссылок</string>
-    <string name="jac_link_hygiene_info">Перед открытием из ссылки вырезаются метки слежения (utm_*, fbclid, gclid и похожие). Страница откроется той же; рекламодатель узнает о вас меньше.</string>
     <string name="jac_channel">Рекомендуемый канал</string>
     <string name="jac_channel_hint_title">Защитите себя от мошенников</string>
     <string name="jac_channel_hint_text">Рекомендуем канал о киберграмотности: %1$s</string>
-    <string name="jac_duress">Пароль под принуждением</string>
-    <string name="jac_duress_on">Вкл.</string>
-    <string name="jac_duress_off">Выкл.</string>
-    <string name="jac_duress_intro">Второй пароль, который можно выдать под давлением. При его вводе стирается всё, что приложение хранит на телефоне, и оно перезапускается пустым — аккаунты, переписки, скачанные файлы. Остаётся чистый Telegram. Файлы, уже сохранённые в галерею, не затрагиваются.\n\nЧтобы защита была полной, установите также облачный пароль (двухэтапную проверку): без него тот, у кого ваша SIM-карта, сможет войти по SMS и прочитать историю из облака.</string>
-    <string name="jac_duress_cleared">Пароль под принуждением удалён: он совпал с код-паролём приложения. Задайте новый, отличающийся.</string>
-    <string name="jac_duress_need_passcode">Сначала установите код-пароль</string>
-    <string name="jac_duress_need_passcode_info">Пароль под принуждением работает только когда приложение запрашивает код на входе. Установите код-пароль и вернитесь сюда.</string>
-    <string name="jac_duress_set">Задать пароль под принуждением</string>
-    <string name="jac_duress_change">Изменить пароль под принуждением</string>
-    <string name="jac_duress_remove">Удалить пароль под принуждением</string>
-    <string name="jac_duress_enter">Пароль под принуждением</string>
-    <string name="jac_duress_confirm">Повторите</string>
-    <string name="jac_duress_save">Сохранить</string>
-    <string name="jac_duress_same_as_real">Это ваш настоящий пароль. Пароль под принуждением должен отличаться, иначе обычная разблокировка сотрёт приложение.</string>
-    <string name="jac_duress_action_info">При вводе стираются все данные приложения на телефоне и оно перезапускается пустым. При наличии связи на сервер также отправляется выход из аккаунтов. Это необратимо — выберите код, который не введёте по ошибке.</string>
     <string name="jac_creator">Создатель</string>
     <string name="jac_made_by">Сделал %1$s</string>
+
+    <!-- Проверка устройства на вирусы. Counts are phrased "Найдено угроз: 3"
+         so no plural forms are needed. -->
+    <string name="jac_devscan_title">Проверка на вирусы</string>
+    <string name="jac_devscan_status_none">Угроз нет</string>
+    <string name="jac_devscan_status_threats">Угроз: %1$d</string>
+    <string name="jac_devscan_status_off">Выкл.</string>
+    <string name="jac_devscan_status_never">Не проверено</string>
+    <string name="jac_devscan_status_scanning">Проверка…</string>
+    <string name="jac_devscan_status_unavailable">Недоступно</string>
+    <string name="jac_devscan_summary_clean">Угроз не найдено</string>
+    <string name="jac_devscan_summary_threats">Найдено угроз: %1$d</string>
+    <string name="jac_devscan_summary_never">Ещё не проверено</string>
+    <string name="jac_devscan_summary_never_hint">Нажмите «Проверить сейчас», чтобы проверить приложения на этом телефоне.</string>
+    <string name="jac_devscan_summary_scanning">Проверка… %1$d из %2$d</string>
+    <string name="jac_devscan_summary_preparing">Получаем список приложений…</string>
+    <string name="jac_devscan_summary_unavailable">Проверка недоступна</string>
+    <string name="jac_devscan_summary_unavailable_hint">Проверка не запустилась. Перезапустите Humogram и попробуйте снова.</string>
+    <string name="jac_devscan_summary_failed">Проверка не завершилась</string>
+    <string name="jac_devscan_summary_failed_hint">В этот раз ничего не проверено. Нажмите «Проверить сейчас», чтобы попробовать снова.</string>
+    <string name="jac_devscan_summary_checked_at">Последняя проверка: %1$s</string>
+    <string name="jac_devscan_summary_apps">Проверено приложений: %1$d</string>
+    <string name="jac_devscan_summary_files">Проверено APK-файлов: %1$d</string>
+    <string name="jac_devscan_engine_local">Проверено на этом телефоне</string>
+    <string name="jac_devscan_scan_now">Проверить сейчас</string>
+    <string name="jac_devscan_intro">Приложения на этом телефоне и APK-файлы в загрузках Humogram проверяются на известные вредоносные программы и на приёмы банковских троянов.</string>
+    <string name="jac_devscan_threats_header">Угрозы</string>
+    <string name="jac_devscan_attention_header">Стоит проверить</string>
+    <string name="jac_devscan_attention_info">Сами по себе это не угрозы — в каждой строке указано, почему она здесь. Просто убедитесь, что знаете, откуда каждое приложение.</string>
+    <string name="jac_devscan_show_more">Показать ещё (%1$d)</string>
+    <string name="jac_devscan_files_header">APK-файлы в загрузках Humogram</string>
+    <string name="jac_devscan_files_info">Установщики приложений, полученные в чатах. Удалите ненужные — ни один банк не присылает приложения для установки.</string>
+    <string name="jac_devscan_trusted_header">Доверенные приложения</string>
+    <string name="jac_devscan_trusted_info">Humogram не предупреждает о приложениях, которым вы доверяете. После обновления приложения доверие снимается, и новая версия проверяется заново.</string>
+    <string name="jac_devscan_on_launch">Проверять на вирусы при запуске</string>
+    <string name="jac_devscan_risk_malicious">Вирус</string>
+    <string name="jac_devscan_risk_counterfeit">Подделка</string>
+    <string name="jac_devscan_risk_dangerous">Опасно</string>
+    <string name="jac_devscan_risk_suspicious">Подозрительно</string>
+    <string name="jac_devscan_risk_notice">Внимание</string>
+    <string name="jac_devscan_risk_trusted">Доверено</string>
+    <string name="jac_devscan_verdict_malicious">Это приложение — вредоносная программа. Удалите его.</string>
+    <string name="jac_devscan_verdict_counterfeit">Это приложение выдаёт себя за %1$s. Не вводите в нём данные карты и коды.</string>
+    <string name="jac_devscan_verdict_dangerous">У этого приложения есть всё, что банковским троянам нужно для кражи денег. Если вы не устанавливали его намеренно, удалите его.</string>
+    <string name="jac_devscan_verdict_suspicious">С этим приложением что-то не так. Проверьте, откуда оно.</string>
+    <string name="jac_devscan_verdict_notice">Само по себе это не угроза — просто убедитесь, что знаете, откуда это приложение.</string>
+    <string name="jac_devscan_file_verdict_malicious">В этом установщике вредоносная программа. Удалите его и не устанавливайте.</string>
+    <string name="jac_devscan_file_verdict_other">Установщик приложения, полученный в чате. Устанавливайте приложения только из магазина приложений.</string>
+    <string name="jac_devscan_version">Версия %1$s</string>
+    <string name="jac_devscan_source_store">Установлено из %1$s</string>
+    <string name="jac_devscan_source_store_generic">Установлено из магазина приложений</string>
+    <string name="jac_devscan_source_file">Установлено из файла</string>
+    <string name="jac_devscan_source_unknown">Установлено из неизвестного источника</string>
+    <string name="jac_devscan_source_app">Установлено приложением %1$s</string>
+    <string name="jac_devscan_source_system">Предустановлено</string>
+    <string name="jac_devscan_uninstall">Удалить</string>
+    <string name="jac_devscan_app_info">О приложении</string>
+    <string name="jac_devscan_trust">Доверять</string>
+    <string name="jac_devscan_untrust">Не доверять</string>
+    <string name="jac_devscan_trust_confirm_title">Доверять этому приложению?</string>
+    <string name="jac_devscan_trust_confirm">Humogram перестанет предупреждать о «%1$s», пока оно не обновится. Делайте так, только если точно знаете, откуда оно.</string>
+    <string name="jac_devscan_trusted_done">«%1$s» теперь в доверенных</string>
+    <string name="jac_devscan_untrusted_done">«%1$s» больше не в доверенных</string>
+    <string name="jac_devscan_a11y_advice">У этого приложения включены Специальные возможности: оно видит ваш экран и может нажимать кнопки за вас — даже ту, что отменяет удаление. Сначала отключите его в настройках Специальных возможностей.</string>
+    <string name="jac_devscan_open_a11y">Спец. возможности</string>
+    <string name="jac_devscan_admin_advice">Это приложение — администратор устройства, поэтому Android пока не даст его удалить. Отключите его в списке администраторов устройства в настройках безопасности телефона — кнопка ниже их откроет — затем удалите.</string>
+    <string name="jac_devscan_open_security">Настройки безопасности</string>
+    <string name="jac_devscan_sms_advice">Оно выбрано приложением для SMS. Снова сделайте обычное приложение «Сообщения» основным — кнопка ниже откроет нужный раздел настроек.</string>
+    <string name="jac_devscan_open_default_apps">Приложения по умолчанию</string>
+    <string name="jac_devscan_delete_file">Удалить файл</string>
+    <string name="jac_devscan_file_deleted">Файл удалён</string>
+    <string name="jac_devscan_file_delete_failed">Не удалось удалить файл</string>
+    <string name="jac_devscan_file_changed">Это не тот файл, который проверялся. Проверяем снова…</string>
+    <string name="jac_devscan_file_installs">Устанавливает %1$s</string>
+    <string name="jac_devscan_notice_title">Проверять телефон на вирусы?</string>
+    <string name="jac_devscan_notice_body">Humogram может проверять приложения на этом телефоне на вирусы при каждом запуске. Для этого читаются список установленных приложений, их разрешения и подписи, а также APK-файлы в загрузках Humogram. Проверка идёт на самом телефоне, ничего никуда не отправляется.\n\nЭто можно изменить в любой момент: Настройки → Безопасность устройства.</string>
+    <string name="jac_devscan_notice_on">Включить</string>
+    <string name="jac_devscan_notice_later">Не сейчас</string>
+    <string name="jac_devscan_bulletin_danger_app_one">Найдено опасное приложение: %1$s</string>
+    <string name="jac_devscan_bulletin_danger_app_many">Найдено опасных приложений: %1$d</string>
+    <string name="jac_devscan_bulletin_danger_app_hint">Проверьте его в сканере вирусов и удалите.</string>
+    <string name="jac_devscan_bulletin_danger_file_one">Опасный файл в загрузках: %1$s</string>
+    <string name="jac_devscan_bulletin_danger_file_many">Опасных файлов в загрузках: %1$d</string>
+    <string name="jac_devscan_bulletin_danger_file_hint_one">Он не установлен. Не открывайте его — удалите.</string>
+    <string name="jac_devscan_bulletin_danger_file_hint_many">Они не установлены. Не открывайте их — удалите.</string>
+    <string name="jac_devscan_review">Просмотреть</string>
+    <string name="jac_devscan_bulletin_suspicious_one">«%1$s» выглядит подозрительно</string>
+    <string name="jac_devscan_bulletin_suspicious_many">Найдено подозрительных приложений: %1$d</string>
+    <string name="jac_devscan_bulletin_clean_first">Проверено приложений: %1$d. Угроз не найдено.</string>
+    <string name="jac_devscan_bulletin_clean_new">Проверено новых или обновлённых приложений: %1$d. Угроз не найдено.</string>
+    <string name="jac_devscan_reason_dev_known_malware">Это известная вредоносная программа: %1$s.</string>
+    <string name="jac_devscan_reason_dev_accessibility_active">Оно установлено не из магазина приложений, и у него включены Специальные возможности — оно видит ваш экран и может нажимать кнопки за вас.</string>
+    <string name="jac_devscan_reason_dev_sms_role">Оно установлено не из магазина приложений и выбрано приложением для SMS — каждый SMS-код сначала попадает к нему.</string>
+    <string name="jac_devscan_reason_dev_sms_access">Оно установлено не из магазина приложений, и ему разрешено читать ваши SMS, включая банковские коды.</string>
+    <string name="jac_devscan_reason_dev_notification_access">Оно может читать все ваши уведомления, включая приходящие в них коды.</string>
+    <string name="jac_devscan_reason_dev_device_admin_active">Оно — администратор устройства, поэтому его нельзя удалить.</string>
+    <string name="jac_devscan_reason_dev_hidden_icon">Оно скрыло свой значок — на главном экране его не видно.</string>
+    <string name="jac_devscan_reason_dev_overlay_accessibility">Оно показывает окна поверх других приложений и управляет экраном — так поверх банковских приложений показывают поддельные окна входа.</string>
+    <string name="jac_devscan_reason_dev_ussd_combo">Оно может звонить и читать SMS — этого достаточно, чтобы отправлять USSD-коды и переводить деньги.</string>
+    <string name="jac_devscan_reason_dev_dropper">Оно может устанавливать другие приложения — так вредоносные программы часто доставляют основную часть.</string>
+    <string name="jac_devscan_reason_dev_junk_package">Его внутреннее имя выглядит случайным и одноразовым — это типично для конструкторов вредоносных программ.</string>
+    <string name="jac_devscan_reason_dev_blank_label">У него нет видимого названия.</string>
+    <string name="jac_devscan_reason_dev_fake_store_package">Оно использует внутреннее имя магазина приложений, но магазином не является — так установленные им приложения выглядят как установленные из магазина.</string>
+    <string name="jac_devscan_reason_dev_brand_package_sideloaded">Оно имеет собственный идентификатор приложения %1$s, но установлено не из магазина приложений.</string>
+    <string name="jac_devscan_reason_dev_store_claim_orphaned">Оно сообщает, что установлено из магазина приложений, но установившего его приложения на телефоне больше нет.</string>
+    <string name="jac_devscan_reason_dev_sideloaded">Оно установлено не из магазина приложений, а другим приложением (%1$s).</string>
+    <string name="jac_devscan_reason_dev_sideloaded_file">Оно установлено не из магазина приложений, а из APK-файла.</string>
+    <string name="jac_devscan_reason_dev_sideloaded_unknown">Оно установлено не из магазина приложений, а из неизвестного источника.</string>
+    <string name="jac_devscan_reason_apk_debuggable">Это отладочная (debug) сборка, а не опубликованное приложение.</string>
+    <string name="jac_devscan_reason_apk_request_install_packages">Оно может устанавливать другие приложения.</string>
+    <string name="jac_devscan_reason_apk_evasive_structure">Этот установочный файл собран так, чтобы скрыть своё содержимое от проверок безопасности. Обычные приложения так не делают — так делают вредоносные.</string>
+    <string name="jac_devscan_reason_apk_requests_sms">Оно запрашивает доступ к вашим SMS — именно так крадут одноразовые коды банков.</string>
+    <string name="jac_devscan_reason_impersonation_package">Его внутреннее имя почти совпадает с официальным приложением %1$s, но это не оно.</string>
+    <string name="jac_devscan_reason_generic">Проверка нашла в нём что-то необычное.</string>
+    <string name="jac_devscan_short_known_malware">Вредонос: %1$s</string>
+    <string name="jac_devscan_short_accessibility">Управляет экраном</string>
+    <string name="jac_devscan_short_sms_role">Выбрано приложением для SMS</string>
+    <string name="jac_devscan_short_sms_access">Читает ваши SMS</string>
+    <string name="jac_devscan_short_notifications">Читает уведомления</string>
+    <string name="jac_devscan_short_device_admin">Администратор устройства</string>
+    <string name="jac_devscan_short_hidden_icon">Скрывает свой значок</string>
+    <string name="jac_devscan_short_overlay">Окна поверх приложений</string>
+    <string name="jac_devscan_short_ussd">Звонит и читает SMS</string>
+    <string name="jac_devscan_short_installs_apps">Ставит приложения</string>
+    <string name="jac_devscan_short_evasive">Прячет содержимое от проверок</string>
+    <string name="jac_devscan_short_requests_sms">Запрашивает доступ к SMS</string>
+    <string name="jac_devscan_short_junk_name">Случайное имя пакета</string>
+    <string name="jac_devscan_short_no_name">Нет названия</string>
+    <string name="jac_devscan_short_fake_store">Выдаёт себя за магазин</string>
+    <string name="jac_devscan_short_brand_sideloaded">%1$s не из магазина</string>
+    <string name="jac_devscan_short_store_claim_orphaned">Установщика больше нет</string>
+    <string name="jac_devscan_short_sideloaded">Не из магазина приложений</string>
+    <string name="jac_devscan_short_impersonation">Подделка под %1$s</string>
+    <string name="jac_devscan_short_sms_accessibility">Читает SMS, управляет экраном</string>
+    <string name="jac_devscan_short_debuggable">Отладочная сборка</string>
+    <string name="jac_devscan_short_unsigned">Нет подписи</string>
+    <string name="jac_devscan_short_unusual">Необычное приложение</string>
+
+    <!-- Защита ссылок. A site on the trusted list is «в списке доверенных»,
+         never «безопасный». -->
+    <string name="jac_linkguard_title">Защита ссылок</string>
+    <string name="jac_linkguard_unknown_title">Неизвестный сайт</string>
+    <string name="jac_linkguard_dangerous_title">Опасный сайт</string>
+    <string name="jac_linkguard_reason_unknown">Этого сайта нет в списке доверенных сайтов Humogram.</string>
+    <string name="jac_linkguard_reason_excluded">Этот адрес исключён из списка доверенных сайтов Humogram — обычно потому, что страницу там может разместить кто угодно.</string>
+    <string name="jac_linkguard_reason_unreadable">Humogram не смог прочитать этот адрес и поэтому не смог проверить, куда он ведёт.</string>
+    <string name="jac_linkguard_reason_impersonation">Этот адрес написан так, чтобы походить на известный сайт, но это другой сайт.</string>
+    <string name="jac_linkguard_reason_blocked">Этот сайт в чёрном списке Humogram.</string>
+    <string name="jac_linkguard_reason_blocked_phishing">Этот сайт в чёрном списке Humogram: он выдаёт себя за настоящий сервис, чтобы украсть пароли и данные карт.</string>
+    <string name="jac_linkguard_reason_blocked_malware">Этот сайт в чёрном списке Humogram: он распространяет вредоносные приложения и файлы.</string>
+    <string name="jac_linkguard_reason_blocked_scam">Этот сайт в чёрном списке Humogram: через него у людей выманивают деньги.</string>
+    <string name="jac_linkguard_reason_blocked_ip_grabber">Этот сайт в чёрном списке Humogram: он записывает IP-адрес и сведения об устройстве каждого, кто откроет ссылку.</string>
+    <string name="jac_linkguard_hidden_text">В сообщении эта ссылка показана как «%1$s».</string>
+    <string name="jac_linkguard_now_blocked">Этот сайт только что добавлен в чёрный список Humogram.</string>
+    <string name="jac_linkguard_confirm_title">Всё равно открыть?</string>
+    <string name="jac_linkguard_confirm_unknown">Humogram не знает сайт %1$s. Если страница попросит пароль, номер карты или код из SMS — закройте её: именно так крадут деньги.</string>
+    <string name="jac_linkguard_confirm_dangerous">Сайт %1$s отмечен в Humogram как опасный. Не вводите там пароли, данные карт и коды из SMS и ничего оттуда не устанавливайте.</string>
+    <string name="jac_linkguard_confirm_checkbox">Я понимаю, что этот сайт может украсть мои деньги или данные</string>
 </resources>

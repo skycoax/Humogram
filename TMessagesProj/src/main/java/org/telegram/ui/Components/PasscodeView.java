@@ -949,23 +949,6 @@ public class PasscodeView extends FrameLayout implements NotificationCenter.Noti
                 return;
             }
             if (!SharedConfig.checkPasscode(password)) {
-                // Humogram: the duress passcode is checked only after the real
-                // one is ruled out, so the real code always wins a tie and can
-                // never trigger a wipe. On a match this triggers an OS-level
-                // wipe of all app data and kills the process.
-                //
-                // We return immediately and do NOT fall through to the unlock
-                // path. clearApplicationUserData()'s process kill is async, so
-                // the process lives on for a moment; letting the unlock path run
-                // in that window would re-persist SharedConfig over the wipe and
-                // briefly reveal the chats behind the lock screen. Returning
-                // leaves the lock screen up, frozen, until the OS tears the
-                // process down — nothing is unlocked and nothing is rewritten.
-                if (uz.jac.secure.android.DuressConfig.isDuress(getContext(), password)) {
-                    uz.jac.secure.android.DuressAction.run(getContext(),
-                            uz.jac.secure.android.DuressConfig.getAction(getContext()));
-                    return;
-                } else {
                 SharedConfig.increaseBadPasscodeTries();
                 if (SharedConfig.passcodeRetryInMs > 0) {
                     checkRetryTextView();
@@ -984,7 +967,6 @@ public class PasscodeView extends FrameLayout implements NotificationCenter.Noti
                     }
                 }
                 return;
-                }
             }
         }
         SharedConfig.badPasscodeTries = 0;

@@ -292,13 +292,23 @@ public class Browser {
         if (context == null || uri == null) {
             return;
         }
-        // Humogram: strip tracking parameters (utm_*, fbclid, gclid, ...) here,
-        // at the one funnel every open path goes through, so a link is cleaned
-        // the same way no matter where it was tapped.
-        uri = uz.jac.secure.android.LinkHygiene.clean(context, uri);
         final int currentAccount = UserConfig.selectedAccount;
         boolean[] forceBrowser = new boolean[]{false};
         boolean internalUri = isInternalUri(uri, forceBrowser);
+        // Humogram: the link guard. A site that is not on the trusted list is
+        // asked about twice before it opens, and this is the one funnel every
+        // open path shares. After isInternalUri so t.me and tg: links never
+        // prompt, before the telegra.ph lookup so nothing goes out for a link
+        // the user has not approved. "Proceed" is this very call again, so
+        // custom tabs, the in-app browser and the progress are chosen exactly
+        // as they would have been.
+        if (!internalUri) {
+            final Uri guardUri = uri;
+            final boolean guardCustom = _allowCustom, guardTelegraph = tryTelegraph;
+            if (uz.jac.secure.android.LinkGuardUi.intercept(context, uri.toString(), () -> openUrl(context, guardUri, guardCustom, guardTelegraph, forceNotInternalForApps, inCaseLoading, browser, allowIntent, allowInAppBrowser, forceRequest))) {
+                return;
+            }
+        }
         String browserPackage = getBrowserPackageName(browser);
         if (browserPackage != null) {
             tryTelegraph = false;
@@ -457,9 +467,6 @@ public class Browser {
     }
     public static boolean openAsInternalIntent(Context context, String url, boolean forceNotInternalForApps, boolean forceRequest, Progress progress) {
         if (url == null) return false;
-        // Humogram: reachable without going through openUrl (bot menu web
-        // views), so it has to strip trackers too.
-        url = uz.jac.secure.android.LinkHygiene.clean(context, url);
         LaunchActivity activity = null;
         if (AndroidUtilities.findActivity(context) instanceof LaunchActivity) {
             activity = (LaunchActivity) AndroidUtilities.findActivity(context);
@@ -492,8 +499,12 @@ public class Browser {
 
     public static boolean openInTelegramBrowser(Context context, String url, Browser.Progress progress) {
         // Humogram: the link long-press menu calls this directly, bypassing
-        // openUrl, so it has to strip trackers too.
-        url = uz.jac.secure.android.LinkHygiene.clean(context, url);
+        // openUrl, so the link guard has to ask here too. A call that arrives
+        // from openUrl was approved there and passes straight through.
+        final String guardUrl = url;
+        if (uz.jac.secure.android.LinkGuardUi.intercept(context, url, () -> openInTelegramBrowser(context, guardUrl, progress))) {
+            return true;
+        }
         if (LaunchActivity.instance != null) {
             BottomSheetTabs tabs = LaunchActivity.instance.getBottomSheetTabs();
             if (tabs != null && tabs.tryReopenTab(url) != null) {
@@ -519,8 +530,12 @@ public class Browser {
     public static boolean openInExternalBrowser(Context context, String url, boolean allowIntent, String browser) {
         if (url == null) return false;
         // Humogram: the link long-press menu calls this directly, bypassing
-        // openUrl, so it has to strip trackers too.
-        url = uz.jac.secure.android.LinkHygiene.clean(context, url);
+        // openUrl, so the link guard has to ask here too. A call that arrives
+        // from openUrl was approved there and passes straight through.
+        final String guardUrl = url;
+        if (uz.jac.secure.android.LinkGuardUi.intercept(context, url, () -> openInExternalBrowser(context, guardUrl, allowIntent, browser))) {
+            return true;
+        }
         try {
             Uri uri = Uri.parse(url);
             final boolean isIntentScheme = uri.getScheme() != null && uri.getScheme().equalsIgnoreCase("intent");

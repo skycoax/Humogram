@@ -93,6 +93,7 @@ public final class ScanUi {
             SignalCodes.DOUBLE_EXTENSION,
             SignalCodes.CONFUSABLE_NAME,
             SignalCodes.APK_DANGEROUS_PERMISSIONS,
+            SignalCodes.APK_EVASIVE_STRUCTURE,
             SignalCodes.APK_SMS_AND_ACCESSIBILITY,
             SignalCodes.APK_OVERLAY_COMBO,
             SignalCodes.APK_DEVICE_ADMIN,
@@ -147,6 +148,8 @@ public final class ScanUi {
         TEMPLATES.put(SignalCodes.APK_DEVICE_ADMIN, new Template(R.string.jac_reason_device_admin, 0));
         TEMPLATES.put(SignalCodes.APK_UNSIGNED, new Template(R.string.jac_reason_unsigned, 0));
         TEMPLATES.put(SignalCodes.APK_INSTALLABLE, new Template(R.string.jac_reason_apk_installable, 0));
+        // One sentence for both scanners: the device scan page words it too.
+        TEMPLATES.put(SignalCodes.APK_EVASIVE_STRUCTURE, new Template(R.string.jac_devscan_reason_apk_evasive_structure, 0));
         TEMPLATES.put(SignalCodes.OOXML_MACRO, new Template(R.string.jac_reason_macro, 0));
         TEMPLATES.put(SignalCodes.OOXML_REMOTE_TEMPLATE, new Template(R.string.jac_reason_remote_template, 0));
         TEMPLATES.put(SignalCodes.PDF_JAVASCRIPT, new Template(R.string.jac_reason_macro, 0));
@@ -358,7 +361,7 @@ public final class ScanUi {
         LINK_TEMPLATES.put("DIGIT_FOLD", new Template(R.string.jac_reason_homograph, 1));
         LINK_TEMPLATES.put("TYPO_DISTANCE", new Template(R.string.jac_reason_typo, 1));
         LINK_TEMPLATES.put("SUBDOMAIN_SPOOF", new Template(R.string.jac_reason_subdomain, 2));
-        LINK_TEMPLATES.put("TLD_SWAP", new Template(R.string.jac_reason_typo, 1));
+        LINK_TEMPLATES.put("TLD_SWAP", new Template(R.string.jac_reason_tld_swap, 1));
         LINK_TEMPLATES.put("BRAND_IN_DOMAIN", new Template(R.string.jac_reason_brand_in_domain, 1));
         LINK_TEMPLATES.put("USERINFO_IN_URL", new Template(R.string.jac_reason_userinfo, 0));
         LINK_TEMPLATES.put("BIDI_IN_URL", new Template(R.string.jac_reason_userinfo, 0));

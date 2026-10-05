@@ -11182,7 +11182,7 @@
 
     <string name="jac_about_scanner_heading">What the scanner does</string>
 
-    <string name="jac_about_scanner_body">Every file you receive is checked before it can be opened or shared, and every link is checked before it opens. All checks run entirely on your device — no files, digital fingerprints, links, file names, or message text are ever sent anywhere for scanning.\n\nSecret chats are checked the same way, on your device only.</string>
+    <string name="jac_about_scanner_body">Every file you receive is checked before it can be opened or shared, and every link is checked before it opens. These checks run entirely on your device — no files, digital fingerprints, links, file names or message text are sent anywhere for them. Secret chats are checked the same way, on your device only.\n\nThe virus scanner for installed apps also works entirely on your device; nothing about your apps is sent anywhere.\n\nThe lists of trusted and blocked sites are downloaded from lists.skycoax.uz as one public file; nothing about your links is sent.</string>
 
     <string name="jac_about_licence_heading">Licence and source</string>
 
@@ -11195,7 +11195,13 @@
 
     <string name="jac_privacy_url" translatable="false">https://hg.skycoax.uz/privacy</string>
 
-    <string name="jac_api_base_url" translatable="false">https://sky.bestcenter.uz</string>
+    <!-- Link guard: where the signed trusted/blocked site list is pulled from, and the
+         public keys (current, then offline backup) its signature must verify against.
+         The app only ever downloads this one file; nothing about the user's links is
+         sent. -->
+    <string name="jac_linkguard_lists_url" translatable="false">https://lists.skycoax.uz/v1/lists.json</string>
+
+    <string name="jac_linkguard_pubkeys" translatable="false">MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7VgT9WzR3OuRRejNi8pGwq9TjGhaWYeukCn120FqseH3SttLW6YIQveWzABlJuTtwUYlDeG8rrE00fzpomYagg== MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAElJgATOyF28+ULVQBTbxdCFs5FddVhLglEUilbdf7I0L2UW0uudUx0/Rwp+0JGkVYfPttlFexg8Mtky4+dsRpiQ==</string>
 
 
     <string name="jac_outgoing_title">You are about to send a dangerous file</string>
@@ -11278,21 +11284,6 @@
     <string name="jac_quarantine_confirm_cancel">Cancel</string>
 
 
-    <string name="jac_deepscan_title">Send this file for a deeper check?</string>
-
-    <string name="jac_deepscan_body">To check this file more thoroughly, <b>a copy of it will be sent from your phone to the Humogram scanning service</b>.\n\nThe file will be analysed there and deleted within 24 hours. It will not be shared with anyone else and will not be published to any public antivirus service.\n\nDo not send files that contain private information you would not want to leave your phone.</string>
-
-    <string name="jac_deepscan_file_info">File: %1$s · %2$s</string>
-
-    <string name="jac_deepscan_accept">Send and check</string>
-
-    <string name="jac_deepscan_decline">Don\'t send</string>
-
-    <string name="jac_deepscan_running">Checking… this can take a few minutes</string>
-
-    <string name="jac_deepscan_consent_version" translatable="false">deepscan-consent-v1</string>
-
-
     <string name="jac_link_dangerous_title">This link is a known scam</string>
 
     <string name="jac_link_suspicious_title">This link looks suspicious</string>
@@ -11317,6 +11308,7 @@
     <string name="jac_reason_homograph">This address is written with letters that look identical to %1$s, but it is a different site.</string>
 
     <string name="jac_reason_typo">This address is one or two letters away from %1$s.</string>
+    <string name="jac_reason_tld_swap">This address has the same name as %1$s but a different ending. It may belong to someone else.</string>
 
     <string name="jac_reason_subdomain">%1$s appears in the address, but the real site is %2$s.</string>
 
@@ -11423,47 +11415,171 @@
     <string name="jac_ornament_off">None</string>
     <string name="jac_ornament_note">The pattern is drawn faintly along the top and bottom of the chat list. It follows your theme and never covers your chats.</string>
     <string name="jac_security_header">Security</string>
-    <string name="jac_checkup">Device check</string>
-    <string name="jac_checkup_results">Results</string>
-    <string name="jac_checkup_ok">OK</string>
-    <string name="jac_checkup_warn">Attention</string>
-    <string name="jac_checkup_risk">Risk</string>
-    <string name="jac_checkup_unknown">Couldn\'t check</string>
-    <string name="jac_checkup_screen_lock">Screen lock</string>
-    <string name="jac_checkup_screen_lock_advice">Without a screen lock, anyone who picks up the phone gets all your chats. Set a PIN, pattern or fingerprint in system settings.</string>
-    <string name="jac_checkup_root">Root access</string>
-    <string name="jac_checkup_root_advice">This device appears to be rooted. Root lets any app read other apps\' data, including your messages. If you didn\'t root it yourself, have the phone checked.</string>
-    <string name="jac_checkup_adb">USB debugging</string>
-    <string name="jac_checkup_adb_advice">USB debugging lets a computer control this phone over a cable. Handy for developers, risky for everyone else — turn it off unless you are using it right now.</string>
-    <string name="jac_checkup_patch">Security updates</string>
-    <string name="jac_checkup_patch_advice">The last security update on this phone is over a year old, so known vulnerabilities stay open. Check for a system update; if none comes, treat this device as less trusted.</string>
-    <string name="jac_checkup_2fa">Cloud password (2FA)</string>
-    <string name="jac_checkup_2fa_advice">A cloud password protects the account even if someone intercepts the login code from SMS. It is the single most important Telegram setting.</string>
-    <string name="jac_checkup_open_settings">Open settings</string>
-    <string name="jac_checkup_set_up">Set up</string>
-    <string name="jac_checkup_note">The device checks run here on your phone. Only the cloud password status is asked of Telegram, the same way Settings does; nothing is sent anywhere else.</string>
-    <string name="jac_checkup_remind">It\'s been a while since the last security check, and this device has something worth a look.</string>
-    <string name="jac_checkup_remind_open">Check</string>
-    <string name="jac_link_hygiene">Remove trackers from links</string>
-    <string name="jac_link_hygiene_info">Before a link opens, tracking tags (utm_*, fbclid, gclid and similar) are cut from it. The page loads the same; the advertiser learns less about you.</string>
     <string name="jac_channel">Cyber-safety channel (recommended)</string>
     <string name="jac_channel_hint_title">Stay safe from fraud</string>
     <string name="jac_channel_hint_text">Cyber-awareness channel we recommend: %1$s</string>
-    <string name="jac_duress">Panic passcode</string>
-    <string name="jac_duress_on">On</string>
-    <string name="jac_duress_off">Off</string>
-    <string name="jac_duress_intro">A second passcode you can give up under pressure. Entering it erases everything this app stores on the phone and restarts it — accounts, chats, downloaded files — so what remains is a fresh, empty Telegram. Files you already saved to your gallery are not affected.\n\nFor this to fully protect you, also set a Two-Step Verification password: without it, someone holding your SIM could sign back in by SMS and read your cloud history.</string>
-    <string name="jac_duress_cleared">Panic passcode removed: it now matches your app passcode. Set a new, different one.</string>
-    <string name="jac_duress_need_passcode">Set an app passcode first</string>
-    <string name="jac_duress_need_passcode_info">A panic passcode only works when the app has a lock to demand a code. Set an app passcode, then come back here.</string>
-    <string name="jac_duress_set">Set panic passcode</string>
-    <string name="jac_duress_change">Change panic passcode</string>
-    <string name="jac_duress_remove">Remove panic passcode</string>
-    <string name="jac_duress_enter">Panic passcode</string>
-    <string name="jac_duress_confirm">Repeat it</string>
-    <string name="jac_duress_save">Save</string>
-    <string name="jac_duress_same_as_real">This is your real passcode. The panic passcode must be different, or your normal unlock would wipe the app.</string>
-    <string name="jac_duress_action_info">When entered, all data this app keeps on the phone is erased and the app restarts empty. A logout is also sent to the server when there is a connection. This cannot be undone, so choose a code you will not enter by mistake.</string>
     <string name="jac_creator">Creator</string>
     <string name="jac_made_by">Made by %1$s</string>
+
+    <!-- Device virus scanner: the page, its launch notice and alerts, and one
+         reason sentence (jac_devscan_reason_*) plus one row-length phrase
+         (jac_devscan_short_*) per finding code. Keep all three languages in
+         this order. -->
+    <string name="jac_devscan_title">Virus scanner</string>
+    <string name="jac_devscan_status_none">No threats</string>
+    <string name="jac_devscan_status_threats">Threats: %1$d</string>
+    <string name="jac_devscan_status_off">Off</string>
+    <string name="jac_devscan_status_never">Not checked</string>
+    <string name="jac_devscan_status_scanning">Checking…</string>
+    <string name="jac_devscan_status_unavailable">Unavailable</string>
+    <string name="jac_devscan_summary_clean">No threats found</string>
+    <string name="jac_devscan_summary_threats">Threats found: %1$d</string>
+    <string name="jac_devscan_summary_never">Not checked yet</string>
+    <string name="jac_devscan_summary_never_hint">Tap “Scan now” to check the apps on this phone.</string>
+    <string name="jac_devscan_summary_scanning">Checking… %1$d of %2$d</string>
+    <string name="jac_devscan_summary_preparing">Getting the list of apps…</string>
+    <string name="jac_devscan_summary_unavailable">Scanner unavailable</string>
+    <string name="jac_devscan_summary_unavailable_hint">The scanner failed to start. Restart Humogram and try again.</string>
+    <string name="jac_devscan_summary_failed">The check did not finish</string>
+    <string name="jac_devscan_summary_failed_hint">Nothing was checked this time. Tap “Scan now” to try again.</string>
+    <string name="jac_devscan_summary_checked_at">Last check: %1$s</string>
+    <string name="jac_devscan_summary_apps">Apps checked: %1$d</string>
+    <string name="jac_devscan_summary_files">APK files checked: %1$d</string>
+    <string name="jac_devscan_engine_local">Checked on this phone</string>
+    <string name="jac_devscan_scan_now">Scan now</string>
+    <string name="jac_devscan_intro">Checks the apps installed on this phone and the APK files in Humogram\'s downloads for known malware and for the tricks banking trojans use.</string>
+    <string name="jac_devscan_threats_header">Threats</string>
+    <string name="jac_devscan_attention_header">Worth a look</string>
+    <string name="jac_devscan_attention_info">Not threats by themselves — each row says why it is listed. Just make sure you know where each one came from.</string>
+    <string name="jac_devscan_show_more">Show more (%1$d)</string>
+    <string name="jac_devscan_files_header">APK files in Humogram downloads</string>
+    <string name="jac_devscan_files_info">App installers you received in chats. Delete the ones you don\'t need — no bank will ever send you an app to install.</string>
+    <string name="jac_devscan_trusted_header">Trusted apps</string>
+    <string name="jac_devscan_trusted_info">Humogram does not warn about apps you trust. Trust ends when the app updates, and the new version is checked again.</string>
+    <string name="jac_devscan_on_launch">Scan for viruses at launch</string>
+    <string name="jac_devscan_risk_malicious">Virus</string>
+    <string name="jac_devscan_risk_counterfeit">Counterfeit</string>
+    <string name="jac_devscan_risk_dangerous">Dangerous</string>
+    <string name="jac_devscan_risk_suspicious">Suspicious</string>
+    <string name="jac_devscan_risk_notice">Attention</string>
+    <string name="jac_devscan_risk_trusted">Trusted</string>
+    <string name="jac_devscan_verdict_malicious">This app is malware. Uninstall it.</string>
+    <string name="jac_devscan_verdict_counterfeit">This app pretends to be %1$s. Do not enter card details or codes in it.</string>
+    <string name="jac_devscan_verdict_dangerous">This app has what banking trojans need to steal money. If you did not install it on purpose, uninstall it.</string>
+    <string name="jac_devscan_verdict_suspicious">Something about this app looks wrong. Check where it came from.</string>
+    <string name="jac_devscan_verdict_notice">Not a threat by itself — just make sure you know where it came from.</string>
+    <string name="jac_devscan_file_verdict_malicious">This installer contains malware. Delete it and do not install it.</string>
+    <string name="jac_devscan_file_verdict_other">An app installer received in a chat. Install apps only from an app store.</string>
+    <string name="jac_devscan_version">Version %1$s</string>
+    <string name="jac_devscan_source_store">Installed from %1$s</string>
+    <string name="jac_devscan_source_store_generic">Installed from an app store</string>
+    <string name="jac_devscan_source_file">Installed from a file</string>
+    <string name="jac_devscan_source_unknown">Installed from an unknown source</string>
+    <string name="jac_devscan_source_app">Installed by %1$s</string>
+    <string name="jac_devscan_source_system">Pre-installed</string>
+    <string name="jac_devscan_uninstall">Uninstall</string>
+    <string name="jac_devscan_app_info">App info</string>
+    <string name="jac_devscan_trust">Trust</string>
+    <string name="jac_devscan_untrust">Don\'t trust</string>
+    <string name="jac_devscan_trust_confirm_title">Trust this app?</string>
+    <string name="jac_devscan_trust_confirm">Humogram will stop warning about “%1$s” until it updates. Do this only if you are sure where it came from.</string>
+    <string name="jac_devscan_trusted_done">“%1$s” is now trusted</string>
+    <string name="jac_devscan_untrusted_done">“%1$s” is no longer trusted</string>
+    <string name="jac_devscan_a11y_advice">This app has Accessibility turned on: it can see your screen and press buttons for you — even the one that cancels uninstalling. Turn it off in Accessibility settings first.</string>
+    <string name="jac_devscan_open_a11y">Accessibility settings</string>
+    <string name="jac_devscan_admin_advice">This app is a device administrator, so Android will not let you remove it yet. Turn it off under Device admin apps in your phone\'s security settings — the button below opens them — then uninstall it.</string>
+    <string name="jac_devscan_open_security">Security settings</string>
+    <string name="jac_devscan_sms_advice">It is set as your SMS app. Make your usual Messages app the default again — the button below opens the right settings screen.</string>
+    <string name="jac_devscan_open_default_apps">Default apps</string>
+    <string name="jac_devscan_delete_file">Delete file</string>
+    <string name="jac_devscan_file_deleted">File deleted</string>
+    <string name="jac_devscan_file_delete_failed">Couldn\'t delete the file</string>
+    <string name="jac_devscan_file_changed">This file is not the one that was checked. Checking again…</string>
+    <string name="jac_devscan_file_installs">Installs %1$s</string>
+    <string name="jac_devscan_notice_title">Check this phone for viruses?</string>
+    <string name="jac_devscan_notice_body">Humogram can check the apps on this phone for viruses every time it starts. To do this it reads the list of installed apps, their permissions and signatures, and the APK files in Humogram\'s downloads. The check runs on this phone; nothing is sent anywhere.\n\nYou can change this at any time in Settings → Device security.</string>
+    <string name="jac_devscan_notice_on">Turn on</string>
+    <string name="jac_devscan_notice_later">Not now</string>
+    <string name="jac_devscan_bulletin_danger_app_one">Dangerous app found: %1$s</string>
+    <string name="jac_devscan_bulletin_danger_app_many">Dangerous apps found: %1$d</string>
+    <string name="jac_devscan_bulletin_danger_app_hint">Review it in the virus scanner and uninstall it.</string>
+    <string name="jac_devscan_bulletin_danger_file_one">Dangerous file in downloads: %1$s</string>
+    <string name="jac_devscan_bulletin_danger_file_many">Dangerous files in downloads: %1$d</string>
+    <string name="jac_devscan_bulletin_danger_file_hint_one">It is not installed. Don\'t open it — delete it.</string>
+    <string name="jac_devscan_bulletin_danger_file_hint_many">They are not installed. Don\'t open them — delete them.</string>
+    <string name="jac_devscan_review">Review</string>
+    <string name="jac_devscan_bulletin_suspicious_one">“%1$s” looks suspicious</string>
+    <string name="jac_devscan_bulletin_suspicious_many">Suspicious apps found: %1$d</string>
+    <string name="jac_devscan_bulletin_clean_first">Apps checked: %1$d. No threats found.</string>
+    <string name="jac_devscan_bulletin_clean_new">New or updated apps checked: %1$d. No threats found.</string>
+    <string name="jac_devscan_reason_dev_known_malware">This is known malware: %1$s.</string>
+    <string name="jac_devscan_reason_dev_accessibility_active">It was installed from outside an app store and has Accessibility turned on, so it can see your screen and press buttons for you.</string>
+    <string name="jac_devscan_reason_dev_sms_role">It was installed from outside an app store and is set as your SMS app, so every SMS code reaches it first.</string>
+    <string name="jac_devscan_reason_dev_sms_access">It was installed from outside an app store and is allowed to read your SMS, including bank codes.</string>
+    <string name="jac_devscan_reason_dev_notification_access">It can read all your notifications, including codes that arrive in them.</string>
+    <string name="jac_devscan_reason_dev_device_admin_active">It is a device administrator, which stops it from being uninstalled.</string>
+    <string name="jac_devscan_reason_dev_hidden_icon">It has hidden its icon, so you cannot see it on the home screen.</string>
+    <string name="jac_devscan_reason_dev_overlay_accessibility">It can draw over other apps and control the screen — the way fake login screens are put over bank apps.</string>
+    <string name="jac_devscan_reason_dev_ussd_combo">It can make calls and read SMS — enough to send USSD codes and move money.</string>
+    <string name="jac_devscan_reason_dev_dropper">It can install other apps — a common way malware delivers its real payload.</string>
+    <string name="jac_devscan_reason_dev_junk_package">Its internal name looks random and throwaway, which is typical of malware kits.</string>
+    <string name="jac_devscan_reason_dev_blank_label">It has no visible name.</string>
+    <string name="jac_devscan_reason_dev_fake_store_package">It uses an app store\'s own internal name but is not that store — a way to make whatever it installs look like a store install.</string>
+    <string name="jac_devscan_reason_dev_brand_package_sideloaded">It carries %1$s\'s own app identifier, but it was not installed from an app store.</string>
+    <string name="jac_devscan_reason_dev_store_claim_orphaned">It says it came from an app store, but the app that installed it is no longer on this phone.</string>
+    <string name="jac_devscan_reason_dev_sideloaded">It was installed by another app (%1$s), not from an app store.</string>
+    <string name="jac_devscan_reason_dev_sideloaded_file">It was installed from an APK file, not from an app store.</string>
+    <string name="jac_devscan_reason_dev_sideloaded_unknown">It was installed from an unknown source, not from an app store.</string>
+    <string name="jac_devscan_reason_apk_debuggable">It is a debug build, not a published app.</string>
+    <string name="jac_devscan_reason_apk_request_install_packages">It can install other apps.</string>
+    <string name="jac_devscan_reason_apk_evasive_structure">This installer is built to hide its contents from security checks. Ordinary apps are not made this way; malware is.</string>
+    <string name="jac_devscan_reason_apk_requests_sms">It asks for access to your SMS — that is how one-time bank codes are stolen.</string>
+    <string name="jac_devscan_reason_impersonation_package">Its internal name is almost the same as %1$s\'s official app, but it is not that app.</string>
+    <string name="jac_devscan_reason_generic">The check found something unusual about it.</string>
+    <string name="jac_devscan_short_known_malware">Malware: %1$s</string>
+    <string name="jac_devscan_short_accessibility">Controls the screen</string>
+    <string name="jac_devscan_short_sms_role">Set as your SMS app</string>
+    <string name="jac_devscan_short_sms_access">Reads your SMS</string>
+    <string name="jac_devscan_short_notifications">Reads your notifications</string>
+    <string name="jac_devscan_short_device_admin">Device administrator</string>
+    <string name="jac_devscan_short_hidden_icon">Hides its icon</string>
+    <string name="jac_devscan_short_overlay">Draws over other apps</string>
+    <string name="jac_devscan_short_ussd">Makes calls, reads SMS</string>
+    <string name="jac_devscan_short_installs_apps">Installs other apps</string>
+    <string name="jac_devscan_short_evasive">Hides its contents from checks</string>
+    <string name="jac_devscan_short_requests_sms">Asks to read your SMS</string>
+    <string name="jac_devscan_short_junk_name">Random package name</string>
+    <string name="jac_devscan_short_no_name">No visible name</string>
+    <string name="jac_devscan_short_fake_store">Poses as an app store</string>
+    <string name="jac_devscan_short_brand_sideloaded">%1$s app, not from a store</string>
+    <string name="jac_devscan_short_store_claim_orphaned">Installer no longer here</string>
+    <string name="jac_devscan_short_sideloaded">Not from an app store</string>
+    <string name="jac_devscan_short_impersonation">Imitates %1$s</string>
+    <string name="jac_devscan_short_sms_accessibility">Reads SMS, controls the screen</string>
+    <string name="jac_devscan_short_debuggable">Debug build</string>
+    <string name="jac_devscan_short_unsigned">No signature</string>
+    <string name="jac_devscan_short_unusual">Unusual app</string>
+
+    <!-- Link guard: the red on a link to a site that is not on the trusted
+         list, the two confirmations before it opens, and its switch in
+         Humogram settings. A site on the trusted list is "on the trusted
+         list", never "safe". Keep all three languages in this order. -->
+    <string name="jac_linkguard_title">Link protection</string>
+    <string name="jac_linkguard_unknown_title">Unknown site</string>
+    <string name="jac_linkguard_dangerous_title">Dangerous site</string>
+    <string name="jac_linkguard_reason_unknown">This site is not on Humogram\'s list of trusted sites.</string>
+    <string name="jac_linkguard_reason_excluded">This address has been left out of Humogram\'s list of trusted sites — usually because anyone can publish a page there.</string>
+    <string name="jac_linkguard_reason_unreadable">Humogram could not read this address, so it could not check where it leads.</string>
+    <string name="jac_linkguard_reason_impersonation">This address is written to look like a well-known site, but it is a different one.</string>
+    <string name="jac_linkguard_reason_blocked">This site is on Humogram\'s block list.</string>
+    <string name="jac_linkguard_reason_blocked_phishing">This site is on Humogram\'s block list: it poses as a real service to steal passwords and card details.</string>
+    <string name="jac_linkguard_reason_blocked_malware">This site is on Humogram\'s block list: it spreads malicious apps and files.</string>
+    <string name="jac_linkguard_reason_blocked_scam">This site is on Humogram\'s block list: it is used to trick people out of their money.</string>
+    <string name="jac_linkguard_reason_blocked_ip_grabber">This site is on Humogram\'s block list: it records the IP address and device details of everyone who opens the link.</string>
+    <string name="jac_linkguard_hidden_text">In the message this link is shown as “%1$s”.</string>
+    <string name="jac_linkguard_now_blocked">This site has just been added to Humogram\'s block list.</string>
+    <string name="jac_linkguard_confirm_title">Open it anyway?</string>
+    <string name="jac_linkguard_confirm_unknown">Humogram does not know %1$s. If the page asks for a password, a card number or a code from an SMS, close it — that is how money gets stolen.</string>
+    <string name="jac_linkguard_confirm_dangerous">%1$s is marked as dangerous in Humogram. Do not enter passwords, card details or SMS codes there, and do not install anything it offers.</string>
+    <string name="jac_linkguard_confirm_checkbox">I understand this site may steal my money or data</string>
 </resources>

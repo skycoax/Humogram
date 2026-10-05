@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  O'zbekcha (lotin) — "Qurilma xavfsizligi" kartasi, Telegram’ning asosiy
+  Sozlamalar ekranida (uz.jac.secure.android.DeviceScanCard).
+
+  Translation notes:
+    * o‘ / g‘ are written with U+2018, the tutuq belgisi with U+2019, as in
+      strings.xml.
+    * Uzbek does not change the noun after a number ("1 ta ilova",
+      "108 ta ilova"), so both plural forms are the same sentence.
+    * One short line beside the ring: the page these words open says the rest.
+-->
+<resources>
+    <string name="jac_seccard_title">Qurilma xavfsizligi</string>
+    <string name="jac_seccard_scanning">Tekshiruvlar bajarilmoqda…</string>
+    <string name="jac_seccard_clean">Xavf topilmadi</string>
+    <plurals name="jac_seccard_apps_checked">
+        <item quantity="one">%1$d ta ilova tekshirildi</item>
+        <item quantity="other">%1$d ta ilova tekshirildi</item>
+    </plurals>
+    <plurals name="jac_seccard_threats">
+        <item quantity="one">%1$d ta xavf topildi</item>
+        <item quantity="other">%1$d ta xavf topildi</item>
+    </plurals>
+    <string name="jac_seccard_never">Hali tekshirilmagan</string>
+    <string name="jac_seccard_failed">Tekshiruv oxiriga yetmadi</string>
+    <string name="jac_seccard_unavailable">Tekshiruv ishlamayapti</string>
+    <string name="jac_seccard_a11y_progress">%1$d%% tekshirildi</string>
+</resources>

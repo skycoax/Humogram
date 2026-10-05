@@ -17,10 +17,17 @@ import org.telegram.ui.Components.UniversalFragment;
 import java.util.ArrayList;
 
 /**
- * Humogram's own settings — the few choices that make the app feel like the
- * user's rather than a stock client.
+ * Humogram's own page: the virus scanner first, then the few choices that
+ * make the app feel like the user's rather than a stock client.
  *
- * <p>For now that is the ornament the chat list wears: a suzani border, an
+ * <p>From the top: the device virus scanner ({@link DeviceScanSection} — the
+ * verdict ring with the protection percentage, "Scan now" and whatever the
+ * last scan found), because it is the app's main feature and has no page of
+ * its own; under any threats, the device check ({@link SecurityCheckupSection}:
+ * screen lock, root, USB debugging, security updates, cloud password), whose
+ * results count towards the same percentage; one card of security switches
+ * (scan at every launch, link protection) with the recommended cyber-safety
+ * channel; and the ornament the chat list wears — a suzani border, an
  * eight-point-star lattice, the crescent-and-stars of the Uzbek flag, or none.
  *
  * <h3>Why this is a fragment and not an Activity</h3>
@@ -38,6 +45,7 @@ import java.util.ArrayList;
  * {@link org.telegram.ui.SettingsActivity} and Telegram's own sub-pages use.
  * The list is described as {@link UItem}s and every pixel is drawn by upstream:
  * {@link org.telegram.ui.Cells.HeaderCell} for the section title,
+ * {@link org.telegram.ui.Cells.TextCheckCell} for the switch,
  * {@link org.telegram.ui.Cells.DialogRadioCell} for the options,
  * {@link org.telegram.ui.Cells.TextInfoPrivacyCell} for the footnote, and
  * {@code listView.setSections()} for the rounded cards. That means it inherits
@@ -54,20 +62,33 @@ public class HumogramSettingsActivity extends UniversalFragment {
      */
     private static final int BUTTON_ORNAMENT = 100;
 
-    private static final int BUTTON_CHECKUP = 1;
-    private static final int BUTTON_LINK_HYGIENE = 2;
     private static final int BUTTON_CHANNEL = 3;
-    private static final int BUTTON_DURESS = 4;
     private static final int BUTTON_CREATOR = 5;
+    private static final int CHECK_LINK_GUARD = 7;
 
-    /** The creator's handle, shown in the footer and opened on tap. */
-    private static final String CREATOR = "skycoax";
+    /**
+     * The creator's name, shown in the creator row and the footer. A proper
+     * name, so the same in every language rather than a translated string.
+     */
+    private static final String CREATOR_NAME = "Kamolov Muxammad";
+    /** The creator's Telegram handle, opened when the creator row is tapped. */
+    private static final String CREATOR_HANDLE = "skycoax";
 
     private OrnamentPreviewView preview;
+    private DeviceScanSection scan;
+    private SecurityCheckupSection checkup;
 
     @Override
     public View createView(Context context) {
         preview = new OrnamentPreviewView(context);
+        // Before super.createView: that is where the list is filled first.
+        final DeviceScanSection.Host refill = animated -> {
+            if (listView != null && listView.adapter != null) {
+                listView.adapter.update(animated);
+            }
+        };
+        scan = new DeviceScanSection(this, context, refill);
+        checkup = new SecurityCheckupSection(this, refill);
 
         fragmentView = super.createView(context);
 
@@ -78,7 +99,33 @@ public class HumogramSettingsActivity extends UniversalFragment {
         listView.setSections();
         actionBar.setAdaptiveBackground(listView);
 
+        scan.start(context);
         return fragmentView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (checkup != null) {
+            checkup.onResume();
+        }
+        if (scan != null) {
+            // Re-fills the list as well, which also re-runs the device check
+            // after a trip to system settings and picks up a link protection
+            // switch flipped on another path.
+            scan.onResume();
+        }
+    }
+
+    @Override
+    public void onFragmentDestroy() {
+        if (scan != null) {
+            scan.onDestroy();
+        }
+        if (checkup != null) {
+            checkup.onDestroy();
+        }
+        super.onFragmentDestroy();
     }
 
     @Override
@@ -91,13 +138,18 @@ public class HumogramSettingsActivity extends UniversalFragment {
         final Context context = getContext();
         final int selected = HumogramConfig.getOrnament(context);
 
+        if (scan != null) {
+            scan.fillItems(items, checkup != null ? () -> checkup.fillItems(items) : null);
+        } else if (checkup != null) {
+            checkup.fillItems(items);
+        }
+
         items.add(UItem.asHeader(JacStrings.get(context, R.string.jac_security_header)));
-        items.add(UItem.asButton(BUTTON_CHECKUP, JacStrings.get(context, R.string.jac_checkup)));
-        items.add(UItem.asButton(BUTTON_DURESS, JacStrings.get(context, R.string.jac_duress),
-                JacStrings.get(context, DuressConfig.isEnabled(context)
-                        ? R.string.jac_duress_on : R.string.jac_duress_off)));
-        items.add(UItem.asCheck(BUTTON_LINK_HYGIENE, JacStrings.get(context, R.string.jac_link_hygiene))
-                .setChecked(HumogramConfig.isLinkHygiene(context)));
+        if (scan != null) {
+            items.add(scan.launchCheck(context));
+        }
+        items.add(UItem.asCheck(CHECK_LINK_GUARD, JacStrings.get(context, R.string.jac_linkguard_title))
+                .setChecked(HumogramConfig.isLinkGuard(context)));
         if (!HumogramConfig.SECURITY_CHANNEL.isEmpty()) {
             // Value column names the handle and marks it a recommendation, so
             // the enduring settings surface cannot read as the app's own channel
@@ -106,7 +158,7 @@ public class HumogramSettingsActivity extends UniversalFragment {
                     JacStrings.get(context, R.string.jac_channel),
                     "@" + HumogramConfig.SECURITY_CHANNEL).accent());
         }
-        items.add(UItem.asShadow(JacStrings.get(context, R.string.jac_link_hygiene_info)));
+        items.add(UItem.asShadow(null));
 
         // The pattern at the size and strength it is actually drawn, on the
         // colour it is actually drawn over — the choice is made by looking.
@@ -122,9 +174,9 @@ public class HumogramSettingsActivity extends UniversalFragment {
 
         // Creator credit, at the very bottom where an app's "about" line lives.
         // A plain centred shadow, the same cell upstream ends its lists with;
-        // the handle is tappable via the row above it.
-        items.add(UItem.asButton(BUTTON_CREATOR, JacStrings.get(context, R.string.jac_creator), "@" + CREATOR));
-        items.add(UItem.asShadow(JacStrings.get(context, R.string.jac_made_by, "@" + CREATOR)));
+        // the row above it opens the creator's Telegram.
+        items.add(UItem.asButton(BUTTON_CREATOR, JacStrings.get(context, R.string.jac_creator), CREATOR_NAME));
+        items.add(UItem.asShadow(JacStrings.get(context, R.string.jac_made_by, CREATOR_NAME)));
     }
 
     private void addOrnament(ArrayList<UItem> items, int ornament, int labelRes, int selected) {
@@ -135,21 +187,19 @@ public class HumogramSettingsActivity extends UniversalFragment {
 
     @Override
     protected void onClick(UItem item, View view, int position, float x, float y) {
-        if (item.id == BUTTON_CHECKUP) {
-            presentFragment(new SecurityCheckupActivity());
+        if (scan != null && scan.onClick(item, view)) {
             return;
         }
-        if (item.id == BUTTON_DURESS) {
-            presentFragment(new DuressSetupActivity());
+        if (checkup != null && checkup.onClick(item)) {
             return;
         }
         if (item.id == BUTTON_CREATOR) {
-            org.telegram.messenger.browser.Browser.openUrl(getContext(), "https://t.me/" + CREATOR);
+            org.telegram.messenger.browser.Browser.openUrl(getContext(), "https://t.me/" + CREATOR_HANDLE);
             return;
         }
-        if (item.id == BUTTON_LINK_HYGIENE) {
-            final boolean on = !HumogramConfig.isLinkHygiene(getContext());
-            HumogramConfig.setLinkHygiene(getContext(), on);
+        if (item.id == CHECK_LINK_GUARD) {
+            final boolean on = !HumogramConfig.isLinkGuard(getContext());
+            HumogramConfig.setLinkGuard(getContext(), on);
             ((org.telegram.ui.Cells.TextCheckCell) view).setChecked(on);
             // The cell animates, but the adapter's cached item still holds the
             // old value and a scroll-recycled rebind would draw it: flip it too.

@@ -2808,6 +2808,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                                     if (block.quote && quoteLine != null) {
                                         pressedLink.setColor(Theme.multAlpha(quoteLine.getColor(), Theme.isCurrentThemeDark() ? .13f : .10f));
                                     }
+                                    // Humogram: a link the link guard drew red is highlighted red
+                                    // under the finger, not link-blue.
+                                    uz.jac.secure.android.LinkGuardUi.tintPressed(pressedLink);
                                     linkBlockNum = blockNum;
                                     linkExplanationBlockNum = -1;
                                     pressedLinkType = 1;
@@ -3031,6 +3034,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                                     if (block.quote && quoteLine != null) {
                                         pressedLink.setColor(Theme.multAlpha(quoteLine.getColor(), Theme.isCurrentThemeDark() ? .13f : .10f));
                                     }
+                                    // Humogram: a link the link guard drew red is highlighted red
+                                    // under the finger, not link-blue.
+                                    uz.jac.secure.android.LinkGuardUi.tintPressed(pressedLink);
                                     linkBlockNum = blockNum;
                                     linkExplanationBlockNum = -1;
                                     pressedLinkType = 1;
@@ -3236,6 +3242,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                                     if (block.quote && quoteLine != null) {
                                         pressedLink.setColor(Theme.multAlpha(quoteLine.getColor(), Theme.isCurrentThemeDark() ? .13f : .10f));
                                     }
+                                    // Humogram: a link the link guard drew red is highlighted red
+                                    // under the finger, not link-blue.
+                                    uz.jac.secure.android.LinkGuardUi.tintPressed(pressedLink);
                                     linkExplanationBlockNum = blockNum;
                                     linkBlockNum = -1;
                                     pressedLinkType = 1;

@@ -189,6 +189,10 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
 
     private int versionViewPressCount = 0;
 
+    // Humogram: the device scanner's status card, which follows the scanner
+    // only while this screen is in front (resume/pause below).
+    private final uz.jac.secure.android.DeviceScanCard.Controller deviceScanCard = new uz.jac.secure.android.DeviceScanCard.Controller();
+
     public SettingsActivity() {
         this(null);
     }
@@ -505,6 +509,21 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         getNotificationCenter().removeObserver(this, NotificationCenter.updateInterfaces);
         getNotificationCenter().removeObserver(this, NotificationCenter.starBalanceUpdated);
         getNotificationCenter().removeObserver(this, NotificationCenter.newSuggestionsAvailable);
+        deviceScanCard.destroy(); // Humogram: the scanner singleton must not keep this screen alive
+    }
+
+    // Humogram: show the last scan result and start a quick rescan each time
+    // this screen (or its tab) comes to the front; see DeviceScanCard.Controller.
+    @Override
+    public void onResume() {
+        super.onResume();
+        deviceScanCard.resume(getContext());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        deviceScanCard.pause();
     }
 
     @Override
@@ -693,6 +712,10 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         // and whatever else lands here) live together rather than being buried
         // among Telegram's.
         items.add(SettingCell.Factory.of(25, IconBackgroundColors.CYAN.top, IconBackgroundColors.CYAN.bottom, R.drawable.settings_features, uz.jac.secure.android.JacStrings.get(getContext(), R.string.jac_humogram_settings), uz.jac.secure.android.JacStrings.get(getContext(), R.string.jac_humogram_settings_info)));
+        items.add(UItem.asShadow(null));
+        // Humogram: the virus scanner is the app's main feature, so its status
+        // is on this screen, in its own card, rather than behind a page.
+        items.add(uz.jac.secure.android.DeviceScanCard.Factory.of(26, deviceScanCard));
         items.add(UItem.asShadow(null));
 
         items.add(SettingCell.Factory.of(1, IconBackgroundColors.BLUE.top, IconBackgroundColors.BLUE.bottom, R.drawable.settings_account, getString(R.string.SettingsAccount), getString(R.string.SettingsAccountInfo)));
@@ -910,6 +933,9 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                 break;
             }
             case 25:
+                presentSettingFragment(new uz.jac.secure.android.HumogramSettingsActivity());
+                break;
+            case 26: // Humogram: the device-security card opens the scanner, atop Humogram's page
                 presentSettingFragment(new uz.jac.secure.android.HumogramSettingsActivity());
                 break;
         }

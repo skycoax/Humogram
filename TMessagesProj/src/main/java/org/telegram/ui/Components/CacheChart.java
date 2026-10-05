@@ -107,6 +107,28 @@ public class CacheChart extends View {
 
     private StarParticlesView.Drawable completeDrawable;
 
+    // Humogram: the virus scanner reuses this "done" ring for its verdict, and
+    // "threats found" needs the same ring in red with an exclamation mark and
+    // no celebratory stars. Defaults reproduce upstream exactly.
+    public static final int COMPLETE_ICON_CHECK = 0;
+    public static final int COMPLETE_ICON_ALERT = 1;
+    private int completeIcon = COMPLETE_ICON_CHECK;
+    private boolean completeParticles = true;
+    private boolean sizeText = true; // the "0 KB" readout means nothing to a verdict
+
+    public void setCompleteStyle(int icon, int colorTop, int colorBottom, boolean particles) {
+        completeIcon = icon;
+        completeParticles = particles;
+        sizeText = false;
+        final int[] colors = new int[] { colorTop & 0x00FFFFFF, colorTop, colorBottom, colorBottom & 0x00FFFFFF };
+        completeGradient = new LinearGradient(0, 0, 0, AndroidUtilities.dp(200), colors, new float[] { 0, .07f, .93f, 1 }, Shader.TileMode.CLAMP);
+        completeGradient.setLocalMatrix(completeGradientMatrix);
+        completePaintStroke.setShader(completeGradient);
+        completePaint.setShader(completeGradient);
+        completePathBounds = null;
+        invalidate();
+    }
+
     private static long particlesStart = -1;
     class Sector {
 
@@ -816,7 +838,7 @@ public class CacheChart extends View {
             sector.draw(canvas, chartBounds, chartInnerBounds, angleCenter, angleSize, rounding, 1f - complete, 1f - loading);
         }
 
-        if (type == TYPE_CACHE) {
+        if (type == TYPE_CACHE && sizeText) { // Humogram: see setCompleteStyle
             float textAlpha = (1f - loading) * (1f - complete);
             float topTextX = chartBounds.centerX();
             float topTextY = chartBounds.centerY() - dpf2(5);
@@ -864,11 +886,13 @@ public class CacheChart extends View {
                 completeDrawable.resetPositions();
             }
 
-            canvas.saveLayerAlpha(0, 0, getWidth(), getHeight(), 255, Canvas.ALL_SAVE_FLAG);
-            completeDrawable.onDraw(canvas, complete);
-            completePaint.setAlpha((int) (0xFF * complete));
-            canvas.drawRect(0, 0, getWidth(), getHeight(), completePaint);
-            canvas.restore();
+            if (completeParticles) { // Humogram: see setCompleteStyle
+                canvas.saveLayerAlpha(0, 0, getWidth(), getHeight(), 255, Canvas.ALL_SAVE_FLAG);
+                completeDrawable.onDraw(canvas, complete);
+                completePaint.setAlpha((int) (0xFF * complete));
+                canvas.drawRect(0, 0, getWidth(), getHeight(), completePaint);
+                canvas.restore();
+            }
 
             completePaintStroke.setStrokeWidth(thickness);
             completePaintStroke.setAlpha((int) (0xFF * complete));
@@ -880,7 +904,12 @@ public class CacheChart extends View {
                 }
                 completePathBounds.set(chartMeasureBounds);
                 completePath.rewind();
-                if (type == TYPE_CACHE) {
+                if (type == TYPE_CACHE && completeIcon == COMPLETE_ICON_ALERT) { // Humogram: "!" — a bar, then a round-capped dot
+                    completePath.moveTo(chartBounds.width() * .5f, chartBounds.height() * .32f);
+                    completePath.lineTo(chartBounds.width() * .5f, chartBounds.height() * .56f);
+                    completePath.moveTo(chartBounds.width() * .5f, chartBounds.height() * .68f);
+                    completePath.lineTo(chartBounds.width() * .5f, chartBounds.height() * .681f);
+                } else if (type == TYPE_CACHE) {
                     completePath.moveTo(chartBounds.width() * .348f, chartBounds.height() * .538f);
                     completePath.lineTo(chartBounds.width() * .447f, chartBounds.height() * .636f);
                     completePath.lineTo(chartBounds.width() * .678f, chartBounds.height() * .402f);

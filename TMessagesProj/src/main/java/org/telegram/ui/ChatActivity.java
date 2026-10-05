@@ -36326,6 +36326,10 @@ public class ChatActivity extends BaseFragment implements
         if (url == null || getParentActivity() == null) {
             return;
         }
+        // Humogram: a text link shows one thing and opens another. Tell the
+        // link guard what this span showed (nothing, for any other kind of
+        // span), so its warning can name the difference.
+        uz.jac.secure.android.LinkGuardUi.noteTapped(url, messageObject);
         boolean noforwards = isPeerNoForwards() || (messageObject != null && messageObject.messageOwner != null && messageObject.messageOwner.noforwards);
         if (url instanceof URLSpanMono) {
             if (!noforwards || getDialogId() == UserObject.VERIFY) {

@@ -961,19 +961,6 @@ public class PasscodeActivity extends BaseFragment implements NotificationCenter
             SharedConfig.passcodeType = currentPasswordType;
             SharedConfig.saveConfig();
 
-            // Humogram: if the new real passcode equals the existing panic
-            // passcode, the panic code would be silently neutralised (the real
-            // one always wins the tie, so entering it would unlock instead of
-            // wiping). Clear the panic code — and tell the user, so they do not
-            // walk away believing a panic code is still armed when it is gone.
-            if (uz.jac.secure.android.DuressConfig.isDuress(getParentActivity(), firstPassword)) {
-                uz.jac.secure.android.DuressConfig.clear(getParentActivity());
-                org.telegram.ui.Components.BulletinFactory.of(this)
-                        .createSimpleBulletin(R.raw.chats_infotip,
-                                uz.jac.secure.android.JacStrings.get(getParentActivity(), R.string.jac_duress_cleared))
-                        .show();
-            }
-
             passwordEditText.clearFocus();
             AndroidUtilities.hideKeyboard(passwordEditText);
             for (CodeNumberField f : codeFieldContainer.codeField) {

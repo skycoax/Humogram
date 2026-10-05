@@ -798,7 +798,25 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
             loadTexture(R.drawable.intro_powerful_star, 18);
             loadTexture(R.drawable.intro_private_door, 19);
             loadTexture(R.drawable.intro_private_screw, 20);
-            loadTexture(R.drawable.intro_tg_plane, 21);
+            // Humogram: the paper plane is Telegram's logo, which a third-party
+            // client may not show (API terms 2.4). Draw our bird into a bitmap
+            // the plane's size, so the intro animation places it where the
+            // plane was; the highest-density artwork keeps it sharp when scaled.
+            loadTexture(v -> {
+                android.graphics.BitmapFactory.Options bounds = new android.graphics.BitmapFactory.Options();
+                bounds.inJustDecodeBounds = true;
+                android.graphics.BitmapFactory.decodeResource(getParentActivity().getResources(), R.drawable.intro_tg_plane, bounds);
+                int w = Math.max(1, bounds.outWidth), h = Math.max(1, bounds.outHeight);
+                Bitmap bm = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+                Drawable bird = getParentActivity().getResources().getDrawableForDensity(R.drawable.humo_bird, android.util.DisplayMetrics.DENSITY_XXXHIGH);
+                if (bird != null && bird.getIntrinsicWidth() > 0 && bird.getIntrinsicHeight() > 0) {
+                    float scale = Math.min(w * .92f / bird.getIntrinsicWidth(), h * .92f / bird.getIntrinsicHeight());
+                    int bw = Math.round(bird.getIntrinsicWidth() * scale), bh = Math.round(bird.getIntrinsicHeight() * scale);
+                    bird.setBounds((w - bw) / 2, (h - bh) / 2, (w + bw) / 2, (h + bh) / 2);
+                    bird.draw(new Canvas(bm));
+                }
+                return bm;
+            }, 21);
             loadTexture(v -> {
                 Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
                 paint.setColor(ThemeColors.TELEGRAM_COLOR); // It's logo color, it should not be colored by the theme

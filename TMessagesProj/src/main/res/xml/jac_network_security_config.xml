@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Transport security for the scanner's own API.
+  Transport security for the one server of ours the app talks to: the link
+  guard's signed site list on lists.skycoax.uz. The scanners themselves send
+  nothing anywhere, so there is no scanner API host here.
 
   Reference it from the fork's AndroidManifest:
 
@@ -81,11 +83,10 @@
       because the user chose to visit that page and we already warned them
       about it if it was suspicious.
 
-      What must never be cleartext is OUR API, and that is handled by the
-      domain-config below. Locking down the one endpoint that carries device
-      tokens and verdicts is the whole point; locking down the browser is a
-      different product decision that would make the app worse at being a
-      messenger.
+      What must never be cleartext is OUR server, and that is handled by the
+      domain-config below. Locking down the one download the app makes from
+      us is the whole point; locking down the browser is a different product
+      decision that would make the app worse at being a messenger.
     -->
     <base-config cleartextTrafficPermitted="true">
         <trust-anchors>
@@ -94,13 +95,27 @@
     </base-config>
 
     <!--
-      User-installed CAs are deliberately NOT trusted for our API. On a device
-      where someone has installed an interception certificate — an employer's
-      MDM profile, or an app the user was talked into installing — every
-      verdict response becomes rewritable by whoever put it there.
+      User-installed CAs are deliberately NOT trusted for our server. On a
+      device where someone has installed an interception certificate — an
+      employer's MDM profile, or an app the user was talked into installing —
+      whoever put it there could otherwise stand in for it.
     -->
     <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">sky.bestcenter.uz</domain>
+        <!--
+          The link guard's signed site list (LinkGuard). The file is public and
+          the ECDSA signature inside it is what the app trusts, so this entry
+          is not what keeps a forged list out. It is here so the download can
+          never go over cleartext or through a user-installed CA: neither could
+          forge a list, but either could replay an old signed one to a fresh
+          install, or hold a phone on a stale list while looking like a working
+          server. Exact host only, and no pin-set, for the reason below.
+
+          Android reads this file from 7.0 on. On 5.0 to 7.0 the same two
+          promises are kept in code: LinkGuard refuses a non-https list URL,
+          and LinkGuardTrust builds that one connection's trust from the
+          system CAs only (plus the ISRG roots those versions lack).
+        -->
+        <domain includeSubdomains="false">lists.skycoax.uz</domain>
         <!--
           NO pin-set yet — pinning was deliberately deferred. Until real pins
           exist this domain-config contributes only the cleartext refusal,

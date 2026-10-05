@@ -3899,6 +3899,14 @@ public class ArticleViewer extends IArticleViewer implements NotificationCenter.
         openWebpageUrlInternal(url, anchor, progress);
     }
     private void openWebpageUrlInternal(String url, String anchor, Browser.Progress progress) {
+        // Humogram: a link inside an Instant View page can be opened right
+        // here — in an external app, or in the in-app browser — without ever
+        // reaching Browser.openUrl, so the link guard has to ask at this door
+        // too. "Deferred": what follows asks Telegram about the page first
+        // and only then opens it.
+        if (!Browser.isInternalUrl(url, null) && uz.jac.secure.android.LinkGuardUi.interceptDeferred(parentActivity, url, () -> openWebpageUrlInternal(url, anchor, progress))) {
+            return;
+        }
         if (loadingProgress != null) {
             loadingProgress.cancel();
         }

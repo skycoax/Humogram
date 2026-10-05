@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The "Device security" card on Telegram's main Settings screen
+  (uz.jac.secure.android.DeviceScanCard): a title, one status line and a
+  ring with the scan percentage.
+
+  Kept in a file of its own so the card's copy can change without touching
+  strings.xml. The status line is a single line beside a 64 dp ring: keep
+  these short. A clean result is shown as "<clean> · <apps checked>" when it
+  fits and as "<clean>" alone when it does not.
+-->
+<resources>
+    <string name="jac_seccard_title">Device security</string>
+    <string name="jac_seccard_scanning">Running checks…</string>
+    <string name="jac_seccard_clean">No threats found</string>
+    <plurals name="jac_seccard_apps_checked">
+        <item quantity="one">%1$d app checked</item>
+        <item quantity="other">%1$d apps checked</item>
+    </plurals>
+    <plurals name="jac_seccard_threats">
+        <item quantity="one">%1$d threat found</item>
+        <item quantity="other">%1$d threats found</item>
+    </plurals>
+    <string name="jac_seccard_never">Not checked yet</string>
+    <string name="jac_seccard_failed">The check didn’t finish</string>
+    <string name="jac_seccard_unavailable">Scanner unavailable</string>
+    <!-- TalkBack only, while a scan runs; %1$d is a multiple of ten. -->
+    <string name="jac_seccard_a11y_progress">%1$d%% checked</string>
+</resources>

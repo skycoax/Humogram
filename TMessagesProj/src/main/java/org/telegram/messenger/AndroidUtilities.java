@@ -1402,7 +1402,12 @@ public class AndroidUtilities {
                 url = url.replaceAll("∕|⁄|%E2%81%84|%E2%88%95", "/");
             }
             if (Browser.isTonsitePunycode(url)) continue;
-            text.setSpan(new URLSpan(url), link.start, link.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            // Humogram: URLSpanBrowser instead of the platform URLSpan, so links
+            // the client finds by itself (secret chats, messages still being
+            // sent, preview descriptions) are coloured by the link guard and
+            // open through Browser — the platform span starts an ACTION_VIEW
+            // on its own and would walk past the gate.
+            text.setSpan(new org.telegram.ui.Components.URLSpanBrowser(url), link.start, link.end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         return true;
     }

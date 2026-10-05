@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Карточка «Безопасность устройства» на главном экране настроек Telegram
+  (uz.jac.secure.android.DeviceScanCard).
+
+  Число согласуется с существительным и глаголом, поэтому счётчики — plurals:
+  «Найдена 1 угроза», «Найдены 2 угрозы», «Найдено 5 угроз».
+-->
+<resources>
+    <string name="jac_seccard_title">Безопасность устройства</string>
+    <string name="jac_seccard_scanning">Выполняются проверки…</string>
+    <string name="jac_seccard_clean">Угроз не найдено</string>
+    <plurals name="jac_seccard_apps_checked">
+        <item quantity="one">проверено %1$d приложение</item>
+        <item quantity="few">проверено %1$d приложения</item>
+        <item quantity="many">проверено %1$d приложений</item>
+        <item quantity="other">проверено %1$d приложения</item>
+    </plurals>
+    <plurals name="jac_seccard_threats">
+        <item quantity="one">Найдена %1$d угроза</item>
+        <item quantity="few">Найдены %1$d угрозы</item>
+        <item quantity="many">Найдено %1$d угроз</item>
+        <item quantity="other">Найдено %1$d угрозы</item>
+    </plurals>
+    <string name="jac_seccard_never">Ещё не проверено</string>
+    <string name="jac_seccard_failed">Проверка не завершилась</string>
+    <string name="jac_seccard_unavailable">Проверка недоступна</string>
+    <string name="jac_seccard_a11y_progress">Проверено %1$d%%</string>
+</resources>

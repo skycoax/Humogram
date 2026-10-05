@@ -30,6 +30,13 @@ android {
 
     defaultConfig.applicationId = APP_PACKAGE
 
+    // Humogram: the Google Maps key comes from a Gradle property (put
+    // HUMOGRAM_MAPS_API_KEY=... in D:\gradle-home\gradle.properties), never
+    // from source. The key that used to be hard-coded in the config manifests
+    // was Telegram's own, restricted to their package and certificate, so in
+    // Humogram the map stayed blank; a key is ours to create in Google Cloud.
+    defaultConfig.manifestPlaceholders = [mapsApiKey: (project.findProperty("HUMOGRAM_MAPS_API_KEY") ?: "")]
+
     sourceSets.main.jniLibs.srcDirs = ['../TMessagesProj/jni/']
 
     lintOptions {
@@ -221,9 +228,18 @@ android {
     }
 }
 
-// SkySecure: google-services disabled. Push needs OUR OWN Firebase project;
-// until there is one the plugin would only bake Telegram google_app_id,
-// API key and OAuth client id into an APK published under our package name.
-// Without the generated google_app_id resource FirebaseInitProvider logs
-// "FirebaseApp initialization unsuccessful" and returns - it does not throw.
-// apply plugin: 'com.google.gms.google-services'
+// Humogram: push goes through OUR Firebase project or not at all. The
+// google-services.json upstream committed next to this file belongs to
+// Telegram's project (tmessages2); applying the plugin to it would bake
+// Telegram's google_app_id, API key and OAuth client id into an APK published
+// under our package name, and Telegram's servers would still have no way to
+// reach it. So the plugin is applied only once the file is ours: it names
+// APP_PACKAGE. It must also list every package we build (.beta for debug,
+// .web for standalone), or that variant fails with "No matching client found".
+// Without the plugin there is no google_app_id resource, FirebaseApp never
+// initialises, no push token is registered, and messages arrive only while
+// the app is open. Owner steps: docs/push-notifications.md.
+def googleServicesJson = file('google-services.json')
+if (googleServicesJson.exists() && googleServicesJson.getText('UTF-8').contains("\"${APP_PACKAGE}\"")) {
+    apply plugin: 'com.google.gms.google-services'
+}

@@ -3,11 +3,15 @@ package uz.jac.secure.android;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.Build;
+import android.os.SystemClock;
 import android.provider.Settings;
 
-import org.telegram.messenger.R;
-import org.telegram.ui.ActionBar.BaseFragment;
-import org.telegram.ui.Components.BulletinFactory;
+import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.FileLog;
+import org.telegram.messenger.UserConfig;
+import org.telegram.tgnet.ConnectionsManager;
+import org.telegram.tgnet.tl.TL_account;
+import org.telegram.ui.ActionBar.Theme;
 
 import java.io.File;
 import java.text.ParseException;
@@ -18,52 +22,66 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * The on-device half of the security checkup: what state is this phone in?
+ * The device check — what state is this phone in? — and the protection
+ * percentage it shares with the virus scanner.
  *
- * <p>A messenger that scans files and links is answering "is this thing I was
- * sent dangerous?". This class answers the question one level down — "is the
+ * <p>A messenger that scans files and links answers "is this thing I was sent
+ * dangerous?". This class answers the question one level down — "is the
  * ground it all runs on solid?" — because a scanner on a rooted phone with no
  * screen lock is a seatbelt in a car with no brakes.
  *
  * <h3>What is checked, and what deliberately is not</h3>
  *
- * Every check here reads local device state and nothing else: a handful of
+ * The device checks read local state and nothing else: a handful of
  * file-exists probes, two Settings values, one system service, one build
- * property. Nothing is sent anywhere — the checkup makes no network requests
- * at all from this class. The one account-side check (does the account have a
- * cloud password) is a Telegram API call and therefore lives with the screen
- * that shows it, not here.
+ * property. The one account-side check — does the account have a cloud
+ * password — is the same {@code account.getPassword} status request Telegram's
+ * own Privacy settings page makes, to Telegram and nobody else. Nothing about
+ * any of it is sent anywhere.
  *
  * <p>Play Protect status and system-wide sideloading are not checked because
  * Android gives an ordinary app no honest way to read them; a check that
  * guesses would teach the user to distrust the ones that don't.
  *
- * <h3>Severity</h3>
+ * <h3>The percentage</h3>
  *
- * Two levels, not five. {@link #DANGER} means "someone with your phone in
- * their hand, or a malicious app, has a straight path" — no screen lock, root.
- * {@link #WARN} means "this widens the attack surface and most people have no
- * reason to have it on" — USB debugging, a security-patch level more than a
- * year stale. The distinction feeds the row colour and nothing else; both are
- * worth fixing.
+ * {@link #score} weighs the virus scan's verdict and each check
+ * ({@link #weight}); a check whose answer is not known yet (the cloud password
+ * before Telegram has answered, the scan before it has run) counts neither
+ * way. Any threat the scanner found caps the result at {@link #THREAT_CAP}: a
+ * phone with malware on it is not "70% protected" because its screen lock is
+ * set. The Settings card and the Humogram page show the same number from the
+ * same call.
  */
 public final class SecurityCheckup {
 
     public static final int OK = 0;
+    /** Widens the attack surface; most people have no reason to have it on. */
     public static final int WARN = 1;
+    /** Someone with the phone in their hand, or a malicious app, has a straight path. */
     public static final int DANGER = 2;
 
-    /** Stable ids; the screen maps them to titles, advice and fix actions. */
+    /** Stable ids; the page maps them to titles, advice and fix actions. */
     public static final int CHECK_SCREEN_LOCK = 1;
     public static final int CHECK_ROOT = 2;
     public static final int CHECK_ADB = 3;
     public static final int CHECK_PATCH = 4;
+    public static final int CHECK_2FA = 5;
+
+    /** The virus scan's share of the percentage. */
+    private static final int WEIGHT_SCAN = 40;
+    /** Highest percentage a phone can show while the scanner reports a threat. */
+    private static final int THREAT_CAP = 30;
+
+    /** At or above: green. */
+    public static final int LEVEL_GOOD = 80;
+    /** At or above (and below good): orange; under it, red. */
+    public static final int LEVEL_FAIR = 50;
 
     /** How stale a security-patch level may be before it is worth a warning. */
     private static final long PATCH_STALE_MS = 365L * 24 * 60 * 60 * 1000;
-
-    /** How often the reminder may fire, and how old a checkup may grow. */
-    private static final long REMIND_EVERY_MS = 30L * 24 * 60 * 60 * 1000;
+    /** An automatic cloud-password re-check is skipped within this of the last one. */
+    private static final long PASSWORD_RECHECK_MS = 60_000L;
 
     public static final class Finding {
         public final int id;
@@ -75,12 +93,23 @@ public final class SecurityCheckup {
         }
     }
 
+    // Cloud password: UI thread only.
+    private static final TL_account.Password[] passwords = new TL_account.Password[UserConfig.MAX_ACCOUNT_COUNT];
+    private static final int[] passwordRequests = new int[UserConfig.MAX_ACCOUNT_COUNT];
+    private static final long[] passwordAskedAt = new long[UserConfig.MAX_ACCOUNT_COUNT];
+    private static final boolean[] passwordFailed = new boolean[UserConfig.MAX_ACCOUNT_COUNT];
+    private static final ArrayList<Runnable> listeners = new ArrayList<>();
+
     private SecurityCheckup() {
     }
 
-    /** Run every local check. Cheap enough for the UI thread: a few file stats and settings reads. */
+    // ------------------------------------------------------------------
+    // Device checks
+    // ------------------------------------------------------------------
+
+    /** Every local check. Cheap enough for the UI thread: a few file stats and settings reads. */
     public static List<Finding> runLocal(Context context) {
-        List<Finding> findings = new ArrayList<>(4);
+        final List<Finding> findings = new ArrayList<>(4);
         findings.add(new Finding(CHECK_SCREEN_LOCK, hasScreenLock(context) ? OK : DANGER));
         findings.add(new Finding(CHECK_ROOT, looksRooted() ? DANGER : OK));
         findings.add(new Finding(CHECK_ADB, isAdbEnabled(context) ? WARN : OK));
@@ -88,70 +117,23 @@ public final class SecurityCheckup {
         return findings;
     }
 
-    public static int countIssues(List<Finding> findings) {
-        int n = 0;
-        for (Finding f : findings) {
-            if (f.severity != OK) {
-                n++;
-            }
-        }
-        return n;
-    }
-
-    /**
-     * The monthly nudge, called from the chat list's onResume.
-     *
-     * <p>Deliberately quiet: it fires only when the last checkup (or the last
-     * nudge) is over a month old <em>and</em> a quick local scan actually finds
-     * something — a phone that passes clean is never nagged. One Bulletin, the
-     * same component upstream uses for its own gentle suggestions; anything
-     * louder would spend the trust the scanner's real warnings depend on.
-     */
-    public static void maybeRemind(BaseFragment fragment) {
-        try {
-            if (fragment == null || fragment.getContext() == null || fragment.isInPreviewMode()) {
-                return;
-            }
-            final Context context = fragment.getContext();
-            final long now = System.currentTimeMillis();
-            if (now - HumogramConfig.getCheckupAt(context) < REMIND_EVERY_MS
-                    || now - HumogramConfig.getCheckupRemindAt(context) < REMIND_EVERY_MS) {
-                return;
-            }
-            if (countIssues(runLocal(context)) == 0) {
-                // A clean phone still counts as checked: quietly refresh the
-                // clock so the next look is a month out, not every resume.
-                HumogramConfig.setCheckupAt(context, now);
-                return;
-            }
-            // Delayed, because onResume at cold start runs while the window is
-            // still blank: a Bulletin shown there has expired before the chat
-            // list has drawn its first frame and nobody ever sees it.
-            org.telegram.messenger.AndroidUtilities.runOnUIThread(() -> {
-                try {
-                    if (fragment.getParentActivity() == null || fragment.isPaused()) {
-                        return;
-                    }
-                    BulletinFactory.of(fragment).createSimpleBulletin(
-                            R.raw.chats_infotip,
-                            JacStrings.get(context, R.string.jac_checkup_remind),
-                            JacStrings.get(context, R.string.jac_checkup_remind_open),
-                            () -> fragment.presentFragment(new SecurityCheckupActivity())
-                    ).show();
-                    // Stamped only now: a slot spent on a nudge nobody saw is
-                    // a month of silence bought for nothing.
-                    HumogramConfig.setCheckupRemindAt(context, System.currentTimeMillis());
-                } catch (Throwable ignored) {
-                }
-            }, 2000);
-        } catch (Throwable ignored) {
-            // A reminder must never be able to break the chat list.
+    /** The settings screen that fixes a finding, or null when only advice helps. */
+    static String settingsActionFor(int id) {
+        switch (id) {
+            case CHECK_SCREEN_LOCK:
+                return Settings.ACTION_SECURITY_SETTINGS;
+            case CHECK_ADB:
+                return Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS;
+            case CHECK_PATCH:
+                return "android.settings.SYSTEM_UPDATE_SETTINGS";
+            default:
+                return null; // root: there is no settings page out of root
         }
     }
 
     private static boolean hasScreenLock(Context context) {
         try {
-            KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+            final KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
             if (km == null) {
                 return true; // unknowable — do not accuse
             }
@@ -168,7 +150,7 @@ public final class SecurityCheckup {
 
     private static boolean looksRooted() {
         try {
-            String tags = Build.TAGS;
+            final String tags = Build.TAGS;
             if (tags != null && tags.contains("test-keys")) {
                 return true;
             }
@@ -198,14 +180,174 @@ public final class SecurityCheckup {
 
     private static boolean isPatchStale() {
         try {
-            String patch = Build.VERSION.SECURITY_PATCH;
+            final String patch = Build.VERSION.SECURITY_PATCH;
             if (patch == null || patch.isEmpty()) {
                 return false; // unknowable — do not accuse
             }
-            Date date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(patch);
+            final Date date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(patch);
             return date != null && System.currentTimeMillis() - date.getTime() > PATCH_STALE_MS;
         } catch (ParseException | RuntimeException ignored) {
             return false;
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Cloud password
+    // ------------------------------------------------------------------
+
+    /** The account's password state as Telegram last told us, or null before it has. */
+    public static TL_account.Password getPassword(int account) {
+        return valid(account) ? passwords[account] : null;
+    }
+
+    /** True when the last request failed and nothing is known; the row says "couldn't check". */
+    public static boolean isPasswordUnknown(int account) {
+        return valid(account) && passwords[account] == null && passwordFailed[account];
+    }
+
+    /**
+     * Ask Telegram whether the account has a cloud password. One request per
+     * account at a time; an automatic re-check ({@code force} false) is skipped
+     * within {@link #PASSWORD_RECHECK_MS} of the last answer. Listeners hear
+     * about the answer on the UI thread.
+     */
+    public static void requestPassword(int account, boolean force) {
+        if (!valid(account) || passwordRequests[account] != 0) {
+            return;
+        }
+        try {
+            if (!UserConfig.getInstance(account).isClientActivated()) {
+                return;
+            }
+            final long now = SystemClock.elapsedRealtime();
+            if (!force && passwords[account] != null && now - passwordAskedAt[account] < PASSWORD_RECHECK_MS) {
+                return;
+            }
+            final ConnectionsManager connections = ConnectionsManager.getInstance(account);
+            passwordRequests[account] = connections.sendRequest(new TL_account.getPassword(),
+                    (response, error) -> AndroidUtilities.runOnUIThread(() -> {
+                        passwordRequests[account] = 0;
+                        passwordAskedAt[account] = SystemClock.elapsedRealtime();
+                        if (response instanceof TL_account.Password) {
+                            passwords[account] = (TL_account.Password) response;
+                            passwordFailed[account] = false;
+                        } else if (passwords[account] == null) {
+                            passwordFailed[account] = true;
+                        }
+                        notifyListeners();
+                    }), ConnectionsManager.RequestFlagFailOnServerErrors | ConnectionsManager.RequestFlagWithoutLogin);
+            if (passwordRequests[account] == 0) {
+                // sendRequest hands out ids from 1; 0 would read as "idle".
+                passwordRequests[account] = -1;
+            }
+            passwordFailed[account] = false;
+        } catch (Throwable t) {
+            passwordRequests[account] = 0;
+            FileLog.e(t);
+        }
+    }
+
+    /** UI thread. Called after every cloud-password answer. */
+    public static void addListener(Runnable listener) {
+        if (listener != null && !listeners.contains(listener)) {
+            listeners.add(listener);
+        }
+    }
+
+    public static void removeListener(Runnable listener) {
+        listeners.remove(listener);
+    }
+
+    private static void notifyListeners() {
+        for (Runnable listener : new ArrayList<>(listeners)) {
+            try {
+                listener.run();
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
+        }
+    }
+
+    private static boolean valid(int account) {
+        return account >= 0 && account < UserConfig.MAX_ACCOUNT_COUNT;
+    }
+
+    // ------------------------------------------------------------------
+    // The percentage
+    // ------------------------------------------------------------------
+
+    static int weight(int id) {
+        switch (id) {
+            case CHECK_SCREEN_LOCK:
+            case CHECK_ROOT:
+            case CHECK_2FA:
+                return 15;
+            case CHECK_ADB:
+                return 10;
+            case CHECK_PATCH:
+                return 5;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * How protected this phone and account are, 0–100, or -1 when nothing is
+     * known yet. Runs the local checks, so UI thread is fine but a draw loop
+     * is not.
+     */
+    public static int score(Context context, DeviceScanReport report, int account) {
+        if (context == null) {
+            return -1;
+        }
+        int earned = 0;
+        int possible = 0;
+        boolean threats = false;
+        if (report != null && !DeviceScanUi.isEmptyFailure(report)) {
+            possible += WEIGHT_SCAN;
+            int count = 0;
+            try {
+                count = report.threatCount(context);
+            } catch (Throwable t) {
+                FileLog.e(t);
+            }
+            if (count > 0) {
+                threats = true;
+            } else {
+                earned += WEIGHT_SCAN;
+            }
+        }
+        for (Finding finding : runLocal(context)) {
+            possible += weight(finding.id);
+            if (finding.severity == OK) {
+                earned += weight(finding.id);
+            }
+        }
+        final TL_account.Password password = getPassword(account);
+        if (password != null) {
+            possible += weight(CHECK_2FA);
+            if (password.has_password) {
+                earned += weight(CHECK_2FA);
+            }
+        }
+        if (possible == 0) {
+            return -1;
+        }
+        int percent = Math.round(100f * earned / possible);
+        if (threats) {
+            percent = Math.min(percent, THREAT_CAP);
+        }
+        return percent;
+    }
+
+    /** The colour a percentage is drawn in: green, orange or red. */
+    public static int levelColor(int score, Theme.ResourcesProvider resourcesProvider) {
+        if (score >= LEVEL_GOOD) {
+            return Theme.getColor(Theme.key_color_green, resourcesProvider);
+        }
+        if (score >= LEVEL_FAIR) {
+            return Theme.getColor(Theme.key_color_orange, resourcesProvider);
+        }
+        return Theme.getColor(Theme.key_text_RedRegular, resourcesProvider);
     }
 }

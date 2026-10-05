@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The device check on the Humogram page (uz.jac.secure.android.SecurityCheckupSection)
+  and the protection percentage it shares with the virus scanner
+  (SecurityCheckup.score): row titles, what each check means when it passed
+  and how to fix it when it did not, and the footnote saying what is asked of
+  whom. Kept in a file of its own, as the Settings card's copy is.
+-->
+<resources>
+    <string name="jac_checkup">Device check</string>
+    <string name="jac_checkup_ok">OK</string>
+    <string name="jac_checkup_warn">Attention</string>
+    <string name="jac_checkup_risk">Risk</string>
+    <string name="jac_checkup_unknown">Couldn\'t check</string>
+    <string name="jac_checkup_screen_lock">Screen lock</string>
+    <string name="jac_checkup_screen_lock_advice">Without a screen lock, anyone who picks up the phone gets all your chats. Set a PIN, pattern or fingerprint in system settings.</string>
+    <string name="jac_checkup_screen_lock_ok">A screen lock is set: someone who picks up the phone cannot open your chats without it.</string>
+    <string name="jac_checkup_root">Root access</string>
+    <string name="jac_checkup_root_advice">This device appears to be rooted. Root lets any app read other apps\' data, including your messages. If you didn\'t root it yourself, have the phone checked.</string>
+    <string name="jac_checkup_root_ok">No signs of root were found. Root would let any app read other apps\' data, including your messages.</string>
+    <string name="jac_checkup_adb">USB debugging</string>
+    <string name="jac_checkup_adb_advice">USB debugging lets a computer control this phone over a cable. Handy for developers, risky for everyone else — turn it off unless you are using it right now.</string>
+    <string name="jac_checkup_adb_ok">USB debugging is off, so a computer cannot control this phone over a cable.</string>
+    <string name="jac_checkup_patch">Security updates</string>
+    <string name="jac_checkup_patch_advice">The last security update on this phone is over a year old, so known vulnerabilities stay open. Check for a system update; if none comes, treat this device as less trusted.</string>
+    <string name="jac_checkup_patch_ok">This phone\'s last security update is less than a year old.</string>
+    <string name="jac_checkup_2fa">Cloud password (2FA)</string>
+    <string name="jac_checkup_2fa_advice">A cloud password protects the account even if someone intercepts the login code from SMS. It is the single most important Telegram setting.</string>
+    <string name="jac_checkup_2fa_ok">A cloud password is set: even with the code from an SMS, nobody can sign in to your account without it.</string>
+    <string name="jac_checkup_open_settings">Open settings</string>
+    <string name="jac_checkup_set_up">Set up</string>
+    <string name="jac_checkup_note">The device checks run here on your phone. Only the cloud password status is asked of Telegram, the same way Settings does; nothing is sent anywhere else.</string>
+    <string name="jac_protection_level">Protection level: %1$d%%</string>
+</resources>

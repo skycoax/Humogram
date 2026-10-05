@@ -7183,13 +7183,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onResume() {
         super.onResume();
-        // Humogram: at most once a month, and only when a quick local scan
-        // actually finds something, suggest the device security checkup. Only
-        // from the chat list proper — this class is also the forward picker,
-        // the share-target picker and the archive, and a security nudge in the
-        // middle of someone's share is an interruption, not a service.
+        // Humogram: only from the chat list proper — this class is also the
+        // forward picker, the share-target picker and the archive, and a
+        // security prompt in the middle of someone's share is an interruption,
+        // not a service.
         if (!onlySelect && folderId == 0) {
-            uz.jac.secure.android.SecurityCheckup.maybeRemind(this);
+            // Humogram: the installed-apps virus scan, once per launch and only
+            // once the passcode (if any) is entered — see DeviceScanLaunch.
+            uz.jac.secure.android.DeviceScanLaunch.maybeRun(this);
         }
         if (dialogStoriesCell != null) {
             dialogStoriesCell.onResume();

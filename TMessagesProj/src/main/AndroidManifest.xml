@@ -76,6 +76,12 @@
     <uses-permission android:name="me.everything.badger.permission.BADGE_COUNT_WRITE"/>
     <uses-permission android:name="com.android.vending.BILLING"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" tools:node="replace" />
+    <!-- Humogram: lets the device virus scanner's "Uninstall" button work. From
+         targetSdk 28 the system uninstaller silently refuses ACTION_DELETE from an
+         app that does not hold this. Protection level "normal" (granted at install,
+         no prompt) and not on Play's restricted-permissions list; it cannot remove
+         anything by itself, the system still asks the user to confirm. -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
 
     <uses-sdk tools:overrideLibrary="com.google.mlkit.vision.segmentation.subject"/>
@@ -86,6 +92,60 @@
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="ton"/>
         </intent>
+
+        <!-- Humogram: the device virus scanner (uz.jac.secure.android.DeviceAppCollector)
+             sees installed apps through these targeted queries, deliberately NOT through
+             QUERY_ALL_PACKAGES, which Play reserves for antivirus apps, file managers and
+             browsers. Each entry below is one kind of app the scanner has a reason to look
+             at; the app list never leaves the phone unless the user opts into the cloud
+             check. -->
+        <!-- Humogram: every app with a launcher icon, including one that has since
+             disabled its icon (visibility comes from the manifest, not the runtime
+             state) - that is how the hidden-icon check sees an Ajina-style banker. -->
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent>
+        <!-- Humogram: apps that declare an accessibility service, the main tool of
+             Android bankers; an app with no icon but such a service stays visible. -->
+        <intent>
+            <action android:name="android.accessibilityservice.AccessibilityService"/>
+        </intent>
+        <!-- Humogram: apps that can read notifications (SMS codes arrive there). -->
+        <intent>
+            <action android:name="android.service.notification.NotificationListenerService"/>
+        </intent>
+        <!-- Humogram: apps able to hold the default-SMS role. Without this,
+             Telephony.Sms.getDefaultSmsPackage() returns null on Android 11+ and the
+             scanner cannot tell that a sideloaded app took over SMS. (SMS_RECEIVED and
+             SMS_DELIVER are protected broadcasts and give no visibility at all.) -->
+        <intent>
+            <action android:name="android.intent.action.SENDTO"/>
+            <data android:scheme="smsto" android:host="*"/>
+        </intent>
+        <!-- Humogram: app stores and the system package installers. Android 11+ reports
+             an app's installer as null when the installer itself is invisible to us,
+             which would make every Play install look sideloaded. Keep this list in step
+             with InstalledAppPolicy.DEFAULT_STORES and PACKAGE_INSTALLERS in
+             jacsecure-core, and with DeviceScanUi.STORE_NAMES, which gives the stores
+             below their display names. (DeviceScanUi reads PACKAGE_INSTALLERS from the
+             core rather than keeping a copy, so there is nothing to sync there.) -->
+        <package android:name="com.android.vending"/>
+        <package android:name="com.sec.android.app.samsungapps"/>
+        <package android:name="com.huawei.appmarket"/>
+        <package android:name="com.xiaomi.market"/>
+        <package android:name="com.xiaomi.mipicks"/>
+        <package android:name="com.heytap.market"/>
+        <package android:name="com.oppo.market"/>
+        <package android:name="com.bbk.appstore"/>
+        <package android:name="com.hihonor.appmarket"/>
+        <package android:name="com.vivo.appstore"/>
+        <package android:name="com.amazon.venezia"/>
+        <package android:name="ru.vk.store"/>
+        <package android:name="com.google.android.packageinstaller"/>
+        <package android:name="com.android.packageinstaller"/>
+        <package android:name="com.miui.packageinstaller"/>
+        <package android:name="com.samsung.android.packageinstaller"/>
     </queries>
 
     <application
@@ -511,52 +571,28 @@
         <receiver android:name=".ShortcutResultReceiver" android:exported="false"/>
 
         <!--
-          SkySecure: remove Firebase's auto-initialiser.
+          Humogram: Firebase's auto-initialiser stays, as upstream has it.
 
-          Push cannot work without our own Firebase project, and we do not have
-          one. With the google-services plugin disabled there is no
-          google_app_id resource, so FirebaseInitProvider would log
-          "FirebaseApp initialization unsuccessful" and return. Removing it
-          outright makes process startup deterministic rather than dependent on
-          a library's error handling.
+          It used to be removed (tools:node="remove") while we had no Firebase
+          project of our own. It has to run once we do: a push that cold-starts
+          the process reaches FirebaseMessagingService before
+          PushListenerController's own FirebaseApp.initializeApp, which waits a
+          second after launch, and without a default app that delivery fails.
+          With no project configured it is harmless - the google-services
+          plugin is then not applied (TMessagesProj_App/build.gradle), there is
+          no google_app_id resource, and the provider logs "FirebaseApp
+          initialization unsuccessful" and returns without throwing.
 
-          Telegram's own FirebaseApp.initializeApp and
-          FirebaseMessaging.getInstance calls are wrapped in catch (Throwable)
-          (PushListenerController.java:1695-1714), so they degrade quietly.
+          Never hand it a placeholder: an app id without ":" or an API key that
+          is not "AIza" + 35 characters makes FirebaseInstallations throw
+          inside ContentProvider.onCreate, on the main thread, before any
+          catch of ours, and the app dies at launch. A google-services.json
+          downloaded from the Firebase console is the only input.
 
-          A NOTE ON WHY THIS BLOCK EXISTS, because the reason was wrong at
-          first: it was added believing a fabricated google-services entry had
-          crashed the app at launch after an applicationId change. Reading the
-          library disproved that — FirebaseInitProvider does not validate
-          google_app_id, and the only startup check (FirebaseInstallations) is
-          format-only: app id contains ":", api key matches /\AA[\w-]{38}\z/,
-          project id non-empty. Telegram's values pass all three, and the check
-          is offline, so it behaves identically on an emulator and a phone and
-          cannot explain a crash that happened only on the phone.
-
-          The launch crash was later EXPLAINED, and it was neither Firebase
-          nor any pre-Application provider: res/xml/jac_network_security_config
-          shipped a pin-set with REPLACE-WITH placeholder pins. Android parses
-          that whole file on the process's first platform network touch; a pin
-          that is not valid base64 (or not 32 bytes decoded) makes the parse
-          throw, the framework wraps it in a RuntimeException, and the process
-          dies ~1s after launch — on a real phone, where something makes an
-          in-process HTTPS request early, and not on an emulator that stays on
-          MTProto. The pin-set is removed until real pins are provisioned; see
-          the comments in that file before putting anything back.
-
-          Worth keeping regardless: a placeholder app id (no ":" or a
-          malformed key) WOULD throw IllegalArgumentException on the main
-          thread inside ContentProvider.onCreate, uncatchable. This block makes
-          that failure mode unreachable.
-
-          DELETE THIS BLOCK when a real Firebase project is configured.
+          (The launch crash once blamed on this provider was the network
+          security config's placeholder pins; see the comments in
+          res/xml/jac_network_security_config.xml.)
         -->
-        <provider
-            android:name="com.google.firebase.provider.FirebaseInitProvider"
-            android:authorities="${applicationId}.firebaseinitprovider"
-            android:exported="false"
-            tools:node="remove" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

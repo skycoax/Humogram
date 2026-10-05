@@ -1762,6 +1762,15 @@ public class AlertsCreator {
         }
 
         final Runnable open = () -> Browser.openUrl(context, Uri.parse(url), inlineReturn == 0, tryTelegraph, progress);
+        // Humogram: the link guard is about to ask about this site twice, and
+        // its first dialog already shows the real host, its punycode form, the
+        // full address and what the message showed instead. This dialog on top
+        // of that would be a third prompt saying less, so go straight to what
+        // "Open" does.
+        if (uz.jac.secure.android.LinkGuardUi.willPrompt(url)) {
+            open.run();
+            return;
+        }
         final AlertDialog[] dialog = new AlertDialog[1];
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context, resourcesProvider);
@@ -1821,16 +1830,21 @@ public class AlertsCreator {
     ) {
         if (!AndroidUtilities.isContextSafe(context)) return;
 
+        // Humogram: the link guard is about to ask about this site twice (the gate in
+        // Browser.openInExternalBrowser / openInTelegramBrowser). This dialog on top would be a
+        // third prompt, so go straight to what "Open" does, without the 'always' choice.
+        if (uz.jac.secure.android.LinkGuardUi.willPrompt(url)) {
+            whenDone.run(true, false);
+            return;
+        }
+
         final AlertDialog[] dialog = new AlertDialog[1];
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context, resourcesProvider);
         builder.setTitle(LocaleController.getString(R.string.OpenUrlTitle));
 
         final TextView urlView = new TextView(context);
-        // Humogram: show the address that will actually be opened. Browser
-        // strips tracking parameters on the way out, so printing the raw one
-        // here would contradict the very screen the user is checking.
-        urlView.setText(uz.jac.secure.android.LinkHygiene.clean(context, url));
+        urlView.setText(url);
         urlView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
         urlView.setTextColor(Theme.getColor(Theme.key_dialogTextBlack, resourcesProvider));
         urlView.setGravity(Gravity.CENTER);

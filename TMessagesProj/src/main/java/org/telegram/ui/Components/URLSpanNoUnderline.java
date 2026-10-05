@@ -59,6 +59,10 @@ public class URLSpanNoUnderline extends URLSpan {
             style.applyStyle(p);
         }
         p.setUnderlineText(l == c && !forceNoUnderline);
+        // Humogram: a link to a site that is not on the trusted list is drawn
+        // red. Only a spelled-out web address counts; the mentions, hashtags,
+        // commands and timestamps this class also carries are left alone.
+        uz.jac.secure.android.LinkGuardUi.tint(this, p, c);
     }
 
     public void setObject(TLObject spanObject) {

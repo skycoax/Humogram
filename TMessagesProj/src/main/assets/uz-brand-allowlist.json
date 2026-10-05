@@ -4,8 +4,10 @@
   "description": "Uzbekistan bank / payment / government / telecom brands that are impersonated by malware and phishing in-region. Consumed by BOTH the APK impersonation check (android.packages + android.signing_cert_sha256) and the URL typosquat/homograph check (domains).",
   "provisioning_contract": {
     "domains": "Registrable domains are the high-confidence part of this file and are safe to ship as-is. They drive URL typosquatting and homograph detection.",
-    "android.packages": "package_verified=false means the package id has NOT been confirmed against an official store listing. Unverified packages are used ONLY for brand-name similarity signals, never to assert a cert mismatch.",
-    "android.signing_cert_sha256": "pin_status=unpinned means we hold no signing-certificate pin. The APK impersonation check CANNOT report IMPERSONATION_CERT_MISMATCH for an unpinned brand — see ApkImpersonationCheck. Pins are provisioned with tools/allowlist-provision.mjs from an APK obtained through an official channel.",
+    "android.packages": "The brand's own Google Play app ids. package_verified=true means every id in the list was confirmed on its Google Play listing — published by the brand's official developer account, with the brand's title — on the date in package_provenance. package_verified=false means the list has NOT been confirmed; such ids may drive only brand-name similarity signals, never a cert mismatch, and an empty list means no official Play app was found. All of a brand's own apps that carry its name are listed (consumer, business and companion apps) so the package-lookalike check can never flag the brand's second app as an imitation of its first. Unrelated apps the same account publishes (games, media, e-learning, HR tools) are left out on purpose: nobody imitates them, and every extra short id widens the lookalike net for everyone else's apps. White-label ids whose only distinguishing part is a two- or three-letter bank code (uz.fb.cib.mobile.aab, com.bssys.mbcphone.uz.ofb) are left out for the same reason: another bank's app built on the same vendor platform with a similar short code would sit within lookalike distance of it.",
+    "android.package_provenance": "Audit trail for android.packages, one row per id: the Play listing's title, publisher, publisher website and non-generic support-email domain as seen on the checked date. Informational only — the engines ignore it. Re-check it when a brand rebrands or moves an app to another developer account (uz.kapitalbank.android is Uzum Bank today, published by Uzum).",
+    "known_clashes": "Real Android package ids that sit within lookalike distance of a listed android.packages id without imitating it — the same operator or marketplace in another country (kz/kg/ge/am.beeline.odp next to uz.beeline.odp), or an unrelated app one edit away (com.ozon, com.ison next to com.oson). The APK identity check reports no package-lookalike for an exact member. Add an id here only after confirming on its Play listing that it is published by that other company; an id listed in error is an id the lookalike check can never flag.",
+    "android.signing_cert_sha256": "pin_status=unpinned means we hold no signing-certificate pin. The APK impersonation check CANNOT report IMPERSONATION_CERT_MISMATCH for an unpinned brand — see ApkImpersonationCheck. Pins are provisioned with tools/allowlist-provision.mjs from an APK obtained through an official channel. Pins are per brand, not per package: before a brand with several packages is marked pinned, the signing certificate of EVERY listed package must be provisioned (one APK per package, --add after the first), otherwise the brand's own other apps would be reported as counterfeits. Pinning the payment brands first (Payme, Click, Humo, Uzcard, Uzum) retires the origin heuristic DEV_BRAND_PACKAGE_SIDELOADED, which exists only because an exact brand-package match currently concludes nothing: with a pin, the same app is judged on its certificate instead.",
     "release_gate": "tools/check-allowlist.mjs fails a release build if any entry is referenced by cert-mismatch logic while still unpinned."
   },
   "trusted_suffixes": [
@@ -14,272 +16,633 @@
       "note": "Public suffix, NOT a registrable domain — it must never be treated as an allowlist domain for typosquat distance (every *.gov.uz name would be distance 0 from it). Listed here so that a host under it can be reported as government-operated, and so that a lookalike of the suffix itself (g0v.uz, gov-uz.com) is flagged."
     }
   ],
+  "known_clashes": [
+    "kz.beeline.odp",
+    "kg.beeline.odp",
+    "ge.beeline.odp",
+    "am.beeline.odp",
+    "com.ozon",
+    "com.ison"
+  ],
   "entries": [
     {
       "id": "cbu",
       "brand": { "en": "Central Bank of Uzbekistan", "uz": "O'zbekiston Respublikasi Markaziy banki", "ru": "Центральный банк Узбекистана" },
       "category": "government",
       "domains": ["cbu.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned", "package_note": "No official app of this brand found on Google Play (searched 2026-09-22)." }
     },
     {
       "id": "nbu",
       "brand": { "en": "National Bank of Uzbekistan", "uz": "O'zbekiston Milliy banki", "ru": "Национальный банк Узбекистана" },
       "category": "bank",
       "domains": ["nbu.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["com.tune.milliy", "uz.tune.milliybusiness"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "com.tune.milliy", "title": "Milliy", "developer": "Национальный Банк ВЭД РУз", "developer_site": "http://www.nbu.uz", "contact_domain": "central.nbu.com", "checked": "2026-09-22" },
+          { "package": "uz.tune.milliybusiness", "title": "Milliy Business", "developer": "Национальный Банк ВЭД РУз", "developer_site": "https://nbu.uz/", "contact_domain": "central.nbu.com", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "asakabank",
       "brand": { "en": "Asakabank", "uz": "Asakabank", "ru": "Асакабанк" },
       "category": "bank",
       "domains": ["asakabank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.asakabank.myasaka", "uz.asakabank.business", "com.asakabank.anet"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.asakabank.myasaka", "title": "Asakabank", "developer": "«Asakabank» aksiyadorlik jamiyati", "developer_site": "https://asakabank.uz", "contact_domain": "asakabank.uz", "checked": "2026-09-22" },
+          { "package": "uz.asakabank.business", "title": "Asakabank Business", "developer": "«Asakabank» aksiyadorlik jamiyati", "developer_site": "https://asakabank.uz", "contact_domain": "asakabank.uz", "checked": "2026-09-22" },
+          { "package": "com.asakabank.anet", "title": "ANET", "developer": "«Asakabank» aksiyadorlik jamiyati", "developer_site": "https://asakabank.uz", "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "ipotekabank",
       "brand": { "en": "Ipoteka Bank", "uz": "Ipoteka Bank", "ru": "Ипотека Банк" },
       "category": "bank",
       "domains": ["ipotekabank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["com.IpotekaMobile.v2", "uz.asbt.ipotekabank2.mobilebank.yur"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "com.IpotekaMobile.v2", "title": "Ipoteka Mobile", "developer": "IPOTEKABANK", "developer_site": "https://www.ipotekabank.uz/", "contact_domain": "ipotekabank.uz", "checked": "2026-09-22" },
+          { "package": "uz.asbt.ipotekabank2.mobilebank.yur", "title": "Ipoteka Bank Electron", "developer": "IPOTEKABANK", "developer_site": "https://www.ipotekabank.uz/", "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "agrobank",
       "brand": { "en": "Agrobank", "uz": "Agrobank", "ru": "Агробанк" },
       "category": "bank",
       "domains": ["agrobank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.agrobank.mobile", "uz.agrobank.mobile.mbank", "uz.agrobank.dbo", "uz.agrobank.marketplace", "uz.agrobank.chakanapay", "uz.agrobank.chakana_delivery", "uz.agrobank.chakanaexpress", "com.agrobank.chakana_merchant", "uz.agrobankagent.uz"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.agrobank.mobile", "title": "Agrobank Mobile", "developer": "AGROBANK, ATB", "developer_site": "http://www.agrobank.uz", "contact_domain": "agrobank.uz", "checked": "2026-09-22" },
+          { "package": "uz.agrobank.mobile.mbank", "title": "Agrobank", "developer": "AGROBANK, ATB", "developer_site": "https://www.agrobank.uz", "contact_domain": "agrobank.uz", "checked": "2026-09-22" },
+          { "package": "uz.agrobank.dbo", "title": "AgroZamin Biznes", "developer": "AGROBANK, ATB", "developer_site": "https://agrobank.uz/", "contact_domain": "agrobank.uz", "checked": "2026-09-22" },
+          { "package": "uz.agrobank.marketplace", "title": "Chakana", "developer": "AGROBANK, ATB", "developer_site": "https://chakana.uz", "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "uz.agrobank.chakanapay", "title": "ChakanaPay", "developer": "AGROBANK, ATB", "developer_site": "https://agrobank.uz/", "contact_domain": "agrobank.uz", "checked": "2026-09-22" },
+          { "package": "uz.agrobank.chakana_delivery", "title": "Tez Delivery", "developer": "AGROBANK, ATB", "developer_site": "http://chakana.uz/", "contact_domain": "chakana.uz", "checked": "2026-09-22" },
+          { "package": "uz.agrobank.chakanaexpress", "title": "Tez Chakana", "developer": "AGROBANK, ATB", "developer_site": "http://chakana.uz", "contact_domain": "agrobank.uz", "checked": "2026-09-22" },
+          { "package": "com.agrobank.chakana_merchant", "title": "Chakana Merchant", "developer": "AGROBANK, ATB", "developer_site": "https://merchant.chakana.uz/", "contact_domain": "agrobank.uz", "checked": "2026-09-22" },
+          { "package": "uz.agrobankagent.uz", "title": "Chakana Agent", "developer": "AGROBANK, ATB", "developer_site": "https://agrobank.uz/ru/person", "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "sqb",
       "brand": { "en": "SQB", "uz": "Sanoat Qurilish Bank", "ru": "Промстройбанк" },
       "category": "bank",
       "domains": ["sqb.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["com.uzpsb.olam", "uz.uzpsb.joydabusiness"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "com.uzpsb.olam", "title": "SQB MOBILE", "developer": "O'ZBEKISTON SANOAT-QURILISH BANK, ATB", "developer_site": "https://uzpsb.uz/uz/", "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "uz.uzpsb.joydabusiness", "title": "SQB Business", "developer": "O'ZBEKISTON SANOAT-QURILISH BANK, ATB", "developer_site": "https://business.sqb.uz", "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "hamkorbank",
       "brand": { "en": "Hamkorbank", "uz": "Hamkorbank", "ru": "Хамкорбанк" },
       "category": "bank",
       "domains": ["hamkorbank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["com.hamkorbank.mobile", "uz.hamkorbank.tezbank", "uz.tune.hamkorbusiness", "uz.fb.cib.mobile.Hamkorbank_M"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "com.hamkorbank.mobile", "title": "Hamkor・онлайн банк Узбекистана", "developer": "Hamkorbank", "developer_site": "https://hamkorbank.uz/uz/", "contact_domain": "hamkorbank.uz", "checked": "2026-09-22" },
+          { "package": "uz.hamkorbank.tezbank", "title": "Tez — bankdan ko‘ra ko‘proq", "developer": "Hamkorbank", "developer_site": "https://tez.uz/", "contact_domain": "tez.uz", "checked": "2026-09-22" },
+          { "package": "uz.tune.hamkorbusiness", "title": "Hamkor Biznes", "developer": "Hamkorbank", "developer_site": "https://hamkorbank.uz/", "contact_domain": "hamkorbank.uz", "checked": "2026-09-22" },
+          { "package": "uz.fb.cib.mobile.Hamkorbank_M", "title": "Hamkormobile For Business M", "developer": "Hamkorbank", "developer_site": "https://hamkorbank.uz/uz/", "contact_domain": "hamkorbank.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "kapitalbank",
       "brand": { "en": "Kapitalbank", "uz": "Kapitalbank", "ru": "Капиталбанк" },
       "category": "bank",
       "domains": ["kapitalbank.uz", "apelsin.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.kapitalbank.kbonline", "uz.kapitalbank.mobile24"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.kapitalbank.kbonline", "title": "Kapitalbank", "developer": "KAPITALBANK, ATB", "developer_site": "https://kapitalbank.uz/", "contact_domain": "kapitalbank.uz", "checked": "2026-09-22" },
+          { "package": "uz.kapitalbank.mobile24", "title": "Uzum Business | Kapitalbank", "developer": "KAPITALBANK, ATB", "developer_site": "https://www.kapitalbank.uz", "contact_domain": "kapitalbank.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "ipakyulibank",
       "brand": { "en": "Ipak Yuli Bank", "uz": "Ipak Yo'li banki", "ru": "Ипак Йули банк" },
       "category": "bank",
       "domains": ["ipakyulibank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["com.ipakyulibank.mobile", "uz.lexa.ipak", "uz.iyb.monix", "mobile.ipakyuli.esign"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "com.ipakyulibank.mobile", "title": "Ipak Yuli Mobile: Onlayn Bank", "developer": "JSICB \"Ipak Yuli\"", "developer_site": "http://www.ipakyulibank.uz", "contact_domain": "ipakyulibank.uz", "checked": "2026-09-22" },
+          { "package": "uz.lexa.ipak", "title": "Ipak Yuli Business", "developer": "JSICB \"Ipak Yuli\"", "developer_site": "http://www.ipakyulibank.uz", "contact_domain": "ipakyulibank.uz", "checked": "2026-09-22" },
+          { "package": "uz.iyb.monix", "title": "MONIX", "developer": "JSICB \"Ipak Yuli\"", "developer_site": "https://monix.uz", "contact_domain": "ipakyulibank.uz", "checked": "2026-09-22" },
+          { "package": "mobile.ipakyuli.esign", "title": "e-sign", "developer": "JSICB \"Ipak Yuli\"", "developer_site": null, "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "aloqabank",
       "brand": { "en": "Aloqabank", "uz": "Aloqabank", "ru": "Алокабанк" },
       "category": "bank",
       "domains": ["aloqabank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.aloqabank.zoomrad", "uz.aloqabank.corporate", "uz.aloqabank.zoomradbusiness"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.aloqabank.zoomrad", "title": "Zoomrad", "developer": "AloqaBank", "developer_site": "https://aloqabank.uz", "contact_domain": "aloqabank.uz", "checked": "2026-09-22" },
+          { "package": "uz.aloqabank.corporate", "title": "AloqaBusiness 2.0", "developer": "AloqaBank", "developer_site": "https://www.aloqabank.uz/", "contact_domain": "aloqabank.uz", "checked": "2026-09-22" },
+          { "package": "uz.aloqabank.zoomradbusiness", "title": "Zoomrad Business", "developer": "AloqaBank", "developer_site": "https://aloqabank.uz/uz/", "contact_domain": "aloqabank.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "turonbank",
       "brand": { "en": "Turonbank", "uz": "Turonbank", "ru": "Туронбанк" },
       "category": "bank",
       "domains": ["turonbank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["com.colvir.turon.mobile", "com.colvir.turon.ul"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "com.colvir.turon.mobile", "title": "MyTuron", "developer": "TURON BANK", "developer_site": "https://turonbank.uz/", "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "com.colvir.turon.ul", "title": "Turon Business", "developer": "TURON BANK", "developer_site": "https://turonbank.uz", "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "mikrokreditbank",
       "brand": { "en": "Mikrokreditbank", "uz": "Mikrokreditbank", "ru": "Микрокредитбанк" },
       "category": "bank",
       "domains": ["mkbank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.tune.mkbdbo", "uz.fb.cib.mobile.mikrokreditbank"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.tune.mkbdbo", "title": "MAVRID", "developer": "АКБ \"Микрокредитбанк\"", "developer_site": null, "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "uz.fb.cib.mobile.mikrokreditbank", "title": "MKB Mobile Business", "developer": "АКБ \"Микрокредитбанк\"", "developer_site": "https://mikrokreditbank.uz/", "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "xalqbanki",
       "brand": { "en": "Xalq Banki", "uz": "Xalq banki", "ru": "Народный банк" },
       "category": "bank",
       "domains": ["xb.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.fb.cib.mobile.xalqbank_new"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.fb.cib.mobile.xalqbank_new", "title": "Xalq Bank Business", "developer": "JSC Xalq banki", "developer_site": "http://www.xb.uz", "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "trustbank",
       "brand": { "en": "Trustbank", "uz": "Trustbank", "ru": "Трастбанк" },
       "category": "bank",
       "domains": ["trustbank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["trastpay.uz", "uz.micros24.trastbank.mobile", "uz.fb.cib.mobile.trast_new"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "trastpay.uz", "title": "Trastpay", "developer": "PJSB Trastbank", "developer_site": "http://trastbank.uz/uz/", "contact_domain": "trustbank.uz", "checked": "2026-09-22" },
+          { "package": "uz.micros24.trastbank.mobile", "title": "Trastbank Business", "developer": "PJSB Trastbank", "developer_site": "https://trustbank.uz/", "contact_domain": "trustbank.uz", "checked": "2026-09-22" },
+          { "package": "uz.fb.cib.mobile.trast_new", "title": "Trust Bank Business", "developer": "PJSB Trastbank", "developer_site": "http://www.fido-biznes.uz", "contact_domain": "fido.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "infinbank",
       "brand": { "en": "InfinBank", "uz": "InfinBank", "ru": "Инфинбанк" },
       "category": "bank",
       "domains": ["infinbank.com"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.xsoft.myinfin", "uz.infin.business"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.xsoft.myinfin", "title": "InfinBANK", "developer": "InfinBANK", "developer_site": "http://infinbank.com", "contact_domain": "infinbank.com", "checked": "2026-09-22" },
+          { "package": "uz.infin.business", "title": "InfinBusiness", "developer": "InfinBANK", "developer_site": "http://infinbank.com", "contact_domain": "infinbank.com", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "asiaalliancebank",
       "brand": { "en": "Asia Alliance Bank", "uz": "Asia Alliance Bank", "ru": "Азия Альянс Банк" },
       "category": "bank",
       "domains": ["aab.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.tune.juicer"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.tune.juicer", "title": "Alliance Pay", "developer": "JSCB Asia Alliance Bank", "developer_site": "http://www.aab.uz", "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "orientfinans",
       "brand": { "en": "Orient Finans Bank", "uz": "Orient Finans Bank", "ru": "Ориент Финанс Банк" },
       "category": "bank",
       "domains": ["ofb.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.ofbmobile.android", "uz.ofb.mobile.juniorbank.android"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.ofbmobile.android", "title": "OFB", "developer": "ORIENT FINANS BANK (UZB)", "developer_site": "https://ofb.uz/", "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "uz.ofb.mobile.juniorbank.android", "title": "OFB Avlod", "developer": "ORIENT FINANS BANK (UZB)", "developer_site": "https://ofb.uz", "contact_domain": "ofb.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "davrbank",
       "brand": { "en": "Davr Bank", "uz": "Davr bank", "ru": "Давр банк" },
       "category": "bank",
       "domains": ["davrbank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.davrbank.mobile", "uz.davrbank.davrbusiness", "uz.startsoft.davr", "uz.davr.davrnasiya", "com.app.davrhardmobile", "uz.davrbank.playintegritytest"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.davrbank.mobile", "title": "Davr Mobile 2.0", "developer": "Davrbank", "developer_site": "http://davrbank.uz", "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "uz.davrbank.davrbusiness", "title": "Davr Business 2.0", "developer": "Davrbank", "developer_site": null, "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "uz.startsoft.davr", "title": "Davr Bank Business", "developer": "Davrbank", "developer_site": "https://www.davrbank.uz", "contact_domain": "davrbank.uz", "checked": "2026-09-22" },
+          { "package": "uz.davr.davrnasiya", "title": "DavrPay", "developer": "Davrbank", "developer_site": "https://davrbank.uz/", "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "com.app.davrhardmobile", "title": "Davr collection", "developer": "Davrbank", "developer_site": null, "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "uz.davrbank.playintegritytest", "title": "DavrSec", "developer": "Davrbank", "developer_site": "https://davrbank.uz", "contact_domain": "davrbank.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "anorbank",
       "brand": { "en": "Anor Bank", "uz": "Anor bank", "ru": "Анор банк" },
       "category": "bank",
       "domains": ["anorbank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.anormobile.retail", "uz.anorbank.business", "uz.anorbank.anor_represent"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.anormobile.retail", "title": "Anorbank", "developer": "AO ANOR BANK", "developer_site": "https://anorbank.uz/", "contact_domain": "anorbank.uz", "checked": "2026-09-22" },
+          { "package": "uz.anorbank.business", "title": "Anor Business", "developer": "AO ANOR BANK", "developer_site": "https://anorbank.uz/", "contact_domain": "anorbank.uz", "checked": "2026-09-22" },
+          { "package": "uz.anorbank.anor_represent", "title": "Anor Delivery", "developer": "AO ANOR BANK", "developer_site": null, "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "tbcuz",
       "brand": { "en": "TBC Bank Uzbekistan", "uz": "TBC bank O'zbekiston", "ru": "TBC банк Узбекистан" },
       "category": "bank",
       "domains": ["tbcbank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["ge.space.app.uzbekistan", "com.space.business.app.uzbekistan"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "ge.space.app.uzbekistan", "title": "TBC Bank Uzbekistan", "developer": "TBC UZ", "developer_site": "https://www.tbcbank.uz", "contact_domain": "tbcbank.uz", "checked": "2026-09-22" },
+          { "package": "com.space.business.app.uzbekistan", "title": "TBC Bank Uzbekistan: Biznes", "developer": "TBC UZ", "developer_site": "https://www.tbcbusiness.uz", "contact_domain": "tbcbank.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "uzumbank",
       "brand": { "en": "Uzum Bank", "uz": "Uzum Bank", "ru": "Узум Банк" },
       "category": "bank",
       "domains": ["uzumbank.uz", "uzum.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.kapitalbank.android", "uz.uzum.app", "uz.paymart.paymart_mobile", "uz.solutionslab.paymart_vendor", "uz.uzumnasiya.legal", "uz.uzum.tezkor", "uz.uzum.tezkor.courier", "uz.uzum.tezkor.vendor", "uz.uzum.sellers", "uz.uzum.avto.android"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.kapitalbank.android", "title": "Uzum Bank onlayn. O'zbekiston", "developer": "Uzum", "developer_site": "https://uzumbank.uz/ru", "contact_domain": "uzumbank.uz", "checked": "2026-09-22" },
+          { "package": "uz.uzum.app", "title": "Uzum Market: Internet do‘kon", "developer": "Uzum", "developer_site": "http://www.uzum.uz", "contact_domain": "uzum.com", "checked": "2026-09-22" },
+          { "package": "uz.paymart.paymart_mobile", "title": "Uzum Nasiya: muddatli to'lov", "developer": "Uzum", "developer_site": "https://uzumnasiya.uz/", "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "uz.solutionslab.paymart_vendor", "title": "Uzum Nasiya Business", "developer": "Uzum", "developer_site": "https://paymart.uz/", "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "uz.uzumnasiya.legal", "title": "Uzum Nasiya Legal", "developer": "Uzum", "developer_site": "https://uzumnasiya.uz/", "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "uz.uzum.tezkor", "title": "Uzum Tezkor: Ovqat yetkazib", "developer": "Uzum", "developer_site": null, "contact_domain": "uzum.com", "checked": "2026-09-22" },
+          { "package": "uz.uzum.tezkor.courier", "title": "Tezkor Courier", "developer": "Uzum", "developer_site": null, "contact_domain": "uzum.com", "checked": "2026-09-22" },
+          { "package": "uz.uzum.tezkor.vendor", "title": "Uzum Tezkor Vendor: партнеры", "developer": "Uzum", "developer_site": null, "contact_domain": "uzum.com", "checked": "2026-09-22" },
+          { "package": "uz.uzum.sellers", "title": "Uzum Sellers", "developer": "Uzum", "developer_site": "https://seller.uzum.uz", "contact_domain": "uzum.com", "checked": "2026-09-22" },
+          { "package": "uz.uzum.avto.android", "title": "Uzum Avto: avtomobil bozori", "developer": "Uzum", "developer_site": "https://webview.uzumavto.uz", "contact_domain": "uzumavto.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "ziraatbank",
       "brand": { "en": "Ziraat Bank Uzbekistan", "uz": "Ziraat Bank O'zbekiston", "ru": "Зираат Банк Узбекистан" },
       "category": "bank",
       "domains": ["ziraatbank.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["com.ofss.ziraat"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "com.ofss.ziraat", "title": "Ziraat Bank Mobile Uzbekistan", "developer": "Ziraat Bank Uzbekistan JSC", "developer_site": "https://online.ziraatbank.uz", "contact_domain": "profinch.com", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "click",
       "brand": { "en": "Click", "uz": "Click", "ru": "Click" },
       "category": "payment",
       "domains": ["click.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["air.com.ssdsoftwaresolutions.clickuz", "uz.click.merchant.clickmerchant"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "air.com.ssdsoftwaresolutions.clickuz", "title": "Click SuperApp", "developer": "Click JSC", "developer_site": "http://www.click.uz", "contact_domain": "click.uz", "checked": "2026-09-22" },
+          { "package": "uz.click.merchant.clickmerchant", "title": "CLICK для Партнеров", "developer": "Click JSC", "developer_site": "http://www.click.uz", "contact_domain": "click.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "payme",
       "brand": { "en": "Payme", "uz": "Payme", "ru": "Payme" },
       "category": "payment",
       "domains": ["payme.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.dida.payme", "uz.paycom.merchantcabinet"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.dida.payme", "title": "payme - to’lov va o’tkazmalar", "developer": "Paymego", "developer_site": "https://payme.uz", "contact_domain": "payme.uz", "checked": "2026-09-22" },
+          { "package": "uz.paycom.merchantcabinet", "title": "Payme Business", "developer": "Paymego", "developer_site": "http://paycom.uz", "contact_domain": "paycom.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "paynet",
       "brand": { "en": "Paynet", "uz": "Paynet", "ru": "Пэйнет" },
       "category": "payment",
       "domains": ["paynet.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.paynet.app", "uz.paynet.flagship_mobile", "uz.paynet.paynet_business"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.paynet.app", "title": "Paynet – Send Money & Transfer", "developer": "PAYNET, AJ", "developer_site": "http://paynet.uz", "contact_domain": "paynet.uz", "checked": "2026-09-22" },
+          { "package": "uz.paynet.flagship_mobile", "title": "Paynet Flagship", "developer": "PAYNET, AJ", "developer_site": "http://paynet.uz", "contact_domain": "paynet.uz", "checked": "2026-09-22" },
+          { "package": "uz.paynet.paynet_business", "title": "foyda: Paynet biznes uchun", "developer": "PAYNET, AJ", "developer_site": "http://paynet.uz", "contact_domain": "paynet.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "upay",
       "brand": { "en": "Upay", "uz": "Upay", "ru": "Upay" },
       "category": "payment",
       "domains": ["upay.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.marokand.upay"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.marokand.upay", "title": "UPay -Удобный платежный сервис", "developer": "MAROQAND LLC", "developer_site": "https://www.upay.uz", "contact_domain": "maroqand.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "oson",
       "brand": { "en": "OSON", "uz": "OSON", "ru": "OSON" },
       "category": "payment",
       "domains": ["oson.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["com.oson", "com.oson.business", "com.osonesim"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "com.oson", "title": "OSON - Transfers and Payments", "developer": "JSC «BRIO GROUP»", "developer_site": "https://oson.com", "contact_domain": "oson.com", "checked": "2026-09-22" },
+          { "package": "com.oson.business", "title": "OSON Business", "developer": "JSC «BRIO GROUP»", "developer_site": "http://oson.uz", "contact_domain": "oson.uz", "checked": "2026-09-22" },
+          { "package": "com.osonesim", "title": "OSON eSIM", "developer": "JSC «BRIO GROUP»", "developer_site": "https://oson.com/uz-uz/esim", "contact_domain": "oson.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "uzcard",
       "brand": { "en": "Uzcard", "uz": "Uzcard", "ru": "Узкард" },
       "category": "card_scheme",
       "domains": ["uzcard.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.uzcardpay.android"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.uzcardpay.android", "title": "Uzcard Pay", "developer": "Uzcard developer", "developer_site": "https://uzcard.uz", "contact_domain": "uzcard.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "humo",
       "brand": { "en": "Humo", "uz": "Humo", "ru": "Хумо" },
       "category": "card_scheme",
       "domains": ["humo.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["com.humo.tech"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "com.humo.tech", "title": "HUMO PAY: HUMO kartalari uchun", "developer": "HUMO PAY", "developer_site": null, "contact_domain": "nmpc.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "mygov",
       "brand": { "en": "my.gov.uz", "uz": "Yagona interaktiv davlat xizmatlari portali", "ru": "Единый портал интерактивных госуслуг" },
       "category": "government",
       "domains": ["my.gov.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.uzinfocom.mygov"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.uzinfocom.mygov", "title": "MyGov: Davlat xizmatlari", "developer": "UZINFOCOM", "developer_site": "https://my.gov.uz", "contact_domain": "uzinfocom.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "soliq",
       "brand": { "en": "State Tax Committee", "uz": "Davlat soliq qo'mitasi", "ru": "Государственный налоговый комитет" },
       "category": "government",
       "domains": ["soliq.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.soliq.mobile", "uz.soliq.inspektor", "uz.soliq.edo.mobile"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.soliq.mobile", "title": "Soliq", "developer": "YANGI TEXNOLOGIYALAR ILMIY-AXBOROT MARKAZI", "developer_site": "https://soliq.uz/", "contact_domain": "soliq.uz", "checked": "2026-09-22" },
+          { "package": "uz.soliq.inspektor", "title": "Soliq inspektor", "developer": "YANGI TEXNOLOGIYALAR ILMIY-AXBOROT MARKAZI", "developer_site": "https://soliq.uz/", "contact_domain": "soliq.uz", "checked": "2026-09-22" },
+          { "package": "uz.soliq.edo.mobile", "title": "EDO (DSQ)", "developer": "YANGI TEXNOLOGIYALAR ILMIY-AXBOROT MARKAZI", "developer_site": "https://soliq.uz/", "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "oneid",
       "brand": { "en": "OneID", "uz": "OneID", "ru": "OneID" },
       "category": "government",
       "domains": ["id.gov.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.egov.oneId"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.egov.oneId", "title": "OneID mobile", "developer": "EGOV", "developer_site": "https://id.egov.uz", "contact_domain": null, "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "eimzo",
       "brand": { "en": "E-IMZO", "uz": "E-IMZO", "ru": "E-IMZO" },
       "category": "government",
       "domains": ["e-imzo.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.yt.idcard.eimzo"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.yt.idcard.eimzo", "title": "E-IMZO (ID Card)", "developer": "YANGI TEXNOLOGIYALAR ILMIY-AXBOROT MARKAZI", "developer_site": "https://yt.uz/", "contact_domain": "yt.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "lex",
       "brand": { "en": "Lex.uz", "uz": "Lex.uz", "ru": "Lex.uz" },
       "category": "government",
       "domains": ["lex.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.lex.mobile"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.lex.mobile", "title": "LexUz", "developer": "“Adolat” milliy huquqiy axborot markazi", "developer_site": "https://adolatmarkazi.uz/", "contact_domain": "adolatmarkazi.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "uzmobile",
       "brand": { "en": "Uzmobile", "uz": "Uzmobile", "ru": "Узмобайл" },
       "category": "telecom",
       "domains": ["uzmobile.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.uztelecom.telecom"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.uztelecom.telecom", "title": "My Uztelecom", "developer": "\"Uzbektelecom\" JSC", "developer_site": "http://www.uztelecom.uz", "contact_domain": "uztelecom.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "beeline_uz",
       "brand": { "en": "Beeline Uzbekistan", "uz": "Beeline O'zbekiston", "ru": "Билайн Узбекистан" },
       "category": "telecom",
       "domains": ["beeline.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.beeline.odp", "uz.beeline.kiosk"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.beeline.odp", "title": "hambi (Beeline Uzbekistan)", "developer": "\"UNITEL\" LLC", "developer_site": "https://beeline.uz", "contact_domain": "beeline.uz", "checked": "2026-09-22" },
+          { "package": "uz.beeline.kiosk", "title": "Beeline Kiosk", "developer": "\"UNITEL\" LLC", "developer_site": null, "contact_domain": "beeline.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "ucell",
       "brand": { "en": "Ucell", "uz": "Ucell", "ru": "Ucell" },
       "category": "telecom",
       "domains": ["ucell.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.ucell.ucellmobile"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.ucell.ucellmobile", "title": "Ucell", "developer": "\"COSCOM\" LLC", "developer_site": "http://www.ucell.uz", "contact_domain": "ucell.uz", "checked": "2026-09-22" }
+        ]
+      }
     },
     {
       "id": "mobiuz",
       "brand": { "en": "Mobiuz", "uz": "Mobiuz", "ru": "Мобиуз" },
       "category": "telecom",
       "domains": ["mobi.uz"],
-      "android": { "packages": [], "package_verified": false, "signing_cert_sha256": [], "pin_status": "unpinned" }
+      "android": {
+        "packages": ["uz.mobiuz.mobiservice", "uz.mobiuz.music", "com.mobiuz.dealer_mobile_app", "mobid.mobi.uz"],
+        "package_verified": true,
+        "signing_cert_sha256": [],
+        "pin_status": "unpinned",
+        "package_provenance": [
+          { "package": "uz.mobiuz.mobiservice", "title": "Mobiuz", "developer": "ООО Universal Mobile Systems", "developer_site": null, "contact_domain": "mobi.uz", "checked": "2026-09-22" },
+          { "package": "uz.mobiuz.music", "title": "mobi music – Mobiuz", "developer": "ООО Universal Mobile Systems", "developer_site": "https://mobimusic.uz/", "contact_domain": null, "checked": "2026-09-22" },
+          { "package": "com.mobiuz.dealer_mobile_app", "title": "MobiDealer", "developer": "ООО Universal Mobile Systems", "developer_site": null, "contact_domain": "mobi.uz", "checked": "2026-09-22" },
+          { "package": "mobid.mobi.uz", "title": "mob.id", "developer": "ООО Universal Mobile Systems", "developer_site": "https://mobi.uz", "contact_domain": "mobi.uz", "checked": "2026-09-22" }
+        ]
+      }
     }
   ]
 }

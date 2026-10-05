@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The device check on the Humogram page (uz.jac.secure.android.SecurityCheckupSection)
+  and the protection percentage it shares with the virus scanner
+  (SecurityCheckup.score): row titles, what each check means when it passed
+  and how to fix it when it did not, and the footnote saying what is asked of
+  whom. Kept in a file of its own, as the Settings card's copy is.
+-->
+<resources>
+    <string name="jac_checkup">Qurilma tekshiruvi</string>
+    <string name="jac_checkup_ok">Joyida</string>
+    <string name="jac_checkup_warn">Diqqat</string>
+    <string name="jac_checkup_risk">Xavf</string>
+    <string name="jac_checkup_unknown">Tekshirib bo‘lmadi</string>
+    <string name="jac_checkup_screen_lock">Ekran qulfi</string>
+    <string name="jac_checkup_screen_lock_advice">Ekran qulfisiz telefonni qo‘lga olgan har kim barcha yozishmalaringizni ko‘ra oladi. Tizim sozlamalarida PIN-kod, grafik kalit yoki barmoq izini o‘rnating.</string>
+    <string name="jac_checkup_screen_lock_ok">Ekran qulfi o‘rnatilgan: telefonni olgan odam usiz yozishmalaringizni ocha olmaydi.</string>
+    <string name="jac_checkup_root">Root ruxsati</string>
+    <string name="jac_checkup_root_advice">Qurilmada root borga o‘xshaydi. Root har qanday ilovaga boshqa ilovalarning ma’lumotlarini, jumladan xabarlaringizni o‘qish imkonini beradi. Root-ni o‘zingiz qilmagan bo‘lsangiz, telefonni mutaxassisga ko‘rsating.</string>
+    <string name="jac_checkup_root_ok">Root belgilari topilmadi. Root har qanday ilovaga boshqa ilovalarning ma’lumotlarini, jumladan xabarlaringizni o‘qish imkonini bergan bo‘lardi.</string>
+    <string name="jac_checkup_adb">USB orqali nosozliklarni tuzatish</string>
+    <string name="jac_checkup_adb_advice">USB orqali nosozliklarni tuzatish kompyuterga telefonni kabel orqali boshqarish imkonini beradi. Dasturchiga qulay, qolganlarga xavfli — hozir ishlatmayotgan bo‘lsangiz, o‘chiring.</string>
+    <string name="jac_checkup_adb_ok">USB orqali nosozliklarni tuzatish o‘chiq: kompyuter telefonni kabel orqali boshqara olmaydi.</string>
+    <string name="jac_checkup_patch">Xavfsizlik yangilanishlari</string>
+    <string name="jac_checkup_patch_advice">Bu telefondagi so‘nggi xavfsizlik yangilanishiga bir yildan oshgan, ma’lum zaifliklar ochiq qolmoqda. Tizim yangilanishini tekshiring; bo‘lmasa, bu qurilmaga kamroq ishoning.</string>
+    <string name="jac_checkup_patch_ok">Bu telefondagi so‘nggi xavfsizlik yangilanishi bir yildan yangi.</string>
+    <string name="jac_checkup_2fa">Bulut paroli (2FA)</string>
+    <string name="jac_checkup_2fa_advice">Bulut paroli SMS’dagi kirish kodi qo‘lga tushsa ham akkauntni himoya qiladi. Bu Telegram’ning eng muhim sozlamasi.</string>
+    <string name="jac_checkup_2fa_ok">Bulut paroli o‘rnatilgan: SMS’dagi kod bilan ham usiz akkauntingizga hech kim kira olmaydi.</string>
+    <string name="jac_checkup_open_settings">Sozlamalarni ochish</string>
+    <string name="jac_checkup_set_up">Sozlash</string>
+    <string name="jac_checkup_note">Qurilma tekshiruvlari shu telefonning o‘zida bajariladi. Telegram’dan faqat bulut paroli holati so‘raladi — Sozlamalar ham xuddi shunday qiladi. Boshqa hech qayerga hech narsa yuborilmaydi.</string>
+    <string name="jac_protection_level">Himoya darajasi: %1$d%%</string>
+</resources>

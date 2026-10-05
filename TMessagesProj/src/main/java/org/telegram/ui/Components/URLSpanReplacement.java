@@ -43,6 +43,9 @@ public class URLSpanReplacement extends URLSpan {
         if (navigateToPremiumBot && widget.getContext() instanceof LaunchActivity) {
             ((LaunchActivity) widget.getContext()).setNavigateToPremiumBot(true);
         }
+        // Humogram: a text link shows one thing and opens another. Hand what
+        // it showed to the link guard, so its warning can say so.
+        uz.jac.secure.android.LinkGuardUi.noteTapped(this, widget);
         Uri uri = Uri.parse(getURL());
         Browser.openUrl(widget.getContext(), uri);
     }
@@ -55,5 +58,9 @@ public class URLSpanReplacement extends URLSpan {
             style.applyStyle(p);
             p.setUnderlineText(p.linkColor == color);
         }
+        // Humogram: a link to a site that is not on the trusted list is drawn
+        // red (and underlined: a red text link with no underline reads as an
+        // error, not as something to tap).
+        uz.jac.secure.android.LinkGuardUi.tint(this, p, color);
     }
 }

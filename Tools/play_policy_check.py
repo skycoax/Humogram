@@ -98,7 +98,7 @@ def value_files():
 
 
 def string_value(path, key):
-    match = re.search(r'<string name="%s">(.*?)</string>' % re.escape(key), read(path), re.S)
+    match = re.search(r'<string name="%s"[^>]*>(.*?)</string>' % re.escape(key), read(path), re.S)
     return match.group(1) if match else None
 
 
@@ -481,6 +481,103 @@ def check_scanner_disclosure_matches_code():
               'docs/privacy-policy.md still says "Our scanner collects and sends nothing"')
 
 
+def check_linkguard_disclosure_matches_code():
+    """Code that downloads the link guard's list needs declarations that say so.
+
+    The list is pulled from our own host, so from the first build that ships
+    the link guard the developer does operate a server the app contacts, and
+    that server sees an IP address and the app's build number. Nothing about
+    the user's links is sent -- but "no server" and "contacts nothing of ours"
+    stop being true, in the privacy policy, in Data safety and on the About
+    screen alike.
+
+    The scanner check above cannot see this: the link guard reads its own
+    string, jac_linkguard_lists_url, precisely so that it never touches the
+    scanner backend. So it gets its own check, keyed on its own string, and
+    like the scanner's it stops the release until the declarations are
+    rewritten.
+    """
+    users = sorted(os.path.relpath(p, ROOT) for p in java_files()
+                   if 'R.string.jac_linkguard_lists_url' in read(p))
+    if not users:
+        return
+    url = string_value(os.path.join(RES, 'values', 'strings.xml'), 'jac_linkguard_lists_url') or ''
+    host = re.sub(r'^[a-z]+://', '', url.strip()).split('/')[0]
+    check('link guard list URL names a host', bool(host),
+          'jac_linkguard_lists_url is missing or empty in values/strings.xml')
+    if not host:
+        return
+    todo = ('Do all three, then record it: (1) docs/privacy-policy.md and the site copy -- say the app '
+            'downloads a public list from %s and what that request reveals, and drop "operates no '
+            'server"; (2) Play Console Data safety; (3) docs/play-console.md -- '
+            'data.linkguard_list_download = declared.' % host)
+    declared = declared_answers().get('data.linkguard_list_download')
+    check('link guard list download is declared (data.linkguard_list_download = declared)',
+          declared == 'declared',
+          '%s download(s) the list from %s, but docs/play-console.md says %r. %s'
+          % (', '.join(users), host, declared, todo))
+    policy = os.path.join(ROOT, 'docs', 'privacy-policy.md')
+    body = read(policy) if os.path.exists(policy) else ''
+    check('privacy policy names the list server (%s)' % host, host in body,
+          'docs/privacy-policy.md does not mention %s. %s' % (host, todo))
+    check('privacy policy no longer says the developer operates no server',
+          'operates no server' not in body,
+          'docs/privacy-policy.md still says "operates no server", and the app now downloads from %s. %s'
+          % (host, todo))
+    for path in value_files():
+        about = string_value(path, 'jac_about_scanner_body')
+        if about is None:
+            continue
+        check('About text names the list server (%s)' % os.path.basename(os.path.dirname(path)),
+              host in about,
+              'jac_about_scanner_body in %s does not mention %s' % (os.path.relpath(path, ROOT), host))
+
+
+def app_package():
+    match = re.search(r'^APP_PACKAGE\s*=\s*(\S+)', read(os.path.join(ROOT, 'gradle.properties')), re.M)
+    return match.group(1) if match else None
+
+
+def check_push_disclosure_matches_code():
+    """Push through our own Firebase project needs declarations that say so.
+
+    The google-services plugin is applied only when TMessagesProj_App's
+    google-services.json is ours -- it names our package (see build.gradle);
+    the file upstream ships there is Telegram's and is ignored. Until then no
+    push token is registered and nothing goes to Google. From the first build
+    with our file, Firebase Cloud Messaging gets an installation id and a push
+    token for the device, and Telegram's servers send each notification, end-
+    to-end encrypted, through Google. That is a third party the privacy policy
+    must name, and Data safety must cover the device id.
+
+    Without our file it only warns: a messenger that is silent while closed is
+    a product problem, not a policy one, but it should not ship unnoticed.
+    """
+    package = app_package()
+    path = os.path.join(ROOT, 'TMessagesProj_App', 'google-services.json')
+    ours = bool(package) and os.path.exists(path) and ('"%s"' % package) in read(path)
+    if not ours:
+        warn('push notifications are off: TMessagesProj_App/google-services.json is not ours',
+             'messages arrive only while the app is open. See docs/push-notifications.md')
+        return
+    todo = ('Do all three, then record it: (1) docs/privacy-policy.md and the site copy -- name Google '
+            'Firebase Cloud Messaging as the push channel and what it receives; (2) Play Console Data '
+            'safety -- Device or other IDs, collected, for app functionality; (3) docs/play-console.md -- '
+            'data.push_fcm = declared.')
+    check('push through Firebase is declared (data.push_fcm = declared)',
+          declared_answers().get('data.push_fcm') == 'declared',
+          'google-services.json names %s, so this build registers for FCM. %s' % (package, todo))
+    policy = os.path.join(ROOT, 'docs', 'privacy-policy.md')
+    body = read(policy) if os.path.exists(policy) else ''
+    check('privacy policy names Firebase Cloud Messaging', 'Firebase Cloud Messaging' in body,
+          'docs/privacy-policy.md does not mention it. %s' % todo)
+    # A push that cold-starts the process needs the default FirebaseApp before
+    # our code runs; removing the provider brings back silent notifications.
+    check('FirebaseInitProvider is not removed from the manifest',
+          not re.search(r'FirebaseInitProvider"[^>]*tools:node="remove"', read(MANIFEST), re.S),
+          'TMessagesProj/src/main/AndroidManifest.xml removes it -- see the comment there')
+
+
 def check_age_limit_matches_policy():
     """The target audience and the privacy policy name the same minimum age.
 
@@ -517,6 +614,8 @@ def main():
         ('branding', check_no_brand_leftovers),
         ('declarations', check_content_rating_matches_code),
         ('declarations', check_scanner_disclosure_matches_code),
+        ('declarations', check_linkguard_disclosure_matches_code),
+        ('declarations', check_push_disclosure_matches_code),
         ('declarations', check_age_limit_matches_policy),
     ]:
         fn()
