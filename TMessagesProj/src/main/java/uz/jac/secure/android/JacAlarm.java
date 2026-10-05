@@ -10,7 +10,8 @@ import android.os.Vibrator;
 import org.telegram.messenger.R;
 
 /**
- * The siren that plays when a dangerous file is about to be opened.
+ * The siren that plays when a dangerous file is about to be opened, or a link
+ * to a site on the block list ({@link LinkGuardUi}).
  *
  * <h3>What this is for</h3>
  *
@@ -24,9 +25,10 @@ import org.telegram.messenger.R;
  *
  * <h3>The asset and its fallback</h3>
  *
- * {@code res/raw/jac_alarm.wav} is a short synthesised hi-lo two-tone —
- * unambiguous as an alert and unlike every sound Telegram itself makes, so it
- * cannot be mistaken for a message arriving. It is played through
+ * {@code res/raw/jac_alarm.wav} is a classic alarm-clock pattern — two groups
+ * of four quick beeps — synthesised from scratch for Humogram (no sample of any
+ * phone maker's ringtone is in it). Unambiguous as an alert and unlike every
+ * sound Telegram itself makes, so it cannot be mistaken for a message arriving. It is played through
  * {@link SoundPool} on {@link AudioManager#STREAM_ALARM}: the stream the
  * platform reserves for "needs attention now", which is not silenced by the
  * media volume being at zero.
@@ -62,8 +64,8 @@ public final class JacAlarm {
     private static volatile boolean loaded;
     private static volatile long lastPlay;
 
-    /** Vibration pattern mirroring the hi-lo of the audio: two firm pulses. */
-    private static final long[] VIBRATION = {0, 180, 90, 180};
+    /** Vibration pattern mirroring the audio: four quick pulses, like the beeps. */
+    private static final long[] VIBRATION = {0, 90, 60, 90, 60, 90, 60, 90};
 
     private JacAlarm() {
     }

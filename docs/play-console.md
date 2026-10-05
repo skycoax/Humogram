@@ -183,8 +183,8 @@ release build once the date has passed.
 | 2026-08-31 | 36         | 8.0.0           | enforced (Policy status)        |
 | 2027-08-31 | 37         | 9.0.0           | expected; confirm in the console |
 
-Billing 9 declares minSdk 23 and we ship minSdk 21, so moving to it means raising
-minSdk, as upstream will have to.
+Since 1.0.1 we ship minSdk 24 (Play's automatic protection requires it), so
+Billing 9 (minSdk 23) is no longer blocked by our minSdk.
 
 ## Tracks
 

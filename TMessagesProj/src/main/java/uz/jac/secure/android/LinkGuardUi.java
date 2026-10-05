@@ -1105,6 +1105,13 @@ public final class LinkGuardUi {
             dialog.show();
             nowAsking(dialog, key, activity);
             colourButton(dialog, DialogInterface.BUTTON_NEGATIVE, Theme.getColor(Theme.key_text_RedBold));
+            if (finding.dangerous) {
+                // The siren a dangerous installer gets (JacAlarm): a site on
+                // the block list is the link-shaped version of that moment.
+                // Unknown sites stay silent — they are most links, and a
+                // siren that sounds on most links is one people stop hearing.
+                JacAlarm.sound(activity);
+            }
         } catch (Throwable t) {
             // Could not ask, so not opened.
             FileLog.e("link guard: step one failed: " + t.getClass().getSimpleName());
@@ -1173,6 +1180,10 @@ public final class LinkGuardUi {
                     .create();
             dialog.show();
             nowAsking(dialog, key, activity);
+            if (now.dangerous && !first.dangerous) {
+                // Blocked while step one was up: the siren step one did not play.
+                JacAlarm.sound(activity);
+            }
 
             final View danger = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
             colourButton(dialog, DialogInterface.BUTTON_POSITIVE, Theme.getColor(Theme.key_text_RedBold));
