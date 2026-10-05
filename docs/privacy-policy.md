@@ -1,6 +1,6 @@
 # Humogram — Maxfiylik siyosati / Политика конфиденциальности / Privacy Policy
 
-**Oxirgi yangilanish / Последнее обновление / Last updated: 2026-10-03**
+**Oxirgi yangilanish / Последнее обновление / Last updated: 2026-10-05**
 
 <!--
   This is the USER-FACING policy and the reviewed text behind the published
