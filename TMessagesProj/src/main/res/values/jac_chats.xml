@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Chats: the chat-type tabs over the chat list (uz.jac.secure.android.ChatTabs,
-  ChatTabsSettingsActivity), the ID in a chat's header (ChatIdLabel), and the
-  launch reminder about a missing cloud password (TwoStepReminder). Kept in a
+  ChatTabsSettingsActivity), the ID in a chat's header (ChatIdLabel), the
+  launch reminder about a missing cloud password (TwoStepReminder), and the
+  footnote under the cyber-safety channels on Settings (RecommendedPeers). Kept in a
   file of its own, as the device check's copy is.
 -->
 <resources>
@@ -33,4 +34,6 @@
     <string name="jac_2fa_reminder_email_pending">You started setting a cloud password but have not confirmed the recovery email. Until you enter the code from that email, the password is not on.</string>
     <string name="jac_2fa_reminder_continue">Enter the code</string>
     <string name="jac_2fa_reminder_later">Later</string>
+
+    <string name="jac_peers_note">Telegram channels and bots about cyber safety. They are run by their owners; Humogram is not affiliated with them.</string>
 </resources>

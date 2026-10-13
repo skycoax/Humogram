@@ -756,6 +756,13 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                 }
             }
         }
+        // Humogram: cyber-safety channels and bots, right after Wallet, with
+        // their Telegram avatars and names (RecommendedPeers).
+        uz.jac.secure.android.RecommendedPeers.addItems(getContext(), currentAccount, items, () -> {
+            if (listView != null && listView.adapter != null) {
+                listView.adapter.update(true);
+            }
+        });
 
         if (!getMessagesController().premiumFeaturesBlocked()) {
             items.add(SettingCell.Factory.of(15, 0xFFF45255, 0xFFDF3955, R.drawable.settings_business, getString(R.string.TelegramBusiness)));
@@ -813,6 +820,9 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
     }
 
     private void onClick(UItem item, View view, int position, float x, float y) {
+        if (uz.jac.secure.android.RecommendedPeers.onClick(getContext(), item)) {
+            return; // Humogram: a cyber-safety channel or bot row
+        }
         if (item.object instanceof TLRPC.TL_attachMenuBot) {
             TLRPC.TL_attachMenuBot attachMenuBot = (TLRPC.TL_attachMenuBot) item.object;
             if (attachMenuBot.inactive || attachMenuBot.side_menu_disclaimer_needed) {
