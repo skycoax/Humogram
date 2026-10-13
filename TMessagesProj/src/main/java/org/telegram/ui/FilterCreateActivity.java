@@ -1116,6 +1116,11 @@ public class FilterCreateActivity extends BaseFragment {
         if (fragment == null || fragment.getParentActivity() == null) {
             return;
         }
+        if (uz.jac.secure.android.ChatTabs.isOurs(filter)) {
+            // Humogram: a chat-type tab lives on this phone only and must never
+            // become a Telegram folder on the account (see ChatTabs).
+            return;
+        }
         AlertDialog progressDialog;
         if (progress) {
             progressDialog = new AlertDialog(fragment.getParentActivity(), AlertDialog.ALERT_TYPE_SPINNER);

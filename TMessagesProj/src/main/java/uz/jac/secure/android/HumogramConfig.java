@@ -73,8 +73,116 @@ public final class HumogramConfig {
     private HumogramConfig() {
     }
 
-    private static SharedPreferences prefs(Context context) {
+    static SharedPreferences prefs(Context context) {
         return context.getApplicationContext().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+    }
+
+    // ---------------------------------------------------------------------
+    // Chat list and chat screen (ChatTabs, ChatIdLabel, TwoStepReminder)
+    //
+    // Per-device view choices, like the ornament. Cached where the read sits
+    // on a draw or bind path: the tab strip asks for its tabs on every
+    // update, and the chat header on every status change.
+    // ---------------------------------------------------------------------
+
+    private static final String KEY_CHAT_TABS = "chat_tabs";
+    private static final String KEY_CHAT_TABS_MASK = "chat_tabs_mask";
+    private static final String KEY_CHAT_ID = "chat_id_in_header";
+    private static final String KEY_TWO_STEP_REMINDER = "two_step_reminder";
+
+    private static volatile int cachedChatTabs = -1;
+    private static volatile int cachedChatTabsMask = -1;
+    private static volatile int cachedChatId = -1;
+
+    /** Whether the chat-type tabs (Private, Groups, Channels…) sit over the chat list. On by default. */
+    public static boolean isChatTabs(Context context) {
+        int c = cachedChatTabs;
+        if (c >= 0) {
+            return c == 1;
+        }
+        boolean value = true;
+        try {
+            value = prefs(context).getBoolean(KEY_CHAT_TABS, true);
+        } catch (Throwable ignored) {
+        }
+        cachedChatTabs = value ? 1 : 0;
+        return value;
+    }
+
+    public static void setChatTabs(Context context, boolean on) {
+        cachedChatTabs = on ? 1 : 0;
+        try {
+            prefs(context).edit().putBoolean(KEY_CHAT_TABS, on).apply();
+        } catch (Throwable ignored) {
+        }
+        ChatTabs.onSettingsChanged();
+    }
+
+    /** Which tabs are shown: a bit per {@link ChatTabs} kind. */
+    public static int getChatTabsMask(Context context) {
+        int c = cachedChatTabsMask;
+        if (c >= 0) {
+            return c;
+        }
+        int value = ChatTabs.DEFAULT_MASK;
+        try {
+            value = prefs(context).getInt(KEY_CHAT_TABS_MASK, ChatTabs.DEFAULT_MASK);
+        } catch (Throwable ignored) {
+        }
+        cachedChatTabsMask = value;
+        return value;
+    }
+
+    public static void setChatTabsMask(Context context, int mask) {
+        cachedChatTabsMask = mask;
+        try {
+            prefs(context).edit().putInt(KEY_CHAT_TABS_MASK, mask).apply();
+        } catch (Throwable ignored) {
+        }
+        ChatTabs.onSettingsChanged();
+    }
+
+    /**
+     * Whether a chat's header shows the other side's numeric ID before its
+     * status, so a screenshot of the conversation says who it was with. On by
+     * default.
+     */
+    public static boolean isChatIdInHeader(Context context) {
+        int c = cachedChatId;
+        if (c >= 0) {
+            return c == 1;
+        }
+        boolean value = true;
+        try {
+            value = prefs(context).getBoolean(KEY_CHAT_ID, true);
+        } catch (Throwable ignored) {
+        }
+        cachedChatId = value ? 1 : 0;
+        return value;
+    }
+
+    public static void setChatIdInHeader(Context context, boolean on) {
+        cachedChatId = on ? 1 : 0;
+        try {
+            prefs(context).edit().putBoolean(KEY_CHAT_ID, on).apply();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** Whether every launch says so when the account has no cloud password. On by default. */
+    public static boolean isTwoStepReminder(Context context) {
+        try {
+            return prefs(context).getBoolean(KEY_TWO_STEP_REMINDER, true);
+        } catch (Throwable ignored) {
+            return true;
+        }
+    }
+
+    public static void setTwoStepReminder(Context context, boolean on) {
+        try {
+            prefs(context).edit().putBoolean(KEY_TWO_STEP_REMINDER, on).apply();
+        } catch (Throwable ignored) {
+        }
     }
 
     /** Set once {@link #cleanUpRemovedFeatures} has run on this install. */

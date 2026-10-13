@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Chats: the chat-type tabs over the chat list (uz.jac.secure.android.ChatTabs,
+  ChatTabsSettingsActivity), the ID in a chat's header (ChatIdLabel), and the
+  launch reminder about a missing cloud password (TwoStepReminder). Kept in a
+  file of its own, as the device check's copy is.
+-->
+<resources>
+    <string name="jac_chats_header">Chatlar</string>
+    <string name="jac_on">Yoqilgan</string>
+    <string name="jac_off">O‘chiq</string>
+
+    <string name="jac_tabs_title">Chat yorliqlari</string>
+    <string name="jac_tabs_switch">Chatlar ro‘yxati ustida yorliqlar</string>
+    <string name="jac_tabs_switch_info">Shaxsiy, guruhlar, kanallar, botlar va boshqalar — chatlar ustida yorliqlar ko‘rinishida. Ular chatlarni faqat shu telefonda saralaydi: Telegram jildlaringiz va boshqa qurilmalaringiz o‘zgarmaydi.</string>
+    <string name="jac_tabs_which">Ko‘rsatiladigan yorliqlar</string>
+    <string name="jac_tabs_note">Telegram jildlaringiz shu yorliqlardan keyin keladi. Chatni «Sevimlilar»ga qo‘shish uchun uni chatlar ro‘yxatida bosib turing va ⋮ → «Sevimlilarga» ni tanlang. «Sevimlilar» yorlig‘i birinchi chat bilan birga paydo bo‘ladi.</string>
+    <string name="jac_tabs_users">Shaxsiy</string>
+    <string name="jac_tabs_favorites">Sevimlilar</string>
+    <string name="jac_tabs_admin">Admin</string>
+    <string name="jac_tabs_edit">Yorliqlarni sozlash</string>
+    <string name="jac_tabs_favorite_add">Sevimlilarga</string>
+    <string name="jac_tabs_favorite_remove">Sevimlilardan olib tashlash</string>
+    <string name="jac_tabs_favorite_added">Sevimlilarga qo‘shildi</string>
+    <string name="jac_tabs_favorite_removed">Sevimlilardan olib tashlandi</string>
+
+    <string name="jac_chat_id_switch">Chat sarlavhasida ID</string>
+    <string name="jac_chat_id_info">Suhbatdosh yoki chat holati yonida uning ID raqami ko‘rsatiladi. Firibgar ism va rasmini bir zumda o‘zgartiradi, ID esa hech qachon o‘zgarmaydi — shuning uchun u ko‘ringan skrinshot akkauntni topishga dalil bo‘ladi.</string>
+
+    <string name="jac_2fa_reminder_switch">Bulut paroli haqida eslatish</string>
+    <string name="jac_2fa_reminder_title">Ikki bosqichli tekshiruv yoqilmagan</string>
+    <string name="jac_2fa_reminder_text">SMS’dagi kirish kodini bilib olgan har qanday odam bu akkauntni egallab olishi mumkin. Bulut paroli bunga yo‘l qo‘ymaydi: u har bir yangi qurilmada koddan keyin so‘raladi. Sozlash bir daqiqa oladi.</string>
+    <string name="jac_2fa_reminder_email_pending">Siz bulut parolini o‘rnatishni boshladingiz, lekin tiklash pochtasini tasdiqlamadingiz. Xatdagi kodni kiritmaguningizcha parol yoqilmaydi.</string>
+    <string name="jac_2fa_reminder_continue">Kodni kiritish</string>
+    <string name="jac_2fa_reminder_later">Keyinroq</string>
+</resources>

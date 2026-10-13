@@ -11,7 +11,7 @@ import org.telegram.messenger.R;
 
 /**
  * The siren that plays when a dangerous file is about to be opened, or a link
- * to a site on the block list ({@link LinkGuardUi}).
+ * the link guard stops — blocked or unchecked ({@link LinkGuardUi}).
  *
  * <h3>What this is for</h3>
  *

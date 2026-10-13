@@ -12,6 +12,7 @@ import org.telegram.messenger.UserConfig;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.tl.TL_account;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.TwoStepVerificationActivity;
 
 import java.io.File;
 import java.text.ParseException;
@@ -229,7 +230,17 @@ public final class SecurityCheckup {
                         passwordRequests[account] = 0;
                         passwordAskedAt[account] = SystemClock.elapsedRealtime();
                         if (response instanceof TL_account.Password) {
-                            passwords[account] = (TL_account.Password) response;
+                            final TL_account.Password password = (TL_account.Password) response;
+                            // This object is handed to Telegram's own setup
+                            // wizard as is, and the wizard expects what
+                            // Privacy settings hands it: a new-password salt
+                            // the client has already lengthened with its own
+                            // 32 random bytes. Sent as the server gave it, the
+                            // salt fails with NEW_SALT_INVALID at the last
+                            // step. Once per answer, never per hand-over: a
+                            // second call would lengthen it again.
+                            TwoStepVerificationActivity.initPasswordNewAlgo(password);
+                            passwords[account] = password;
                             passwordFailed[account] = false;
                         } else if (passwords[account] == null) {
                             passwordFailed[account] = true;

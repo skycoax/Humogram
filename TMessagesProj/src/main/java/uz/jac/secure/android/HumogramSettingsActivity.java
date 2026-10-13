@@ -26,8 +26,10 @@ import java.util.ArrayList;
  * its own; under any threats, the device check ({@link SecurityCheckupSection}:
  * screen lock, root, USB debugging, security updates, cloud password), whose
  * results count towards the same percentage; one card of security switches
- * (scan at every launch, link protection) with the recommended cyber-safety
- * channel; and the ornament the chat list wears — a suzani border, an
+ * (scan at every launch, link protection, the launch reminder about a missing
+ * cloud password) with the recommended cyber-safety channel; one for chats
+ * (the chat-type tabs, on a page of their own, and the ID in a chat's
+ * header); and the ornament the chat list wears — a suzani border, an
  * eight-point-star lattice, the crescent-and-stars of the Uzbek flag, or none.
  *
  * <h3>Why this is a fragment and not an Activity</h3>
@@ -65,6 +67,9 @@ public class HumogramSettingsActivity extends UniversalFragment {
     private static final int BUTTON_CHANNEL = 3;
     private static final int BUTTON_CREATOR = 5;
     private static final int CHECK_LINK_GUARD = 7;
+    private static final int CHECK_TWO_STEP_REMINDER = 8;
+    private static final int BUTTON_CHAT_TABS = 9;
+    private static final int CHECK_CHAT_ID = 10;
 
     /**
      * The creator's name, shown in the creator row and the footer. A proper
@@ -150,6 +155,8 @@ public class HumogramSettingsActivity extends UniversalFragment {
         }
         items.add(UItem.asCheck(CHECK_LINK_GUARD, JacStrings.get(context, R.string.jac_linkguard_title))
                 .setChecked(HumogramConfig.isLinkGuard(context)));
+        items.add(UItem.asCheck(CHECK_TWO_STEP_REMINDER, JacStrings.get(context, R.string.jac_2fa_reminder_switch))
+                .setChecked(HumogramConfig.isTwoStepReminder(context)));
         if (!HumogramConfig.SECURITY_CHANNEL.isEmpty()) {
             // Value column names the handle and marks it a recommendation, so
             // the enduring settings surface cannot read as the app's own channel
@@ -159,6 +166,15 @@ public class HumogramSettingsActivity extends UniversalFragment {
                     "@" + HumogramConfig.SECURITY_CHANNEL).accent());
         }
         items.add(UItem.asShadow(null));
+
+        // The chat list and the chat screen: the chat-type tabs (their own
+        // page) and the ID in a chat's header.
+        items.add(UItem.asHeader(JacStrings.get(context, R.string.jac_chats_header)));
+        items.add(UItem.asButton(BUTTON_CHAT_TABS, JacStrings.get(context, R.string.jac_tabs_title),
+                JacStrings.get(context, HumogramConfig.isChatTabs(context) ? R.string.jac_on : R.string.jac_off)));
+        items.add(UItem.asCheck(CHECK_CHAT_ID, JacStrings.get(context, R.string.jac_chat_id_switch))
+                .setChecked(HumogramConfig.isChatIdInHeader(context)));
+        items.add(UItem.asShadow(JacStrings.get(context, R.string.jac_chat_id_info)));
 
         // The pattern at the size and strength it is actually drawn, on the
         // colour it is actually drawn over — the choice is made by looking.
@@ -204,6 +220,24 @@ public class HumogramSettingsActivity extends UniversalFragment {
             // The cell animates, but the adapter's cached item still holds the
             // old value and a scroll-recycled rebind would draw it: flip it too.
             item.checked = on;
+            return;
+        }
+        if (item.id == CHECK_TWO_STEP_REMINDER) {
+            final boolean on = !HumogramConfig.isTwoStepReminder(getContext());
+            HumogramConfig.setTwoStepReminder(getContext(), on);
+            ((org.telegram.ui.Cells.TextCheckCell) view).setChecked(on);
+            item.checked = on;
+            return;
+        }
+        if (item.id == CHECK_CHAT_ID) {
+            final boolean on = !HumogramConfig.isChatIdInHeader(getContext());
+            HumogramConfig.setChatIdInHeader(getContext(), on);
+            ((org.telegram.ui.Cells.TextCheckCell) view).setChecked(on);
+            item.checked = on;
+            return;
+        }
+        if (item.id == BUTTON_CHAT_TABS) {
+            presentFragment(new ChatTabsSettingsActivity());
             return;
         }
         if (item.id == BUTTON_CHANNEL) {

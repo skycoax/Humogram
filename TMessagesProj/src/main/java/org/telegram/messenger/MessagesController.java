@@ -22248,6 +22248,10 @@ public class MessagesController extends BaseController implements NotificationCe
                 if (sortingDialogFilter == null) {
                     continue;
                 }
+                if (sortingDialogFilter instanceof uz.jac.secure.android.ChatTabs.Tab) {
+                    // Humogram: a chat-type tab pins what the main list pins.
+                    ((uz.jac.secure.android.ChatTabs.Tab) sortingDialogFilter).syncPins(allDialogs);
+                }
                 ArrayList<TLRPC.Dialog> dialogs = sortingDialogFilter.dialogs;
                 ArrayList<TLRPC.Dialog> dialogsForward = sortingDialogFilter.dialogsForward;
                 dialogs.clear();

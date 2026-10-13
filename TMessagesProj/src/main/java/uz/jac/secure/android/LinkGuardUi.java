@@ -1105,13 +1105,12 @@ public final class LinkGuardUi {
             dialog.show();
             nowAsking(dialog, key, activity);
             colourButton(dialog, DialogInterface.BUTTON_NEGATIVE, Theme.getColor(Theme.key_text_RedBold));
-            if (finding.dangerous) {
-                // The siren a dangerous installer gets (JacAlarm): a site on
-                // the block list is the link-shaped version of that moment.
-                // Unknown sites stay silent — they are most links, and a
-                // siren that sounds on most links is one people stop hearing.
-                JacAlarm.sound(activity);
-            }
+            // The siren an installer gets (JacAlarm), for every link the guard
+            // stops — a site on the block list and an unchecked one alike, the
+            // way an unchecked APK sounds it too. The owner's call (2026-10-13):
+            // the people this app is for tap red links as readily as they
+            // install unknown APKs, and the sound is what reaches them.
+            JacAlarm.sound(activity);
         } catch (Throwable t) {
             // Could not ask, so not opened.
             FileLog.e("link guard: step one failed: " + t.getClass().getSimpleName());
@@ -1181,7 +1180,8 @@ public final class LinkGuardUi {
             dialog.show();
             nowAsking(dialog, key, activity);
             if (now.dangerous && !first.dangerous) {
-                // Blocked while step one was up: the siren step one did not play.
+                // Blocked while step one was up: worse news than step one
+                // sounded for, so the siren again.
                 JacAlarm.sound(activity);
             }
 

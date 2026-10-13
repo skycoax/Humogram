@@ -1207,6 +1207,8 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
             } else if (chat != null) {
                 TLRPC.ChatFull info = parentFragment.getCurrentChatInfo();
                 newSubtitle = getChatSubtitle(chat, info, onlineCount);
+                // Humogram: the chat's ID in front, so a screenshot carries it.
+                newSubtitle = uz.jac.secure.android.ChatIdLabel.prepend(getContext(), chat, newSubtitle);
             } else if (user != null) {
                 TLRPC.User newUser = MessagesController.getInstance(currentAccount).getUser(user.id);
                 if (newUser != null) {
@@ -1236,7 +1238,8 @@ public class ChatAvatarContainer extends FrameLayout implements FactorAnimator.T
                     newStatus = LocaleController.formatUserStatus(currentAccount, user, isOnline, allowShorterStatus ? statusMadeShorter : null);
                     useOnlineColor = isOnline[0];
                 }
-                newSubtitle = newStatus;
+                // Humogram: the user's ID in front, so a screenshot carries it.
+                newSubtitle = uz.jac.secure.android.ChatIdLabel.prepend(getContext(), user, newStatus);
             } else {
                 newSubtitle = "";
             }

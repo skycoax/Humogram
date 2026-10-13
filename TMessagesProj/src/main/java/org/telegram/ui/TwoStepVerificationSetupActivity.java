@@ -124,6 +124,8 @@ public class TwoStepVerificationSetupActivity extends BaseFragment {
     private boolean paused;
     private boolean waitingForEmail;
     private TL_account.Password currentPassword;
+    // Humogram: NEW_SALT_INVALID is retried once with fresh password info (setNewPassword).
+    private boolean newSaltRetried;
     private byte[] currentPasswordHash = new byte[0];
     private long currentSecretId;
     private byte[] currentSecret;
@@ -1901,7 +1903,11 @@ public class TwoStepVerificationSetupActivity extends BaseFragment {
             }
 
             RequestDelegate requestDelegate = (response, error) -> AndroidUtilities.runOnUIThread(() -> {
-                if (error != null && "SRP_ID_INVALID".equals(error.text)) {
+                // Humogram: a stale or unsalted new-password algo is answered the
+                // way LoginActivity answers it — fetch the password info again and
+                // retry — instead of ending the setup on a raw NEW_SALT_INVALID.
+                if (error != null && ("SRP_ID_INVALID".equals(error.text) || "NEW_SALT_INVALID".equals(error.text) && !newSaltRetried)) {
+                    newSaltRetried |= "NEW_SALT_INVALID".equals(error.text);
                     TL_account.getPassword getPasswordReq = new TL_account.getPassword();
                     ConnectionsManager.getInstance(currentAccount).sendRequest(getPasswordReq, (response2, error2) -> AndroidUtilities.runOnUIThread(() -> {
                         if (error2 == null) {

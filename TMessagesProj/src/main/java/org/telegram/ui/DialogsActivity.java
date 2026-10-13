@@ -582,6 +582,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private ActionBarMenuSubItem addToFolderItem;
     @Nullable
     private ActionBarMenuSubItem removeFromFolderItem;
+    private ActionBarMenuSubItem favoriteItem; // Humogram: ChatTabs favourites
     @Nullable
     private ActionBarMenuSubItem archiveItem;
     @Nullable
@@ -710,6 +711,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private final static int add_to_folder = 109;
     private final static int remove_from_folder = 110;
     private final static int community_ungroup = 111;
+    // Humogram: add to / remove from the Favourites tab (ChatTabs).
+    private final static int humogram_favorite = 1_000;
 
     private final static int ARCHIVE_ITEM_STATE_PINNED = 0;
     private final static int ARCHIVE_ITEM_STATE_SHOWED = 1;
@@ -2503,7 +2506,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 long dialogId = dialogCell.getDialogId();
                 if (actionBar.isActionModeShowed(null)) {
                     TLRPC.Dialog dialog = getMessagesController().dialogs_dict.get(dialogId);
-                    if (!allowMoving || dialog == null || !isDialogPinned(dialog) || DialogObject.isFolderDialogId(dialogId)) {
+                    // Humogram: no pin reordering on our chat-type tabs — it
+                    // shows only some of the main list's pins.
+                    if (!allowMoving || dialog == null || !isDialogPinned(dialog) || DialogObject.isFolderDialogId(dialogId) || isChatTabOpen()) {
                         return 0;
                     }
                     movingView = (DialogCell) viewHolder.itemView;
@@ -3737,7 +3742,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                         return;
                     }
 
-                    ArrayList<MessagesController.DialogFilter> dialogFilters = getMessagesController().getDialogFilters();
+                    ArrayList<MessagesController.DialogFilter> dialogFilters = tabFilters();
                     if (!tab.isDefault && (tab.id < 0 || tab.id >= dialogFilters.size())) {
                         return;
                     }
@@ -3788,11 +3793,16 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     if (tabId == filterTabsView.getDefaultTabId()) {
                         return getMessagesStorage().getMainUnreadCount();
                     }
-                    ArrayList<MessagesController.DialogFilter> dialogFilters = getMessagesController().getDialogFilters();
+                    ArrayList<MessagesController.DialogFilter> dialogFilters = tabFilters();
                     if (tabId < 0 || tabId >= dialogFilters.size()) {
                         return 0;
                     }
-                    return getMessagesController().getDialogFilters().get(tabId).unreadCount;
+                    final MessagesController.DialogFilter tabFilter = dialogFilters.get(tabId);
+                    if (uz.jac.secure.android.ChatTabs.isOurs(tabFilter)) {
+                        // Humogram: storage keeps no counter for our tabs; counted live.
+                        return uz.jac.secure.android.ChatTabs.unreadCount(currentAccount, tabFilter);
+                    }
+                    return tabFilter.unreadCount;
                 }
 
                 @Override
@@ -3813,7 +3823,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     if (tabView.getId() == filterTabsView.getDefaultTabId()) {
                         dialogFilter = null;
                     } else {
-                        ArrayList<MessagesController.DialogFilter> dialogFilters = getMessagesController().getDialogFilters();
+                        ArrayList<MessagesController.DialogFilter> dialogFilters = tabFilters();
                         final int index = tabView.getId();
                         if (dialogFilters != null && index >= 0 && index < dialogFilters.size()) {
                             dialogFilter = dialogFilters.get(tabView.getId());
@@ -3821,6 +3831,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                             dialogFilter = null;
                         }
                     }
+                    // Humogram: one of our chat-type tabs — there is no folder
+                    // behind it to edit, share or delete.
+                    final boolean chatTab = uz.jac.secure.android.ChatTabs.isOurs(dialogFilter);
 
                     boolean defaultTab = dialogFilter == null;
                     boolean hasUnread = false, hasShare = false;
@@ -3831,7 +3844,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     ArrayList<TLRPC.Dialog> dialogs = new ArrayList<>(defaultTab ? getMessagesController().getDialogs(folderId) : getMessagesController().getAllDialogs());
                     MessagesController.DialogFilter filter = null;
                     if (dialogFilter != null) {
-                        filter = getMessagesController().getDialogFilters().get(tabView.getId());
+                        filter = dialogFilter;
                         if (filter != null) {
                             for (int i = 0; i < dialogs.size(); i++) {
                                 if (!filter.includesDialog(getAccountInstance(), dialogs.get(i).id)) {
@@ -3907,11 +3920,19 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                                     return PixelFormat.TRANSPARENT;
                                 }
                             })
-                            .addIf(getMessagesController().getDialogFilters().size() > 1, R.drawable.tabs_reorder, LocaleController.getString(R.string.FilterReorder), () -> {
+                            // Humogram: dragging tabs reorders Telegram's folder
+                            // list by position, which our tabs in between would
+                            // throw off; with them on, folders are reordered in
+                            // Settings → Folders instead.
+                            .addIf(getMessagesController().getDialogFilters().size() > 1 && tabFilters().size() == getMessagesController().getDialogFilters().size(), R.drawable.tabs_reorder, LocaleController.getString(R.string.FilterReorder), () -> {
                                 filterTabsView.setIsEditing(true);
                                 showDoneItem(true);
                             })
-                            .add(R.drawable.msg_edit, defaultTab ? LocaleController.getString(R.string.FilterEditAll) : LocaleController.getString(R.string.FilterEdit), () -> {
+                            .add(R.drawable.msg_edit, chatTab ? uz.jac.secure.android.JacStrings.get(getContext(), R.string.jac_tabs_edit) : defaultTab ? LocaleController.getString(R.string.FilterEditAll) : LocaleController.getString(R.string.FilterEdit), () -> {
+                                if (chatTab) {
+                                    presentFragment(new uz.jac.secure.android.ChatTabsSettingsActivity());
+                                    return;
+                                }
                                 presentFragment(defaultTab ? new FiltersSetupActivity() : new FilterCreateActivity(dialogFilter));
                             })
                             .addIf(dialogFilter != null && !dialogs.isEmpty(), muteAll ? R.drawable.msg_mute : R.drawable.msg_unmute, muteAll ? LocaleController.getString(R.string.FilterMuteAll) : LocaleController.getString(R.string.FilterUnmuteAll), () -> {
@@ -3935,7 +3956,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                                     FilterCreateActivity.FilterInvitesBottomSheet.show(DialogsActivity.this, finalFilter, null);
                                 }
                             })
-                            .addIf(!defaultTab, R.drawable.msg_delete, LocaleController.getString(R.string.FilterDeleteItem), true, () -> {
+                            .addIf(!defaultTab && !chatTab, R.drawable.msg_delete, LocaleController.getString(R.string.FilterDeleteItem), true, () -> {
                                 showDeleteAlert(dialogFilter);
                             })
                             .setDimAlpha(0x60)
@@ -3953,7 +3974,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
                 @Override
                 public void onDeletePressed(int id) {
-                    showDeleteAlert(getMessagesController().getDialogFilters().get(id));
+                    showDeleteAlert(tabFilters().get(id));
                 }
             });
         }
@@ -4086,7 +4107,11 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     });
                     showDialog(sheet);
                 } else if (id == remove_from_folder) {
-                    MessagesController.DialogFilter filter = getMessagesController().getDialogFilters().get(viewPages[0].selectedType);
+                    MessagesController.DialogFilter filter = tabFilters().get(viewPages[0].selectedType);
+                    if (uz.jac.secure.android.ChatTabs.isOurs(filter)) {
+                        // Humogram: hidden on our tabs; a chat type has no members to remove.
+                        return;
+                    }
                     ArrayList<Long> neverShow = FiltersListBottomSheet.getDialogsCount(DialogsActivity.this, filter, selectedDialogs, false, false);
 
                     int currentCount;
@@ -4124,6 +4149,12 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     hideActionMode(false);
                 } else if (id == pin || id == read || id == delete || id == clear || id == mute || id == archive || id == block || id == archive2 || id == pin2) {
                     performSelectedDialogsAction(selectedDialogs, id, true, false);
+                } else if (id == humogram_favorite) {
+                    // Humogram: the Favourites tab (ChatTabs), kept on this phone.
+                    final boolean nowFavorite = uz.jac.secure.android.ChatTabs.toggleFavorites(currentAccount, selectedDialogs);
+                    hideActionMode(true);
+                    BulletinFactory.of(DialogsActivity.this).createSimpleBulletin(nowFavorite ? R.raw.contact_check : R.raw.ic_delete,
+                            uz.jac.secure.android.JacStrings.get(getContext(), nowFavorite ? R.string.jac_tabs_favorite_added : R.string.jac_tabs_favorite_removed)).show();
                 }
             }
         });
@@ -6910,6 +6941,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         pin2Item = otherItem.addSubItem(pin2, R.drawable.msg_pin, LocaleController.getString(R.string.DialogPin));
         addToFolderItem = otherItem.addSubItem(add_to_folder, R.drawable.msg_addfolder, LocaleController.getString(R.string.FilterAddTo));
         removeFromFolderItem = otherItem.addSubItem(remove_from_folder, R.drawable.msg_removefolder, LocaleController.getString(R.string.FilterRemoveFrom));
+        favoriteItem = otherItem.addSubItem(humogram_favorite, R.drawable.msg_fave, uz.jac.secure.android.JacStrings.get(getContext(), R.string.jac_tabs_favorite_add));
         readItem = otherItem.addSubItem(read, R.drawable.msg_markread, LocaleController.getString(R.string.MarkAsRead));
         clearItem = otherItem.addSubItem(clear, R.drawable.msg_clear, LocaleController.getString(R.string.ClearHistory));
         blockItem = otherItem.addSubItem(block, R.drawable.msg_block, LocaleController.getString(R.string.BlockUser));
@@ -6944,7 +6976,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
         }
         int index = filterTabsView.getTabsCount() - 1;
-        ArrayList<MessagesController.DialogFilter> filters = getMessagesController().getDialogFilters();
+        ArrayList<MessagesController.DialogFilter> filters = tabFilters();
         for (int i = 0; i < filters.size(); ++i) {
             if (filters.get(i).id == fid) {
                 index = i;
@@ -6963,15 +6995,33 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
     }
 
+    /**
+     * Humogram: the tabs this list pages through — Telegram's folders, with
+     * Humogram's chat-type tabs after "All chats" (ChatTabs). A tab's id is its
+     * index here, so everything that maps a tab to its filter reads this, not
+     * getDialogFilters(); what edits or syncs folders keeps reading the latter
+     * and never meets ours.
+     */
+    private ArrayList<MessagesController.DialogFilter> tabFilters() {
+        return uz.jac.secure.android.ChatTabs.merge(currentAccount, getMessagesController().getDialogFilters());
+    }
+
+    /** Humogram: the page in front is one of our chat-type tabs, not a Telegram folder. */
+    private boolean isChatTabOpen() {
+        return viewPages != null && viewPages[0] != null
+                && (viewPages[0].dialogsType == DIALOGS_TYPE_FOLDER1 || viewPages[0].dialogsType == DIALOGS_TYPE_FOLDER2)
+                && uz.jac.secure.android.ChatTabs.isOurs(getMessagesController().selectedDialogFilter[viewPages[0].dialogsType == DIALOGS_TYPE_FOLDER2 ? 1 : 0]);
+    }
+
     public void switchToCurrentSelectedMode(boolean animated) {
         for (int a = 0; a < viewPages.length; a++) {
             viewPages[a].listView.stopScroll();
         }
         int a = animated && viewPages.length > 1 ? 1 : 0;
-        if (viewPages[a].selectedType < 0 || viewPages[a].selectedType >= getMessagesController().getDialogFilters().size()) {
+        if (viewPages[a].selectedType < 0 || viewPages[a].selectedType >= tabFilters().size()) {
             return;
         }
-        MessagesController.DialogFilter filter = getMessagesController().getDialogFilters().get(viewPages[a].selectedType);
+        MessagesController.DialogFilter filter = tabFilters().get(viewPages[a].selectedType);
         if (filter.isDefault()) {
             viewPages[a].dialogsType = initialDialogsType;
             viewPages[a].listView.updatePullState();
@@ -7020,7 +7070,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             filterOptions.dismiss();
             filterOptions = null;
         }
-        final ArrayList<MessagesController.DialogFilter> filters = getMessagesController().getDialogFilters();
+        final ArrayList<MessagesController.DialogFilter> filters = tabFilters();
         if (filters.size() > 1) {
             if (force || filterTabsView.getVisibility() != View.VISIBLE) {
                 boolean animatedUpdateItems = animated;
@@ -7191,6 +7241,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             // Humogram: the installed-apps virus scan, once per launch and only
             // once the passcode (if any) is entered — see DeviceScanLaunch.
             uz.jac.secure.android.DeviceScanLaunch.maybeRun(this);
+            // Humogram: no cloud password on the account — say so, once per
+            // launch (TwoStepReminder).
+            uz.jac.secure.android.TwoStepReminder.maybeShow(this);
         }
         if (dialogStoriesCell != null) {
             dialogStoriesCell.onResume();
@@ -7988,7 +8041,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         boolean load = false;
         boolean loadFromCache = false;
         if (viewPage.dialogsType == DIALOGS_TYPE_FOLDER1 || viewPage.dialogsType == DIALOGS_TYPE_FOLDER2) {
-            ArrayList<MessagesController.DialogFilter> dialogFilters = getMessagesController().getDialogFilters();
+            ArrayList<MessagesController.DialogFilter> dialogFilters = tabFilters();
             if (viewPage.selectedType >= 0 && viewPage.selectedType < dialogFilters.size()) {
                 MessagesController.DialogFilter filter = dialogFilters.get(viewPage.selectedType);
                 if ((filter.flags & MessagesController.DIALOG_FILTER_FLAG_EXCLUDE_ARCHIVED) == 0) {
@@ -8041,7 +8094,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             int dialogsType = dialogsAdapter.getDialogsType();
             if (dialogsType == DIALOGS_TYPE_FOLDER1 || dialogsType == DIALOGS_TYPE_FOLDER2) {
                 MessagesController.DialogFilter dialogFilter = getMessagesController().selectedDialogFilter[dialogsType == DIALOGS_TYPE_FOLDER1 ? 0 : 1];
-                filterId = dialogFilter == null ? 0 : dialogFilter.id;
+                // Humogram: our chat-type tabs are not folders the chat can look up; it pages the main list.
+                filterId = dialogFilter == null || uz.jac.secure.android.ChatTabs.isOurs(dialogFilter) ? 0 : dialogFilter.id;
             }
             Object object = dialogsAdapter.getItem(position);
             if (delegate != null && dialogsAdapter.isAllowForwardAsStories() && adapter.getItemViewType(position) == DialogsAdapter.VIEW_TYPE_FORWARD_TO_STORIES_CELL) {
@@ -8826,8 +8880,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         hasPinAction[0] = true;
         TLRPC.Dialog dialog = getMessagesController().dialogs_dict.get(dialogId);
         boolean containsFilter;
+        // Humogram: on our chat-type tabs pinning is the main list's (!isChatTabOpen).
         final MessagesController.DialogFilter filter = (
-                (containsFilter = (viewPages[0].dialogsType == 7 || viewPages[0].dialogsType == 8) && (!actionBar.isActionModeShowed() || actionBar.isActionModeShowed(null))) ?
+                (containsFilter = (viewPages[0].dialogsType == 7 || viewPages[0].dialogsType == 8) && (!actionBar.isActionModeShowed() || actionBar.isActionModeShowed(null)) && !isChatTabOpen()) ?
                         getMessagesController().selectedDialogFilter[viewPages[0].dialogsType == 8 ? 1 : 0] : null
         );
         if (!isDialogPinned(dialog)) {
@@ -9303,7 +9358,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             return false;
         }
         MessagesController.DialogFilter filter;
-        boolean containsFilter = (viewPages[0].dialogsType == 7 || viewPages[0].dialogsType == 8) && (!actionBar.isActionModeShowed() || actionBar.isActionModeShowed(null));
+        // Humogram: on our chat-type tabs pinning is the main list's (!isChatTabOpen).
+        boolean containsFilter = (viewPages[0].dialogsType == 7 || viewPages[0].dialogsType == 8) && (!actionBar.isActionModeShowed() || actionBar.isActionModeShowed(null)) && !isChatTabOpen();
         if (containsFilter) {
             filter = getMessagesController().selectedDialogFilter[viewPages[0].dialogsType == 8 ? 1 : 0];
         } else {
@@ -9324,7 +9380,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             return;
         }
         MessagesController.DialogFilter filter;
-        boolean containsFilter = (viewPages[0].dialogsType == 7 || viewPages[0].dialogsType == 8) && (!actionBar.isActionModeShowed() || actionBar.isActionModeShowed(null));
+        // Humogram: on our chat-type tabs pinning is the main list's (!isChatTabOpen).
+        boolean containsFilter = (viewPages[0].dialogsType == 7 || viewPages[0].dialogsType == 8) && (!actionBar.isActionModeShowed() || actionBar.isActionModeShowed(null)) && !isChatTabOpen();
         if (containsFilter) {
             filter = getMessagesController().selectedDialogFilter[viewPages[0].dialogsType == 8 ? 1 : 0];
         } else {
@@ -10100,7 +10157,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
         }
         if (removeFromFolderItem != null) {
-            boolean cantRemoveFromFolder = filterTabsView == null || filterTabsView.getVisibility() != View.VISIBLE || filterTabsView.currentTabIsDefault();
+            // Humogram: nor on one of our chat-type tabs, which is no folder.
+            boolean cantRemoveFromFolder = filterTabsView == null || filterTabsView.getVisibility() != View.VISIBLE || filterTabsView.currentTabIsDefault() || isChatTabOpen();
             if (!cantRemoveFromFolder) {
                 try {
                     final int dialogsCount = getDialogsArray(currentAccount, viewPages[0].dialogsAdapter.getDialogsType(), folderId, dialogsListFrozen).size();
@@ -10112,6 +10170,16 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 removeFromFolderItem.setVisibility(View.GONE);
             } else {
                 removeFromFolderItem.setVisibility(View.VISIBLE);
+            }
+        }
+        if (favoriteItem != null) {
+            // Humogram: "Add to Favourites", or "Remove" when all are in already.
+            if (uz.jac.secure.android.ChatTabs.isFavoritesOn(currentAccount) && count > 0) {
+                final boolean all = uz.jac.secure.android.ChatTabs.allFavorite(currentAccount, selectedDialogs);
+                favoriteItem.setTextAndIcon(uz.jac.secure.android.JacStrings.get(getContext(), all ? R.string.jac_tabs_favorite_remove : R.string.jac_tabs_favorite_add), all ? R.drawable.msg_unfave : R.drawable.msg_fave);
+                favoriteItem.setVisibility(View.VISIBLE);
+            } else {
+                favoriteItem.setVisibility(View.GONE);
             }
         }
         if (addToFolderItem != null) {

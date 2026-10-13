@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Chats: the chat-type tabs over the chat list (uz.jac.secure.android.ChatTabs,
+  ChatTabsSettingsActivity), the ID in a chat's header (ChatIdLabel), and the
+  launch reminder about a missing cloud password (TwoStepReminder). Kept in a
+  file of its own, as the device check's copy is.
+-->
+<resources>
+    <string name="jac_chats_header">Chats</string>
+    <string name="jac_on">On</string>
+    <string name="jac_off">Off</string>
+
+    <string name="jac_tabs_title">Chat tabs</string>
+    <string name="jac_tabs_switch">Tabs above the chat list</string>
+    <string name="jac_tabs_switch_info">Private, Groups, Channels, Bots and more as tabs over your chats. They sort the chats on this phone only — your Telegram folders and your other devices stay as they are.</string>
+    <string name="jac_tabs_which">Show these tabs</string>
+    <string name="jac_tabs_note">Your own Telegram folders come after these tabs. To add a chat to Favourites, press and hold it in the chat list, then ⋮ → Add to Favourites. The Favourites tab appears with its first chat.</string>
+    <string name="jac_tabs_users">Private</string>
+    <string name="jac_tabs_favorites">Favourites</string>
+    <string name="jac_tabs_admin">Admin</string>
+    <string name="jac_tabs_edit">Edit tabs</string>
+    <string name="jac_tabs_favorite_add">Add to Favourites</string>
+    <string name="jac_tabs_favorite_remove">Remove from Favourites</string>
+    <string name="jac_tabs_favorite_added">Added to Favourites</string>
+    <string name="jac_tabs_favorite_removed">Removed from Favourites</string>
+
+    <string name="jac_chat_id_switch">ID in the chat header</string>
+    <string name="jac_chat_id_info">Shows the person\'s or chat\'s ID next to their status. A scammer can change their name and photo in a second but never the ID, so a screenshot that shows it is evidence the account can be found by.</string>
+
+    <string name="jac_2fa_reminder_switch">Remind me to set a cloud password</string>
+    <string name="jac_2fa_reminder_title">Two-step verification is off</string>
+    <string name="jac_2fa_reminder_text">Anyone who gets the login code from your SMS can take over this account. A cloud password stops them: it is asked for after the code on every new device. Setting it up takes a minute.</string>
+    <string name="jac_2fa_reminder_email_pending">You started setting a cloud password but have not confirmed the recovery email. Until you enter the code from that email, the password is not on.</string>
+    <string name="jac_2fa_reminder_continue">Enter the code</string>
+    <string name="jac_2fa_reminder_later">Later</string>
+</resources>

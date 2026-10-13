@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Chats: the chat-type tabs over the chat list (uz.jac.secure.android.ChatTabs,
+  ChatTabsSettingsActivity), the ID in a chat's header (ChatIdLabel), and the
+  launch reminder about a missing cloud password (TwoStepReminder). Kept in a
+  file of its own, as the device check's copy is.
+-->
+<resources>
+    <string name="jac_chats_header">Чаты</string>
+    <string name="jac_on">Вкл.</string>
+    <string name="jac_off">Выкл.</string>
+
+    <string name="jac_tabs_title">Вкладки чатов</string>
+    <string name="jac_tabs_switch">Вкладки над списком чатов</string>
+    <string name="jac_tabs_switch_info">Личные, группы, каналы, боты и другие — вкладками над чатами. Они сортируют чаты только на этом телефоне: ваши папки Telegram и другие устройства не меняются.</string>
+    <string name="jac_tabs_which">Показывать вкладки</string>
+    <string name="jac_tabs_note">Ваши папки Telegram идут после этих вкладок. Чтобы добавить чат в «Избранное», зажмите его в списке чатов и нажмите ⋮ → «В избранное». Вкладка «Избранное» появится вместе с первым чатом.</string>
+    <string name="jac_tabs_users">Личные</string>
+    <string name="jac_tabs_favorites">Избранное</string>
+    <string name="jac_tabs_admin">Админ</string>
+    <string name="jac_tabs_edit">Настроить вкладки</string>
+    <string name="jac_tabs_favorite_add">В избранное</string>
+    <string name="jac_tabs_favorite_remove">Убрать из избранного</string>
+    <string name="jac_tabs_favorite_added">Добавлено в избранное</string>
+    <string name="jac_tabs_favorite_removed">Убрано из избранного</string>
+
+    <string name="jac_chat_id_switch">ID в шапке чата</string>
+    <string name="jac_chat_id_info">Рядом со статусом собеседника или чата показывается его ID. Имя и фото мошенник меняет за секунду, а ID — никогда, поэтому скриншот с ним — доказательство, по которому аккаунт можно найти.</string>
+
+    <string name="jac_2fa_reminder_switch">Напоминать об облачном пароле</string>
+    <string name="jac_2fa_reminder_title">Двухэтапная аутентификация не настроена</string>
+    <string name="jac_2fa_reminder_text">Любой, кто узнает код входа из вашего SMS, сможет захватить этот аккаунт. Облачный пароль его остановит: пароль спрашивается после кода на каждом новом устройстве. Настройка займёт минуту.</string>
+    <string name="jac_2fa_reminder_email_pending">Вы начали устанавливать облачный пароль, но не подтвердили почту для восстановления. Пока вы не введёте код из письма, пароль не включён.</string>
+    <string name="jac_2fa_reminder_continue">Ввести код</string>
+    <string name="jac_2fa_reminder_later">Позже</string>
+</resources>
