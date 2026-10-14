@@ -30,7 +30,7 @@
 
     <string name="jac_2fa_reminder_switch">Bulut paroli haqida eslatish</string>
     <string name="jac_2fa_reminder_title">Ikki bosqichli tekshiruv yoqilmagan</string>
-    <string name="jac_2fa_reminder_text">SMS’dagi kirish kodini bilib olgan har qanday odam bu akkauntni egallab olishi mumkin. Bulut paroli bunga yo‘l qo‘ymaydi: u har bir yangi qurilmada koddan keyin so‘raladi. Sozlash bir daqiqa oladi.</string>
+    <string name="jac_2fa_reminder_text">Telegram’da ikki bosqichli parol qo‘ymaganmisiz? Unda akkauntingizni begona odam egallab olib, Sizga muammo olib keladi. Zudlik bilan ikki bosqichli parol o‘rnating. Batafsil — videoqo‘llanmada.</string>
     <string name="jac_2fa_reminder_email_pending">Siz bulut parolini o‘rnatishni boshladingiz, lekin tiklash pochtasini tasdiqlamadingiz. Xatdagi kodni kiritmaguningizcha parol yoqilmaydi.</string>
     <string name="jac_2fa_reminder_continue">Kodni kiritish</string>
     <string name="jac_2fa_reminder_later">Keyinroq</string>

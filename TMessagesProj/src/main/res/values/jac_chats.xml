@@ -30,7 +30,7 @@
 
     <string name="jac_2fa_reminder_switch">Remind me to set a cloud password</string>
     <string name="jac_2fa_reminder_title">Two-step verification is off</string>
-    <string name="jac_2fa_reminder_text">Anyone who gets the login code from your SMS can take over this account. A cloud password stops them: it is asked for after the code on every new device. Setting it up takes a minute.</string>
+    <string name="jac_2fa_reminder_text">Haven\'t set a two-step password in Telegram? Then a stranger can take over your account and cause you trouble. Set a two-step password right away. Learn more in the video guide.</string>
     <string name="jac_2fa_reminder_email_pending">You started setting a cloud password but have not confirmed the recovery email. Until you enter the code from that email, the password is not on.</string>
     <string name="jac_2fa_reminder_continue">Enter the code</string>
     <string name="jac_2fa_reminder_later">Later</string>
