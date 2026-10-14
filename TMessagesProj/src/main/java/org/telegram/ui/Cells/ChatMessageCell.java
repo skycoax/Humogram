@@ -1589,6 +1589,23 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     }
 
     /**
+     * Humogram: the colour of a file row's words — its name, the size line and
+     * the caption under it — or 0 for the ordinary colours.
+     *
+     * Every installer's words are red, whatever the scanner said and even
+     * once the user has accepted the risk: the owner's call (2026-10-14), since
+     * an APK sent in a chat is how phones here get infected. Only the words: the
+     * disc keeps showing the verdict (jacMarkColour), so a clean app is never
+     * drawn with a virus on it. Other files follow their mark.
+     */
+    private int jacTextColour() {
+        if (jacIsInstaller()) {
+            return uz.jac.secure.android.JacTheme.danger(getContext());
+        }
+        return jacMarkColour();
+    }
+
+    /**
      * A verdict for the file in this bubble has arrived or changed.
      *
      * {@code invalidate()} is not enough and that is the whole subtlety here.
@@ -15489,9 +15506,11 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             // the eye lands on first; leaving it in the ordinary colour while
             // the icon shouted was a mixed signal, and a mixed signal reads as
             // the reassuring half.
-            final int jacNameColour = jacMarkColour();
+            final int jacNameColour = jacTextColour();
             if (jacNameColour != 0) {
                 Theme.chat_docNamePaint.setColor(jacNameColour);
+                // and the size line under it (Humogram)
+                Theme.chat_infoPaint.setColor(jacNameColour);
             }
 
             float x;
@@ -23898,12 +23917,21 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             return;
         }
         setupTextColors();
+        // Humogram: an installer's caption is red as well (jacTextColour);
+        // the shared paint is put back below, before another bubble uses it.
+        final int jacCaptionColour = currentMessageObject.isDocument() ? jacTextColour() : 0;
+        if (jacCaptionColour != 0) {
+            Theme.chat_msgTextPaint.setColor(jacCaptionColour);
+        }
         canvas.save();
         float renderingAlpha = alpha;
         if (currentMessagesGroup != null) {
             renderingAlpha = currentMessagesGroup.transitionParams.captionEnterProgress * alpha;
         }
         if (renderingAlpha == 0) {
+            if (jacCaptionColour != 0) {
+                setupTextColors();
+            }
             return;
         }
 
@@ -24022,6 +24050,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             canvas.restoreToCount(restore);
         }
         canvas.restore();
+        if (jacCaptionColour != 0) {
+            setupTextColors();
+        }
     }
 
     public void drawProgressLoadingLink(Canvas canvas, int blockNum) {
