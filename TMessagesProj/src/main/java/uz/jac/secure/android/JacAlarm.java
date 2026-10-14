@@ -25,9 +25,11 @@ import org.telegram.messenger.R;
  *
  * <h3>The asset and its fallback</h3>
  *
- * {@code res/raw/jac_alarm.wav} is a classic alarm-clock pattern — two groups
- * of four quick beeps — synthesised from scratch for Humogram (no sample of any
- * phone maker's ringtone is in it). Unambiguous as an alert and unlike every
+ * {@code res/raw/jac_alarm.wav} is an urgent phone-alarm warble — three groups
+ * of four rising two-tone chirps (740/1110 Hz) over a low pulse, 2.7 s —
+ * synthesised from scratch for Humogram (no sample of any phone maker's
+ * ringtone is in it: the owner wanted the feel of an iPhone alarm, and a
+ * recording of Apple's would be Apple's). Unambiguous as an alert and unlike every
  * sound Telegram itself makes, so it cannot be mistaken for a message arriving. It is played through
  * {@link SoundPool} on {@link AudioManager#STREAM_ALARM}: the stream the
  * platform reserves for "needs attention now", which is not silenced by the
