@@ -34,6 +34,8 @@
     <string name="jac_2fa_reminder_email_pending">Siz bulut parolini o‘rnatishni boshladingiz, lekin tiklash pochtasini tasdiqlamadingiz. Xatdagi kodni kiritmaguningizcha parol yoqilmaydi.</string>
     <string name="jac_2fa_reminder_continue">Kodni kiritish</string>
     <string name="jac_2fa_reminder_later">Keyinroq</string>
+    <string name="jac_2fa_reminder_more">Batafsil</string>
+    <string name="jac_2fa_video_error">Videoni yuklab bo‘lmadi. Internetni tekshiring va qayta urinish uchun ekranga teging.</string>
 
     <string name="jac_peers_note">Kiberxavfsizlik bo‘yicha Telegram kanallari va botlari. Ularni egalari yuritadi, Humogram ular bilan bog‘liq emas.</string>
 </resources>

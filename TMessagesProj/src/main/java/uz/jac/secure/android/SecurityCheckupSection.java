@@ -204,6 +204,11 @@ final class SecurityCheckupSection {
                 fragment.presentFragment(new TwoStepVerificationSetupActivity(type, password));
             });
             builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
+            // The launch reminder's short film, for whoever wants to see why first.
+            builder.setNeutralButton(JacStrings.get(context, R.string.jac_2fa_reminder_more), (d, which) -> {
+                recheckPassword = true;
+                fragment.presentFragment(new TwoStepVideoActivity(password));
+            });
         } else {
             builder.setPositiveButton(LocaleController.getString(R.string.OK), null);
             builder.setNegativeButton(JacStrings.get(context, R.string.jac_checkup_open_settings), (d, which) -> {

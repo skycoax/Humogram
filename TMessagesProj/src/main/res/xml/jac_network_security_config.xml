@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Transport security for the one server of ours the app talks to: the link
-  guard's signed site list on lists.skycoax.uz. The scanners themselves send
+  Transport security for the servers of ours the app talks to: the link
+  guard's signed site list on lists.skycoax.uz, and the cloud-password film
+  on hg.skycoax.uz. The scanners themselves send
   nothing anywhere, so there is no scanner API host here.
 
   Reference it from the fork's AndroidManifest:
@@ -116,6 +117,13 @@
           system CAs only (plus the ISRG roots those versions lack).
         -->
         <domain includeSubdomains="false">lists.skycoax.uz</domain>
+        <!--
+          The cloud-password film behind "Learn more" (TwoStepVideoActivity),
+          streamed from the site instead of shipped in the app: same promise,
+          https only and system CAs only, so nobody in the middle can swap the
+          film the app tells people to trust.
+        -->
+        <domain includeSubdomains="false">hg.skycoax.uz</domain>
         <!--
           NO pin-set yet — pinning was deliberately deferred. Until real pins
           exist this domain-config contributes only the cleartext refusal,

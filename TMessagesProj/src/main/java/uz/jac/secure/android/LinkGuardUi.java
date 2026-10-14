@@ -1422,7 +1422,8 @@ public final class LinkGuardUi {
      * and for the same reason, the themed red where the glyph's ink reads on
      * it and a deeper shade of it where it does not.
      */
-    private static int bandColor() {
+    /** The red band of a warning dialog; also the cloud-password reminder's (TwoStepReminder). */
+    static int bandColor() {
         return blockFillFor(Theme.getColor(Theme.key_text_RedRegular) | 0xFF000000,
                 Theme.getColor(Theme.key_featuredStickers_buttonText) | 0xFF000000);
     }

@@ -34,6 +34,8 @@
     <string name="jac_2fa_reminder_email_pending">You started setting a cloud password but have not confirmed the recovery email. Until you enter the code from that email, the password is not on.</string>
     <string name="jac_2fa_reminder_continue">Enter the code</string>
     <string name="jac_2fa_reminder_later">Later</string>
+    <string name="jac_2fa_reminder_more">Learn more</string>
+    <string name="jac_2fa_video_error">Couldn't load the video. Check the connection and tap the screen to try again.</string>
 
     <string name="jac_peers_note">Telegram channels and bots about cyber safety. They are run by their owners; Humogram is not affiliated with them.</string>
 </resources>

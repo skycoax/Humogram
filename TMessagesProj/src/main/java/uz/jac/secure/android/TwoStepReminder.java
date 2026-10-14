@@ -11,7 +11,6 @@ import org.telegram.messenger.UserConfig;
 import org.telegram.tgnet.tl.TL_account;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
-import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.TwoStepVerificationSetupActivity;
 
 /**
@@ -120,28 +119,42 @@ public final class TwoStepReminder {
                 retryLater(fragment, account);
                 return;
             }
-            final Activity activity = fragment.getParentActivity();
-            // Mid-setup (the password is waiting on an email code): upstream's
-            // own choice in Privacy settings is the code screen, not a fresh start.
-            final boolean emailPending = !TextUtils.isEmpty(password.email_unconfirmed_pattern);
-            final AlertDialog dialog = new AlertDialog.Builder(activity)
-                    .setTopAnimation(R.raw.passcode_lock, 72, false, Theme.getColor(Theme.key_dialogTopBackground))
-                    .setTitle(JacStrings.get(activity, R.string.jac_2fa_reminder_title))
-                    .setMessage(JacStrings.get(activity, emailPending
-                            ? R.string.jac_2fa_reminder_email_pending : R.string.jac_2fa_reminder_text))
-                    .setPositiveButton(JacStrings.get(activity, emailPending
-                            ? R.string.jac_2fa_reminder_continue : R.string.jac_checkup_set_up), (d, which) ->
-                            fragment.presentFragment(new TwoStepVerificationSetupActivity(emailPending
-                                    ? TwoStepVerificationSetupActivity.TYPE_EMAIL_CONFIRM
-                                    : TwoStepVerificationSetupActivity.TYPE_INTRO, password)))
-                    .setNegativeButton(JacStrings.get(activity, R.string.jac_2fa_reminder_later), null)
-                    .create();
+            final AlertDialog dialog = buildDialog(fragment, password);
             if (fragment.showDialog(dialog) != null) {
+                // Red like every warning in this app, not Telegram's calm blue:
+                // the band (buildDialog) and the button that fixes it.
+                dialog.redPositive();
                 shown[account] = true;
             }
         } catch (Throwable t) {
             FileLog.e(t);
         }
+    }
+
+    /**
+     * The reminder itself: what is at stake, "Set up" into Telegram's wizard,
+     * "Later", and "Learn more" — the short film ({@link TwoStepVideoActivity})
+     * for whoever wants to see why before deciding.
+     */
+    static AlertDialog buildDialog(BaseFragment fragment, TL_account.Password password) {
+        final Activity activity = fragment.getParentActivity();
+        // Mid-setup (the password is waiting on an email code): upstream's
+        // own choice in Privacy settings is the code screen, not a fresh start.
+        final boolean emailPending = !TextUtils.isEmpty(password.email_unconfirmed_pattern);
+        return new AlertDialog.Builder(activity)
+                .setTopAnimation(R.raw.passcode_lock, 72, false, LinkGuardUi.bandColor())
+                .setTitle(JacStrings.get(activity, R.string.jac_2fa_reminder_title))
+                .setMessage(JacStrings.get(activity, emailPending
+                        ? R.string.jac_2fa_reminder_email_pending : R.string.jac_2fa_reminder_text))
+                .setPositiveButton(JacStrings.get(activity, emailPending
+                        ? R.string.jac_2fa_reminder_continue : R.string.jac_checkup_set_up), (d, which) ->
+                        fragment.presentFragment(new TwoStepVerificationSetupActivity(emailPending
+                                ? TwoStepVerificationSetupActivity.TYPE_EMAIL_CONFIRM
+                                : TwoStepVerificationSetupActivity.TYPE_INTRO, password)))
+                .setNegativeButton(JacStrings.get(activity, R.string.jac_2fa_reminder_later), null)
+                .setNeutralButton(JacStrings.get(activity, R.string.jac_2fa_reminder_more), (d, which) ->
+                        fragment.presentFragment(new TwoStepVideoActivity(password)))
+                .create();
     }
 
     /**

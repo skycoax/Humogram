@@ -34,6 +34,8 @@
     <string name="jac_2fa_reminder_email_pending">Вы начали устанавливать облачный пароль, но не подтвердили почту для восстановления. Пока вы не введёте код из письма, пароль не включён.</string>
     <string name="jac_2fa_reminder_continue">Ввести код</string>
     <string name="jac_2fa_reminder_later">Позже</string>
+    <string name="jac_2fa_reminder_more">Подробнее</string>
+    <string name="jac_2fa_video_error">Не удалось загрузить видео. Проверьте подключение и коснитесь экрана, чтобы повторить.</string>
 
     <string name="jac_peers_note">Каналы и боты Telegram о кибербезопасности. Ими управляют их владельцы, Humogram с ними не связан.</string>
 </resources>

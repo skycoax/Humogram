@@ -1,6 +1,6 @@
 # Humogram — Maxfiylik siyosati / Политика конфиденциальности / Privacy Policy
 
-**Oxirgi yangilanish / Последнее обновление / Last updated: 2026-10-05**
+**Oxirgi yangilanish / Последнее обновление / Last updated: 2026-10-14**
 
 <!--
   This is the USER-FACING policy and the reviewed text behind the published
@@ -64,8 +64,10 @@ havolalar himoyasi.
   <https://telegram.org/privacy>.
 - **Xaridlar — Google (Google Play).** Obuna va xaridlar Google Play orqali.
 - **Ilova, skaner va saytlar ro‘yxati — dasturchi (Kamolov Muxammad).**
-  Dasturchi bitta server yuritadi — lists.skycoax.uz. U faqat havolalar
-  himoyasi uchun saytlarning ochiq ro‘yxatini beradi (3-bo‘limga qarang) va
+  Dasturchi bitta server yuritadi (lists.skycoax.uz va hg.skycoax.uz). U
+  faqat havolalar himoyasi uchun saytlarning ochiq ro‘yxatini (3-bo‘limga
+  qarang) va — bulut paroli eslatmasida «Batafsil»ni bossangiz — tushuntiruvchi
+  videoni beradi va
   sizdan har qanday veb-so‘rov bilan keladigan texnik ma’lumotlardan
   (IP-manzil, ilova versiyasi raqami, so‘rov vaqti) boshqa hech narsa olmaydi.
   Server Toshkentdagi (O‘zbekiston) VPS’da joylashgan, hosting provayderi —
@@ -255,8 +257,10 @@ Humogram — мессенджер на базе Telegram со встроенно
   <https://telegram.org/privacy>.
 - **Покупки — Google (Google Play).**
 - **Приложение, сканер и список сайтов — разработчик (Kamolov Muxammad).** У
-  разработчика есть один сервер — lists.skycoax.uz. Он только раздаёт
-  общедоступный список сайтов для защиты ссылок (см. раздел 3) и не получает от
+  разработчика есть один сервер (адреса lists.skycoax.uz и hg.skycoax.uz). Он
+  только раздаёт общедоступный список сайтов для защиты ссылок (см. раздел 3)
+  и — если вы нажали «Подробнее» в напоминании об облачном пароле —
+  обучающее видео, и не получает от
   вас ничего, кроме технических данных, которые несёт любой веб-запрос:
   IP-адреса, номера сборки приложения и времени запроса. Сервер размещён на
   VPS в Ташкенте (Узбекистан), хостинг-провайдер — AIRNET LLC. Поэтому, даже
@@ -443,8 +447,10 @@ phone, checks of the files and links you receive in chats, and link protection.
   <https://telegram.org/privacy>.
 - **Purchases — Google (Google Play).**
 - **The app, the scanner and the site list — the developer (Kamolov
-  Muxammad).** The developer runs one server, lists.skycoax.uz. It only serves
-  the public list of sites used by link protection (see section 3) and receives
+  Muxammad).** The developer runs one server (lists.skycoax.uz and
+  hg.skycoax.uz). It only serves the public list of sites used by link
+  protection (see section 3) and, when you tap "Learn more" on the
+  cloud-password reminder, the explainer video, and receives
   nothing from you beyond the technical data every web request carries: your
   IP address, the app's build number and the time of the request. The server
   is a VPS in Tashkent, Uzbekistan (hosting provider AIRNET LLC), so if you
