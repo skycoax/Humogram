@@ -126,6 +126,12 @@ final class DeviceScanSection {
 
     private final BaseFragment fragment;
     private final Host host;
+    /**
+     * Whether the summary carries the protection percentage. It counts the
+     * account's cloud password, so the welcome screen's phone check
+     * ({@link PhoneCheckActivity}), which has no account, leaves it out.
+     */
+    private final boolean withProtection;
 
     private DeviceScanner scanner;
     private DeviceScanReport report;
@@ -215,8 +221,13 @@ final class DeviceScanSection {
      * fills the list for the first time, then call {@link #start} after it.
      */
     DeviceScanSection(BaseFragment fragment, Context context, Host host) {
+        this(fragment, context, host, true);
+    }
+
+    DeviceScanSection(BaseFragment fragment, Context context, Host host, boolean withProtection) {
         this.fragment = fragment;
         this.host = host;
+        this.withProtection = withProtection;
         summaryView = new DeviceScanSummaryView(context);
 
         try {
@@ -547,7 +558,9 @@ final class DeviceScanSection {
                     JacStrings.get(context, R.string.jac_devscan_summary_failed_hint));
             return;
         }
-        final CharSequence details = withProtection(context, reportDetails(context, report));
+        final CharSequence details = withProtection
+                ? withProtection(context, reportDetails(context, report))
+                : reportDetails(context, report);
         if (lastThreatCount > 0) {
             // Red for anything worth acting on: the rows below say how bad
             // each one is; the ring only has to say "not fine".
@@ -642,6 +655,11 @@ final class DeviceScanSection {
             default:
                 return false;
         }
+    }
+
+    /** "Scan now", for a host that opens with a scan (the welcome screen's phone check). */
+    void scanNow() {
+        startScan();
     }
 
     private void startScan() {
@@ -933,24 +951,8 @@ final class DeviceScanSection {
         if (path == null) {
             return;
         }
-        final long size = file.size;
-        final long mtime = file.mtime;
         Utilities.globalQueue.postRunnable(() -> {
-            int result;
-            try {
-                final File target = new File(path);
-                if (!target.exists()) {
-                    result = DELETE_OK;
-                } else if (!isInMediaFolder(target) || target.length() != size
-                        || (mtime > 0 && target.lastModified() != mtime)) {
-                    result = DELETE_CHANGED;
-                } else {
-                    result = target.delete() ? DELETE_OK : DELETE_FAILED;
-                }
-            } catch (Throwable t) {
-                result = DELETE_FAILED;
-            }
-            final int outcome = result;
+            final int outcome = deleteScannedFile(file);
             AndroidUtilities.runOnUIThread(() -> {
                 if (destroyed || fragment.getContext() == null) {
                     return;
@@ -978,10 +980,34 @@ final class DeviceScanSection {
         });
     }
 
-    private static final int DELETE_OK = 0;
-    private static final int DELETE_FAILED = 1;
+    static final int DELETE_OK = 0;
+    static final int DELETE_FAILED = 1;
     /** The file is not the one that was scanned, or is not somewhere we may delete from. */
-    private static final int DELETE_CHANGED = 2;
+    static final int DELETE_CHANGED = 2;
+
+    /**
+     * Delete a scanned APK file after the checks {@link #deleteFile} describes.
+     * Disk I/O: call off the main thread. Shared with {@link ThreatAlert}'s
+     * Delete, so both remove a file under the same rules.
+     */
+    static int deleteScannedFile(DeviceScanReport.FileResult file) {
+        if (file == null || file.path == null) {
+            return DELETE_FAILED;
+        }
+        try {
+            final File target = new File(file.path);
+            if (!target.exists()) {
+                return DELETE_OK;
+            }
+            if (!isInMediaFolder(target) || target.length() != file.size
+                    || (file.mtime > 0 && target.lastModified() != file.mtime)) {
+                return DELETE_CHANGED;
+            }
+            return target.delete() ? DELETE_OK : DELETE_FAILED;
+        } catch (Throwable t) {
+            return DELETE_FAILED;
+        }
+    }
 
     /**
      * True when {@code target} really is inside one of the folders the scanner

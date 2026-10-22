@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="jac_threat_alert_title_one">Tahdid aniqlandi</string>
+    <string name="jac_threat_alert_title_many">Aniqlangan tahdidlar: %1$d</string>
+    <string name="jac_threat_alert_body">Uni hoziroq o‘chiring. O‘chirilmaguncha bank ilovalarini ochmang, karta raqami va SMS kodlarini kiritmang.</string>
+    <string name="jac_threat_details">Batafsil</string>
+    <string name="jac_threat_ignore">E’tiborsiz qoldirish</string>
+    <string name="jac_threat_delete">O‘chirish</string>
+    <string name="jac_threat_file">APK fayl</string>
+    <string name="jac_threat_file_installs">APK fayl · %1$s ilovasini o‘rnatadi</string>
+
+    <string name="jac_threat_channel">Telefondagi tahdidlar</string>
+    <string name="jac_threat_notif_title_one">Tahdid aniqlandi: %1$s</string>
+    <string name="jac_threat_notif_title_many">Telefonda %1$d ta tahdid aniqlandi</string>
+    <string name="jac_threat_notif_text">Ko‘rish va o‘chirish uchun Humogram’ni oching.</string>
+
+    <string name="jac_threat_sound_switch">Tahdidda ovozli signal</string>
+    <string name="jac_alarm_sound">Signal ovozi</string>
+    <string name="jac_alarm_play">Tinglash</string>
+    <string name="jac_alarm_sound_info">Ovozlar Humogram uchun yaratilgan. Budilnik ovoz balandligida yangraydi — media ovozi o‘chiq bo‘lsa ham eshitiladi; ovozsiz rejimda telefon faqat titraydi.</string>
+    <string name="jac_alarm_sound_radar">Radar</string>
+    <string name="jac_alarm_sound_klaxon">Klakson</string>
+    <string name="jac_alarm_sound_siren">Havo hujumi sirenasi</string>
+    <string name="jac_alarm_sound_redlevel">Qizil daraja</string>
+    <string name="jac_alarm_sound_evacuation">Evakuatsiya</string>
+
+    <string name="jac_check_phone">Telefonni tekshirish</string>
+    <string name="jac_check_phone_continue">Ro‘yxatdan o‘tishga o‘tish</string>
+    <string name="jac_check_phone_info">Tekshiruv faqat shu telefonda bajariladi va akkaunt talab qilmaydi. Hech narsa hech qayerga yuborilmaydi.</string>
+
+    <string name="jac_apk_warn_title">Diqqat!</string>
+    <string name="jac_apk_warn_body">Diqqat, siz qizil rangda ajratilgan nomaʼlum apk faylni yuklamoqchisiz. Nomaʼlum apk fayllari shaxsiy maʼlumotlaringiz hamda bank plastik kartangizdagi pullaringizni oʻgʻirlashi mumkin, ogoh boʻling!</string>
+    <string name="jac_link_warn_body">Diqqat, siz qizil rangda ajratilgan nomaʼlum havolani bosdingiz. Nomaʼlum havolalar shaxsiy maʼlumotlaringizni va bank plastik kartangizdagi pullaringizni oʻgʻirlashi mumkin, ogoh boʻling!</string>
+</resources>

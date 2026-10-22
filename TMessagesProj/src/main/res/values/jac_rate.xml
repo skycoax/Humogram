@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  "Humogram feedback and rating" (uz.jac.secure.android.RateApp): the row under the cyber-safety channels on
+  Settings and the hint at the top of the chat list. Both open Google Play's own rating
+  sheet, so the words only invite; they never ask the user's opinion first,
+  which Play's review guidelines forbid.
+-->
+<resources>
+    <string name="jac_rate_row">Humogram feedback and rating</string>
+    <string name="jac_rate_hint_title">Rate Humogram</string>
+    <string name="jac_rate_hint_text">A rating on Google Play helps others find a safe messenger.</string>
+</resources>

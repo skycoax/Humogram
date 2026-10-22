@@ -6731,6 +6731,13 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         pipActivityHandler.onPause();
         NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.stopAllHeavyOperations, 4096);
         ApplicationLoader.mainInterfacePaused = true;
+        // Humogram: the app is going to the background. Silence any alarm and
+        // arm the launch scan, the threat modal and the 2FA reminder to run
+        // again on the next open (the owner wants them on every open, not once
+        // per process).
+        uz.jac.secure.android.ThreatAlert.onAppBackgrounded();
+        uz.jac.secure.android.DeviceScanLaunch.onAppBackgrounded();
+        uz.jac.secure.android.TwoStepReminder.onAppBackgrounded();
         int account = currentAccount;
         Utilities.stageQueue.postRunnable(() -> {
             ApplicationLoader.mainInterfacePausedStageQueue = true;
@@ -6970,6 +6977,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         NotificationCenter.getGlobalInstance().postNotificationName(NotificationCenter.startAllHeavyOperations, 4096);
         MediaController.getInstance().setFeedbackView(feedbackView = actionBarLayout.getView(), true);
         ApplicationLoader.mainInterfacePaused = false;
+        // Humogram: a threat a scan found while the app was away (or locked)
+        // is waiting for its alarm; show it now that the app is in front.
+        uz.jac.secure.android.ThreatAlert.onResume(this);
         MessagesController.getInstance(currentAccount).sortDialogs(null);
         showLanguageAlert(false);
         Utilities.stageQueue.postRunnable(() -> {

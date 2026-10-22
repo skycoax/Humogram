@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="jac_intro_t2">Telefonni tekshiring</string>
+    <string name="jac_intro_t3">Virusli fayllardan himoya</string>
+    <string name="jac_intro_t4">Xavfli havolalardan himoya</string>
+    <string name="jac_intro_t5">Akkaunt himoyasi</string>
+    <string name="jac_intro_t6">Hammasi tayyor</string>
+
+    <string name="jac_intro_m1">Telefoningizni viruslardan himoya qiladigan xavfsiz messenjer.\nTelegram API asosidagi norasmiy ilova.</string>
+    <string name="jac_intro_m2">Ro‘yxatdan o‘tmasdan ham telefoningizni viruslarga tekshiring.</string>
+    <string name="jac_intro_m3">Chatdagi xavfli APK fayllar qizil rangda belgilanadi va ochishdan oldin ogohlantiradi.</string>
+    <string name="jac_intro_m4">Soxta va o‘g‘irlaydigan havolalar bloklanadi.</string>
+    <string name="jac_intro_m5">Akkauntingizni ikki bosqichli parol bilan o‘g‘irlanishdan saqlang.</string>
+    <string name="jac_intro_m6">Xavfsiz foydalanishni boshlang.</string>
+</resources>

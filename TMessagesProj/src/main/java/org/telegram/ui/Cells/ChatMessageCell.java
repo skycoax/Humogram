@@ -1570,22 +1570,25 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
     private int jacMarkColour() {
         final int danger = uz.jac.secure.android.JacTheme.danger(getContext());
         final int warning = uz.jac.secure.android.JacTheme.warning(getContext());
-        uz.jac.secure.android.ScanStateStore.State state = jacState();
-        if (state != null && (state.overridden
-                || state.verdict == uz.jac.secure.core.model.Verdict.CLEAN)) {
-            return 0;
+        // Humogram: every installer in a chat is red, always — from the moment
+        // it appears, with no verdict needed, and it stays red even after the
+        // user has overridden the warning (the owner's call, restored
+        // 2026-10-16). An APK sent over chat is the attack this product exists
+        // for, so it wears the virus the whole time it is on the phone.
+        if (jacIsInstaller()) {
+            return danger;
         }
-        if (state == null) {
-            return jacIsInstaller() ? danger : 0;
+        uz.jac.secure.android.ScanStateStore.State state = jacState();
+        if (state == null || state.overridden
+                || state.verdict == uz.jac.secure.core.model.Verdict.CLEAN) {
+            return 0;
         }
         uz.jac.secure.android.ScanUi.Presentation p =
                 uz.jac.secure.android.ScanUi.present(getContext(), state);
         if (p != null && (p.colour == danger || p.colour == warning)) {
             return p.colour;
         }
-        // A verdict the scanner rendered neutral (a local "unknown") still means
-        // red on an installer: unknown about an app that installs is danger.
-        return jacIsInstaller() ? danger : 0;
+        return 0;
     }
 
     /**
@@ -26818,17 +26821,8 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                 amber ? uz.jac.secure.android.JacIcons.Glyph.WARNING
                         : uz.jac.secure.android.JacIcons.Glyph.VIRUS,
                 jacVirusBounds, jacVirusPaint);
-
-        // The word "Проверка" as a small pill under the disc, while a verdict is
-        // still pending — the label the user asked to always be able to see, in
-        // their own language. Only during the two unsettled states: an installer
-        // nobody has checked, and one being checked right now. Once there is a
-        // verdict the block below carries the words and this would just repeat
-        // them.
-        final boolean pending = state == null || state.unchecked || state.scanning;
-        if (pending) {
-            jacDrawScanBadge(canvas, cx, cy + radius);
-        }
+        // Humogram: the "Проверка"/"Tekshiruv" pill under the disc was dropped
+        // (the owner's call, 2026-10-16) — the red virus mark says it alone.
     }
 
     /** The localised "checking" caption, centred under the file disc. */

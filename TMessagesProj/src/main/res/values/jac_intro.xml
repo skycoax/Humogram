@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Onboarding slides on the welcome screen (org.telegram.ui.IntroActivity):
+     Humogram's features, not Telegram's. Slide 1's title is the app name;
+     its message ends with the "built on the Telegram API" notice that the
+     Telegram API Terms (2.2) require on any in-app intro. -->
+<resources>
+    <string name="jac_intro_t2">Check your phone</string>
+    <string name="jac_intro_t3">Protection from virus files</string>
+    <string name="jac_intro_t4">Protection from dangerous links</string>
+    <string name="jac_intro_t5">Account protection</string>
+    <string name="jac_intro_t6">All set</string>
+
+    <string name="jac_intro_m1">A secure messenger that protects your phone from viruses.\nAn unofficial app built on the Telegram API.</string>
+    <string name="jac_intro_m2">Check your phone for viruses even before you sign in.</string>
+    <string name="jac_intro_m3">Dangerous APK files in chats are marked red and warn you before you open them.</string>
+    <string name="jac_intro_m4">Fake and phishing links are blocked.</string>
+    <string name="jac_intro_m5">Protect your account from theft with two-step verification.</string>
+    <string name="jac_intro_m6">Start using it securely.</string>
+</resources>

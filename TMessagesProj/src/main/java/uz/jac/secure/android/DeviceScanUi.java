@@ -188,8 +188,8 @@ public final class DeviceScanUi {
     }
 
     /**
-     * The value-column word for a row that opens the scanner: threats in red
-     * or amber, otherwise "No threats", "Off", "Not checked", or "Checking…"
+     * The value-column word for a row that opens the scanner: threats in red,
+     * otherwise "No threats", "Off", "Not checked", or "Checking…"
      * while one runs.
      *
      * <p>Threats are shown even when launch scans are off — a known threat
@@ -233,16 +233,14 @@ public final class DeviceScanUi {
     // ------------------------------------------------------------------
 
     /**
-     * Red for what we are sure of or what can empty a bank account, amber for
-     * "looks off", no colour below that — the same two-colour scale as the
-     * file verdicts. Returns -1 for "no colour".
+     * Red for every threat, suspicious included — a finding the user should
+     * act on is never yellow (the owner's call, 2026-10-16); the word next to
+     * it says how bad. No colour below that, the same rule as the file
+     * verdicts. Returns -1 for "no colour".
      */
     public static int riskColorKey(int risk) {
-        if (risk >= RISK_DANGEROUS) {
+        if (risk >= RISK_SUSPICIOUS) {
             return Theme.key_text_RedRegular;
-        }
-        if (risk == RISK_SUSPICIOUS) {
-            return Theme.key_color_orange;
         }
         return -1;
     }

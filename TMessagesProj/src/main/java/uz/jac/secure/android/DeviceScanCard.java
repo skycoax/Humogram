@@ -381,10 +381,12 @@ public class DeviceScanCard extends FrameLayout implements Theme.Colorable {
             lastScore = score;
         }
         if (scan > 0f && swept > 0f) {
-            final int orange = color(Theme.key_color_orange);
+            // The theme's accent while checking: no verdict yet, so neither
+            // the red of a threat nor a yellow that reads as one.
+            final int progress = color(Theme.key_featuredStickers_addButton);
             // A gauge fading out keeps the colour of the last score it showed
-            // rather than flashing orange on its way.
-            final int arc = level <= 0f || lastScore < 0 ? orange : ColorUtils.blendARGB(orange,
+            // rather than flashing the accent on its way.
+            final int arc = level <= 0f || lastScore < 0 ? progress : ColorUtils.blendARGB(progress,
                     SecurityCheckup.levelColor(lastScore, resourcesProvider), level);
             arcPaint.set(lighter(arc), arc, ringBounds.top, ringBounds.bottom);
             arcPaint.paint.setStrokeWidth(stroke);

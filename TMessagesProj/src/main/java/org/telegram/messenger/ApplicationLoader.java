@@ -295,6 +295,11 @@ public class ApplicationLoader extends Application {
         // Never throws: a scanner that cannot start must not stop the app.
         uz.jac.secure.android.ScannerBootstrap.install(this);
 
+        // SkySecure: on the very first launch, make the interface Uzbek — the
+        // language of the people this app is for. Downloads the Uzbek pack if
+        // it is not cached yet; a no-op on every launch after the first.
+        AndroidUtilities.runOnUIThread(uz.jac.secure.android.JacDefaultLanguage::ensureFirstLaunch);
+
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("app start time = " + (startTime = SystemClock.elapsedRealtime()));
             try {

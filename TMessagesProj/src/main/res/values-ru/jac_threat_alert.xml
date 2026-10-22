@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="jac_threat_alert_title_one">Обнаружена угроза</string>
+    <string name="jac_threat_alert_title_many">Обнаружено угроз: %1$d</string>
+    <string name="jac_threat_alert_body">Удалите её сейчас. Пока она не удалена, не открывайте банковские приложения и не вводите номер карты и коды из SMS.</string>
+    <string name="jac_threat_details">Подробнее</string>
+    <string name="jac_threat_ignore">Игнорировать</string>
+    <string name="jac_threat_delete">Удалить</string>
+    <string name="jac_threat_file">APK-файл</string>
+    <string name="jac_threat_file_installs">APK-файл · устанавливает %1$s</string>
+
+    <string name="jac_threat_channel">Угрозы на телефоне</string>
+    <string name="jac_threat_notif_title_one">Обнаружена угроза: %1$s</string>
+    <string name="jac_threat_notif_title_many">На телефоне обнаружено угроз: %1$d</string>
+    <string name="jac_threat_notif_text">Откройте Humogram, чтобы посмотреть и удалить.</string>
+
+    <string name="jac_threat_sound_switch">Звук при угрозе</string>
+    <string name="jac_alarm_sound">Звук тревоги</string>
+    <string name="jac_alarm_play">Прослушать</string>
+    <string name="jac_alarm_sound_info">Звуки созданы для Humogram. Играют на громкости будильника — их слышно, даже если звук медиа выключен; в беззвучном режиме телефон только вибрирует.</string>
+    <string name="jac_alarm_sound_radar">Радар</string>
+    <string name="jac_alarm_sound_klaxon">Клаксон</string>
+    <string name="jac_alarm_sound_siren">Сирена воздушной тревоги</string>
+    <string name="jac_alarm_sound_redlevel">Красный уровень</string>
+    <string name="jac_alarm_sound_evacuation">Эвакуация</string>
+
+    <string name="jac_check_phone">Проверить телефон</string>
+    <string name="jac_check_phone_continue">Перейти к регистрации</string>
+    <string name="jac_check_phone_info">Проверка идёт только на этом телефоне и не требует аккаунта. Ничего никуда не отправляется.</string>
+
+    <string name="jac_apk_warn_title">Внимание!</string>
+    <string name="jac_apk_warn_body">Внимание, вы собираетесь загрузить неизвестный APK-файл, выделенный красным. Неизвестные APK-файлы могут украсть ваши личные данные и деньги с банковской карты. Будьте осторожны!</string>
+    <string name="jac_link_warn_body">Внимание, вы нажали на неизвестную ссылку, выделенную красным. Неизвестные ссылки могут украсть ваши личные данные и деньги с банковской карты. Будьте осторожны!</string>
+</resources>

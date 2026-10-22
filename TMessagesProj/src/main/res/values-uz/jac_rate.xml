@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  O'zbekcha (lotin) — "Humogram taklif va baholash" (uz.jac.secure.android.RateApp):
+  Sozlamalardagi kiberxavfsizlik kanallari ostidagi qator va suhbatlar ro‘yxati
+  ustidagi maslahat.
+  o‘ / g‘ are written with U+2018, the tutuq belgisi with U+2019, as in
+  strings.xml.
+-->
+<resources>
+    <string name="jac_rate_row">Humogram taklif va baholash</string>
+    <string name="jac_rate_hint_title">Humogram’ni baholang</string>
+    <string name="jac_rate_hint_text">Google Play’dagi bahoyingiz boshqalarga xavfsiz messenjerni topishga yordam beradi.</string>
+</resources>

@@ -54,6 +54,20 @@ public final class TwoStepReminder {
     private TwoStepReminder() {
     }
 
+    /**
+     * The app left the foreground: show the reminder again next time it comes
+     * back. The owner wants it on every open, a return from minimising
+     * included, not once per process (2026-10-16). Called from
+     * {@code LaunchActivity.onPause}.
+     */
+    public static void onAppBackgrounded() {
+        for (int i = 0; i < UserConfig.MAX_ACCOUNT_COUNT; i++) {
+            shown[i] = false;
+            waiting[i] = false;
+            attempts[i] = 0;
+        }
+    }
+
     public static void maybeShow(BaseFragment fragment) {
         try {
             if (fragment == null || fragment.getContext() == null || fragment.isInPreviewMode()) {

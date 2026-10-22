@@ -1,7 +1,6 @@
 package uz.jac.secure.android;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -9,8 +8,6 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
-import android.media.ToneGenerator;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
@@ -94,10 +91,12 @@ public final class QuarantineDialogs {
                 .setNegativeButton(JacStrings.get(activity, R.string.jac_quarantine_open_anyway),
                         (d, which) -> showConfirm(activity, file, listener))
                 .create();
-        // The siren belongs to every screen that stands in front of a
+        // The spoken warning belongs to every screen that stands in front of a
         // dangerous file, not only the tap-interception one — this path used
         // to be the silent way in.
-        JacAlarm.sound(activity);
+        warningShowing = true;
+        dialog.setOnDismissListener(d -> onWarningDismissed());
+        JacAlarm.voice(activity, R.raw.jac_voice_file);
         dialog.show();
         // The way through is legal but must not be the loud thing on the
         // screen: the safe button keeps the accent, the dangerous one goes red
@@ -132,18 +131,26 @@ public final class QuarantineDialogs {
      */
     public static void showVirusWarning(Activity activity, File file, String title, String body,
                                         ReleaseListener listener) {
+        // One fixed warning for every dangerous or unknown installer, in the
+        // owner's words (2026-10-16): it is hedged ("unknown APK files MAY
+        // steal...", not "this is a virus"), so it is both true of any APK and
+        // free of the Play Misrepresentation problem the per-verdict title
+        // guarded against. The passed title/body (the per-finding wording) are
+        // no longer shown here.
         AlertDialog dialog = new AlertDialog.Builder(activity)
                 .setTopImage(new GlyphDrawable(JacIcons.Glyph.VIRUS), JacTheme.danger(activity))
-                .setTitle(title != null ? title : JacStrings.get(activity, R.string.jac_virus_title))
-                .setMessage(body != null ? body : JacStrings.get(activity, R.string.jac_virus_body))
+                .setTitle(JacStrings.get(activity, R.string.jac_apk_warn_title))
+                .setMessage(JacStrings.get(activity, R.string.jac_apk_warn_body))
                 .setPositiveButton(JacStrings.get(activity, R.string.jac_virus_close), null)
                 .setNegativeButton(JacStrings.get(activity, R.string.jac_virus_install_anyway),
                         (d, which) -> showConfirm(activity, file, listener))
                 .create();
-        // The siren, once, as the dialog lands; the countdown's soft ticks
-        // continue underneath it. Sound is the channel that still works when
-        // the tap is already in flight and the eyes have moved on.
-        JacAlarm.sound(activity);
+        // A spoken warning, once, as the dialog lands — always in Uzbek, the
+        // channel that still reaches someone whose tap is already in flight and
+        // whose eyes have moved on. Replaces the alarm tone that was here.
+        warningShowing = true;
+        dialog.setOnDismissListener(d -> onWarningDismissed());
+        JacAlarm.voice(activity, R.raw.jac_voice_file);
         dialog.show();
         // The escape hatch is allowed but not offered: muted grey, not red —
         // red is a warning colour, and putting it on the way out makes the way
@@ -181,6 +188,9 @@ public final class QuarantineDialogs {
                         (d, which) -> listener.onReleaseConfirmed(file))
                 .setNegativeButton(JacStrings.get(activity, R.string.jac_quarantine_confirm_cancel), null)
                 .create();
+        // Keep the auto-detection modal at bay through step two as well.
+        warningShowing = true;
+        dialog.setOnDismissListener(d -> onWarningDismissed());
         dialog.show();
 
         // Disabled until acknowledged, and visibly so. A button that looks
@@ -211,9 +221,13 @@ public final class QuarantineDialogs {
 
     /**
      * Hold both buttons inert for {@link #COUNTDOWN_SECONDS}, counting down on
-     * the safe one, with a soft tick each second and a different tone when the
-     * buttons go live — without it the silence is ambiguous: "still waiting"
-     * and "you may press now" look the same from across a room.
+     * the safe one, so the second half of the double-tap that opened this
+     * dialog cannot land on a button.
+     *
+     * <p>Silent: the spoken voice warning is the sound now, and the ticking
+     * countdown tone that used to run under it was a second sound on top of the
+     * voice (the owner asked for it gone, 2026-10-16). The countdown is shown,
+     * not heard.
      */
     private static void startCountdown(Activity activity, AlertDialog dialog) {
         final View close = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
@@ -229,42 +243,56 @@ public final class QuarantineDialogs {
         setEnabled(proceed, false);
         safe.setText(label + "  " + remaining[0]);
 
-        final Alarm alarm = new Alarm(activity);
-        // Released on dismissal however the dialog goes away — the button, the
-        // caller, or the activity dying under it. A ToneGenerator holds an
-        // AudioTrack, and one leaked per warning would eventually take the
-        // device's audio out.
-        dialog.setOnDismissListener(d -> alarm.release());
-
         final Runnable[] tick = new Runnable[1];
         tick[0] = () -> {
             // The dialog can be gone: dismissed by the caller, or the activity
             // torn down under it. Touching the views then is a leak at best,
             // so the countdown checks before every step and simply stops.
             if (!dialog.isShowing()) {
-                alarm.release();
                 return;
             }
             remaining[0]--;
             if (remaining[0] > 0) {
                 safe.setText(label + "  " + remaining[0]);
-                alarm.beep();
                 safe.postDelayed(tick[0], 1000L);
             } else {
                 safe.setText(label);
                 setEnabled(close, true);
                 setEnabled(proceed, true);
-                alarm.finish();
-                // The generator is only needed for the countdown. Release it
-                // now, just after the final tone — the dismiss listener frees
-                // it on an early exit, but on Android a Dialog is not
-                // auto-dismissed when its Activity is destroyed, so waiting for
-                // dismissal alone can leak the AudioTrack indefinitely. Freeing
-                // it here caps the hold at the three-second countdown.
-                safe.postDelayed(alarm::release, 300L);
             }
         };
         safe.postDelayed(tick[0], 1000L);
+    }
+
+    // ------------------------------------------------------------------
+    // Keeping out of the auto-detection modal's way
+    // ------------------------------------------------------------------
+
+    /** True while any of these warning dialogs is on screen. */
+    private static volatile boolean warningShowing;
+
+    /**
+     * Whether a file/link tap-warning is up right now, so {@link ThreatAlert}
+     * (the device-scan modal) can hold back rather than stack a second dialog
+     * and a second alarm over this one.
+     */
+    public static boolean isWarningShowing() {
+        return warningShowing;
+    }
+
+    /**
+     * Dismiss handler for every warning here: silence the voice and the
+     * vibration under it.
+     *
+     * <p>It deliberately does not then raise the device-scan modal. The person
+     * just dealt with this file through the tap-warning; the auto-detection
+     * modal belongs to the next app open, not to the instant this closes, so a
+     * threat it was holding back stays held until then (the owner wanted the
+     * two not to stack, 2026-10-16).
+     */
+    private static void onWarningDismissed() {
+        warningShowing = false;
+        JacAlarm.stop();
     }
 
     /**
@@ -316,79 +344,4 @@ public final class QuarantineDialogs {
         }
     }
 
-    /**
-     * The warning tone that runs under the countdown.
-     *
-     * <h3>Why a tone and not a bundled sound</h3>
-     *
-     * {@link ToneGenerator} is in the platform, so this adds nothing to the
-     * APK and needs no permission. It also cannot fail into silence the way a
-     * missing asset would.
-     *
-     * <h3>Why the alarm stream</h3>
-     *
-     * The notification stream is where a phone in a meeting is already muted,
-     * and this is the one sound in the app that has to arrive. The alarm stream
-     * is the loudest honest choice: it is what the platform reserves for
-     * "something needs you now".
-     *
-     * <h3>What it will not do</h3>
-     *
-     * Nothing at all in silent mode. A phone set to silent is a deliberate
-     * instruction from its owner, and an app that overrides it teaches people
-     * to distrust the app rather than the file. The countdown, the glyph and
-     * the text all still work without a sound.
-     *
-     * <p>Every method is safe to call on a broken or absent generator: audio
-     * routing is one of the flakiest surfaces on Android, and a warning dialog
-     * that crashes instead of warning would be the worst possible trade.
-     */
-    private static final class Alarm {
-
-        private ToneGenerator generator;
-
-        Alarm(Activity activity) {
-            try {
-                AudioManager audio = (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
-                if (audio != null && audio.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
-                    return;
-                }
-                generator = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
-            } catch (Throwable ignored) {
-                generator = null;
-            }
-        }
-
-        /** One second of the countdown. */
-        void beep() {
-            play(ToneGenerator.TONE_CDMA_ABBR_ALERT, 350);
-        }
-
-        /** The countdown is over and the buttons are live. */
-        void finish() {
-            play(ToneGenerator.TONE_PROP_ACK, 200);
-        }
-
-        void release() {
-            ToneGenerator local = generator;
-            generator = null;
-            if (local != null) {
-                try {
-                    local.release();
-                } catch (Throwable ignored) {
-                }
-            }
-        }
-
-        private void play(int tone, int durationMs) {
-            ToneGenerator local = generator;
-            if (local == null) {
-                return;
-            }
-            try {
-                local.startTone(tone, durationMs);
-            } catch (Throwable ignored) {
-            }
-        }
-    }
 }

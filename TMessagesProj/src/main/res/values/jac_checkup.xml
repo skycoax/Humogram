@@ -12,9 +12,6 @@
     <string name="jac_checkup_warn">Attention</string>
     <string name="jac_checkup_risk">Risk</string>
     <string name="jac_checkup_unknown">Couldn\'t check</string>
-    <string name="jac_checkup_screen_lock">Screen lock</string>
-    <string name="jac_checkup_screen_lock_advice">Without a screen lock, anyone who picks up the phone gets all your chats. Set a PIN, pattern or fingerprint in system settings.</string>
-    <string name="jac_checkup_screen_lock_ok">A screen lock is set: someone who picks up the phone cannot open your chats without it.</string>
     <string name="jac_checkup_root">Root access</string>
     <string name="jac_checkup_root_advice">This device appears to be rooted. Root lets any app read other apps\' data, including your messages. If you didn\'t root it yourself, have the phone checked.</string>
     <string name="jac_checkup_root_ok">No signs of root were found. Root would let any app read other apps\' data, including your messages.</string>

@@ -9,8 +9,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import uz.jac.secure.core.device.InstalledAppPolicy;
+import uz.jac.secure.core.device.ThreatEntry;
 import uz.jac.secure.core.device.ThreatIntel;
 import uz.jac.secure.core.engine.EngineFactory;
+import uz.jac.secure.core.engine.ScanEngine;
 
 /**
  * One-line entry point from {@code ApplicationLoader}.
@@ -97,18 +99,33 @@ public final class ScannerBootstrap {
             // branch in EngineFactory unreachable: no device registration, no
             // /v1/verdict lookup, no hash of any file ever leaving the phone.
             // Every verdict below comes from the on-device analysers alone.
-            // The consequence is accepted product behaviour: the local policy
-            // never says CLEAN about an installer, so an APK stays red for
-            // good and installing one always takes the deliberate two-step
-            // override. The device scanner is local-only in the same way: it
-            // has no network step at all.
+            // An installer is judged on what it actually contains -- manifest,
+            // permissions, signer, packing, and the device scanner's
+            // known-malware list -- and one where nothing fires is CLEAN; it
+            // is never red merely for being an APK. The device scanner is
+            // local-only in the same way: it has no network step at all.
+            //
+            // The list is the device scanner's ~500 KB of indicators, loaded
+            // by the first installer that needs it (on a scan thread), not
+            // here at every process start.
+            final ScanEngine.InstallerIntel installerIntel = (sha256, certs, packageName) -> {
+                final ThreatIntel intel = getThreatIntel();
+                ThreatEntry entry = intel.matchHash(sha256, null, null);
+                if (entry == null) {
+                    entry = intel.matchCert(certs);
+                }
+                if (entry == null) {
+                    entry = intel.matchPackage(packageName);
+                }
+                return entry != null ? entry.getFamilyName() : null;
+            };
 
             // One gate per account. Telegram supports several signed-in
             // accounts at once, and a verdict cache shared between them would
             // leak the fact that a file was seen on one into the other.
             for (int account = 0; account < UserConfig.MAX_ACCOUNT_COUNT; account++) {
                 ScanGate.install(account, context, mode ->
-                        EngineFactory.engineFor(data, mode));
+                        EngineFactory.engineFor(data, mode, null, null, false, installerIntel));
                 LinkGate.install(account, mode ->
                         EngineFactory.linkScannerFor(data, mode));
             }

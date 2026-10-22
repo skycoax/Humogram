@@ -95,10 +95,9 @@ public final class ScanDialogMarker {
      * the link one from the offline half only — see {@link LinkGate#prescreen}.
      * The host cell should try {@link #bind} first and fall back to this.
      *
-     * Always amber, never red. This marker is built from structural analysis
-     * with no reputation source behind it, so "worth a look" is the strongest
-     * claim it is entitled to make. Painting it the same red as a confirmed
-     * blocked file would spend the credibility of that colour on a guess.
+     * Red, like every warning about a threat (the owner's call, 2026-10-16);
+     * the words stay "suspicious link", which is all this offline marker can
+     * claim, and the glyph is the caution triangle rather than the virus.
      *
      * @return true when this row has a marker to draw
      */
@@ -109,7 +108,7 @@ public final class ScanDialogMarker {
         }
         presentation = new ScanUi.Presentation(
                 JacIcons.Glyph.WARNING,
-                JacTheme.warning(context),
+                JacTheme.danger(context),
                 JacStrings.get(context, org.telegram.messenger.R.string.jac_chip_link_suspicious),
                 null,
                 false,
@@ -120,13 +119,13 @@ public final class ScanDialogMarker {
         return true;
     }
 
-    /** Row tint for a link marker; amber, and the same 8% wash as a file. */
+    /** Row tint for a link marker; red, and the same 8% wash as a file. */
     public static int linkRowTint(Context context) {
-        return JacTheme.wash(JacTheme.warning(context), 8);
+        return JacTheme.wash(JacTheme.danger(context), 8);
     }
 
     public static int linkRowStripe(Context context) {
-        return JacTheme.warning(context);
+        return JacTheme.danger(context);
     }
 
     /**
@@ -154,10 +153,8 @@ public final class ScanDialogMarker {
         if (!needsAttention(state)) {
             return 0;
         }
-        int colour = state.verdict == Verdict.MALICIOUS
-                ? JacTheme.danger(context)
-                : JacTheme.warning(context);
-        return JacTheme.wash(colour, 8);
+        // Red for both: suspicious is a threat too.
+        return JacTheme.wash(JacTheme.danger(context), 8);
     }
 
     /** Colour of the leading edge stripe, or 0 for none. */
@@ -165,9 +162,7 @@ public final class ScanDialogMarker {
         if (!needsAttention(state)) {
             return 0;
         }
-        return state.verdict == Verdict.MALICIOUS
-                ? JacTheme.danger(context)
-                : JacTheme.warning(context);
+        return JacTheme.danger(context);
     }
 
     /** Width the marker wants; the host gives the rest to the preview text. */

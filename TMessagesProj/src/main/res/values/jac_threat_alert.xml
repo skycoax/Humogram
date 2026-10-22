@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The threat alarm (uz.jac.secure.android.ThreatAlert): the modal a scan raises
+  the moment it finds a threat, its heads-up notification, the alarm sound and
+  its picker (JacAlarm, AlarmSoundActivity), and "Check phone" on the welcome
+  screen (PhoneCheckActivity).
+-->
+<resources>
+    <string name="jac_threat_alert_title_one">Threat found</string>
+    <string name="jac_threat_alert_title_many">Threats found: %1$d</string>
+    <string name="jac_threat_alert_body">Remove it now. Until it is gone, do not open bank apps or type card numbers and SMS codes.</string>
+    <string name="jac_threat_details">Details</string>
+    <string name="jac_threat_ignore">Ignore</string>
+    <string name="jac_threat_delete">Delete</string>
+    <string name="jac_threat_file">APK file</string>
+    <string name="jac_threat_file_installs">APK file · installs %1$s</string>
+
+    <string name="jac_threat_channel">Threats found on the phone</string>
+    <string name="jac_threat_notif_title_one">Threat found: %1$s</string>
+    <string name="jac_threat_notif_title_many">%1$d threats found on your phone</string>
+    <string name="jac_threat_notif_text">Open Humogram to see and remove it.</string>
+
+    <string name="jac_threat_sound_switch">Sound on threat</string>
+    <string name="jac_alarm_sound">Alarm sound</string>
+    <string name="jac_alarm_play">Play</string>
+    <string name="jac_alarm_sound_info">Made for Humogram. Plays at the alarm volume, so it is heard even with media muted; in silent mode the phone only vibrates.</string>
+    <string name="jac_alarm_sound_radar">Radar</string>
+    <string name="jac_alarm_sound_klaxon">Klaxon</string>
+    <string name="jac_alarm_sound_siren">Air-raid siren</string>
+    <string name="jac_alarm_sound_redlevel">Red level</string>
+    <string name="jac_alarm_sound_evacuation">Evacuation</string>
+
+    <string name="jac_check_phone">Check phone</string>
+    <string name="jac_check_phone_continue">Continue to sign in</string>
+    <string name="jac_check_phone_info">The check runs on this phone only and needs no account. Nothing is sent anywhere.</string>
+
+    <!-- The fixed warning shown (and spoken, in Uzbek) when a dangerous or unknown
+         APK is about to open, and when the link guard stops a link. -->
+    <string name="jac_apk_warn_title">Warning!</string>
+    <string name="jac_apk_warn_body">Careful — you are about to download an unknown APK file that is marked in red. Unknown APK files can steal your personal data and the money on your bank card. Stay alert!</string>
+    <string name="jac_link_warn_body">Careful — you tapped an unknown link that is marked in red. Unknown links can steal your personal data and the money on your bank card. Stay alert!</string>
+</resources>

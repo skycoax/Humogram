@@ -64,7 +64,10 @@ That covers:
   It sees the apps Android makes visible through the manifest's targeted
   `<queries>`: launcher apps, apps with an accessibility service, notification
   listener or SMS role, and stores and installers. It does not hold
-  `QUERY_ALL_PACKAGES`, so no permission declaration is needed for it. Per
+  `QUERY_ALL_PACKAGES`, so no permission declaration is needed for it (a
+  ready declaration text, should it ever be added, is in
+  `docs/device-scanner.md`). It also runs before sign-in ("Check phone" on
+  the welcome screen), still entirely on the phone. Per
   app it reads the package name, label, version, installer, granted SMS and
   call permissions, whether accessibility, notification access, device admin,
   default SMS or draw-over-apps is active, whether the launcher icon is hidden,

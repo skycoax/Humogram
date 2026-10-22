@@ -97,8 +97,7 @@
              sees installed apps through these targeted queries, deliberately NOT through
              QUERY_ALL_PACKAGES, which Play reserves for antivirus apps, file managers and
              browsers. Each entry below is one kind of app the scanner has a reason to look
-             at; the app list never leaves the phone unless the user opts into the cloud
-             check. -->
+             at; the app list never leaves the phone (there is no cloud check). -->
         <!-- Humogram: every app with a launcher icon, including one that has since
              disabled its icon (visibility comes from the manifest, not the runtime
              state) - that is how the hidden-icon check sees an Ajina-style banker. -->

@@ -93,6 +93,9 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class IntroActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
     private final static int ICON_WIDTH_DP = 200, ICON_HEIGHT_DP = 150;
+    // Humogram: the side of the app-icon artwork shown at the top, centred in
+    // the ICON_HEIGHT_DP band — sized as an icon, not the oversized GL logo.
+    private final static int ICON_ART_DP = 120;
 
     private final Object pagerHeaderTag = new Object(),
             pagerMessageTag = new Object();
@@ -104,6 +107,9 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
     private TextView switchLanguageTextView;
     private GradientDrawable startMessagingButtonBackground;
     private TextView startMessagingButton;
+    // Humogram: "Check phone" under "Start Messaging" -- the virus scanner,
+    // usable before (and without) signing in.
+    private TextView checkPhoneButton;
     private FrameLayout frameLayout2;
     private FrameLayout frameContainerView;
 
@@ -117,6 +123,8 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
     private String[] messages;
     private int currentViewPagerPage;
     private EGLThread eglThread;
+    // Humogram: the welcome-icon pulse; cancelled in onFragmentDestroy.
+    private android.animation.Animator introIconAnim;
     private long currentDate;
     private boolean justEndDragging;
     private boolean dragging;
@@ -132,29 +140,32 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
     public boolean onFragmentCreate() {
         MessagesController.getGlobalMainSettings().edit().putLong("intro_crashed_time", System.currentTimeMillis()).apply();
 
+        // Humogram: the onboarding slides describe Humogram's own features —
+        // phone virus check, dangerous-file and link protection, account
+        // protection — not Telegram's. Slide 1's title is set to the app name
+        // in createView. Read through JacStrings so they follow the app's
+        // chosen language (uz first), not the device locale.
+        final android.content.Context ctx = ApplicationLoader.applicationContext;
         titles = new CharSequence[]{
                 null,
-                LocaleController.getString(R.string.Page2Title),
-                LocaleController.getString(R.string.Page3Title),
-                LocaleController.getString(R.string.Page5Title),
-                LocaleController.getString(R.string.Page4Title),
-                LocaleController.getString(R.string.Page6Title)
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_t2),
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_t3),
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_t4),
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_t5),
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_t6)
         };
-        // Humogram: read the onboarding messages straight from our resources
-        // rather than through LocaleController. Telegram's downloaded language
-        // pack carries these strings with "Telegram" hard-coded in them and
-        // would override our XML — the same reason the Page1 title is set from
-        // resources in createView. Reading from resources keeps the wordmark
-        // ours on the very first screen a new user sees.
-        final android.content.res.Resources res = ApplicationLoader.applicationContext.getResources();
         messages = new String[]{
-                res.getString(R.string.Page1Message),
-                res.getString(R.string.Page2Message),
-                res.getString(R.string.Page3Message),
-                res.getString(R.string.Page5Message),
-                res.getString(R.string.Page4Message),
-                res.getString(R.string.Page6Message)
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_m1),
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_m2),
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_m3),
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_m4),
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_m5),
+                uz.jac.secure.android.JacStrings.get(ctx, R.string.jac_intro_m6)
         };
+        // Humogram: first launch should come up in Uzbek. Also triggered from
+        // ApplicationLoader, but doing it here too makes sure it runs by the
+        // time the very first screen is built.
+        uz.jac.secure.android.JacDefaultLanguage.ensureFirstLaunch();
         return true;
     }
 
@@ -194,9 +205,14 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
                 bottomPages.layout(x, y, x + bottomPages.getMeasuredWidth(), y + bottomPages.getMeasuredHeight());
                 viewPager.layout(0, 0, viewPager.getMeasuredWidth(), viewPager.getMeasuredHeight());
 
-                y = oneFourth * 3 + (oneFourth - startMessagingButton.getMeasuredHeight()) / 2;
+                // Humogram: the two buttons are centred as a pair in the last quarter.
+                final int checkHeight = checkPhoneButton.getMeasuredHeight() + dp(10);
+                y = oneFourth * 3 + (oneFourth - startMessagingButton.getMeasuredHeight() - checkHeight) / 2;
                 x = (getMeasuredWidth() - startMessagingButton.getMeasuredWidth()) / 2;
                 startMessagingButton.layout(x, y, x + startMessagingButton.getMeasuredWidth(), y + startMessagingButton.getMeasuredHeight());
+                final int checkTop = y + startMessagingButton.getMeasuredHeight() + dp(10);
+                final int checkLeft = (getMeasuredWidth() - checkPhoneButton.getMeasuredWidth()) / 2;
+                checkPhoneButton.layout(checkLeft, checkTop, checkLeft + checkPhoneButton.getMeasuredWidth(), checkTop + checkPhoneButton.getMeasuredHeight());
                 y -= dp(30);
                 x = (getMeasuredWidth() - switchLanguageTextView.getMeasuredWidth()) / 2;
                 switchLanguageTextView.layout(x, y - switchLanguageTextView.getMeasuredHeight(), x + switchLanguageTextView.getMeasuredWidth(), y);
@@ -255,50 +271,31 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
         frameLayout2 = new FrameLayout(context);
         frameContainerView.addView(frameLayout2, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 0, 78, 0, 0));
 
-        TextureView textureView = new TextureView(context);
-        frameLayout2.addView(textureView, LayoutHelper.createFrame(ICON_WIDTH_DP, ICON_HEIGHT_DP, Gravity.CENTER));
-        textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
-            @Override
-            public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height) {
-                if (eglThread == null && surface != null) {
-                    eglThread = new EGLThread(surface);
-                    eglThread.setSurfaceTextureSize(width, height);
-                    eglThread.postRunnable(()->{
-                        float time = (System.currentTimeMillis() - currentDate) / 1000.0f;
-                        Intro.setPage(currentViewPagerPage);
-                        Intro.setDate(time);
-                        Intro.onDrawFrame(0);
-                        if (eglThread != null && eglThread.isAlive() && eglThread.eglDisplay != null && eglThread.eglSurface != null) {
-                            try {
-                                eglThread.egl10.eglSwapBuffers(eglThread.eglDisplay, eglThread.eglSurface);
-                            } catch (Exception ignored) {} // If display or surface already destroyed
-                        }
-                    });
-                    eglThread.postRunnable(eglThread.drawRunnable);
-                }
-            }
-
-            @Override
-            public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, final int width, final int height) {
-                if (eglThread != null) {
-                    eglThread.setSurfaceTextureSize(width, height);
-                }
-            }
-
-            @Override
-            public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface) {
-                if (eglThread != null) {
-                    eglThread.shutdown();
-                    eglThread = null;
-                }
-                return true;
-            }
-
-            @Override
-            public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
-
-            }
-        });
+        // Humogram: Telegram's intro is a full OpenGL animation of their own
+        // paper-plane logo and scenes. We show our own app icon instead — the
+        // real launcher artwork, centred and sized as an icon rather than the
+        // oversized GL logo. The EGLThread/Intro renderer is left in the class
+        // but never started, so none of its native scenes run.
+        android.widget.ImageView iconView = new android.widget.ImageView(context);
+        iconView.setImageResource(R.mipmap.ic_launcher);
+        iconView.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+        frameLayout2.addView(iconView, LayoutHelper.createFrame(ICON_ART_DP, ICON_HEIGHT_DP, Gravity.CENTER));
+        // A gentle, continuous pulse so the welcome screen is not dead-static.
+        // Stopped in onFragmentDestroy so it cannot outlive the screen.
+        final android.animation.ObjectAnimator pulseX =
+                android.animation.ObjectAnimator.ofFloat(iconView, View.SCALE_X, 1f, 1.06f);
+        final android.animation.ObjectAnimator pulseY =
+                android.animation.ObjectAnimator.ofFloat(iconView, View.SCALE_Y, 1f, 1.06f);
+        for (android.animation.ObjectAnimator a : new android.animation.ObjectAnimator[]{pulseX, pulseY}) {
+            a.setDuration(1300);
+            a.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            a.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            a.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+        }
+        final android.animation.AnimatorSet pulse = new android.animation.AnimatorSet();
+        pulse.playTogether(pulseX, pulseY);
+        pulse.start();
+        introIconAnim = pulse;
 
         viewPager = new ViewPager(context);
         viewPager.setAdapter(new IntroAdapter());
@@ -315,7 +312,10 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
                     return;
                 }
                 float offset = (position * width + positionOffsetPixels - currentViewPagerPage * width) / width;
-                Intro.setScrollOffset(offset);
+                // Humogram: only drives the GL renderer, which we no longer start.
+                if (eglThread != null) {
+                    Intro.setScrollOffset(offset);
+                }
             }
 
             @Override
@@ -394,6 +394,35 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
 
             presentFragment(new LoginActivity().setIntroView(frameContainerView, startMessagingButton), true);
             destroyed = true;
+        });
+
+        // Humogram: the phone check needs no account; back returns here. Same
+        // width cap (320 dp) and height as "Start Messaging" so the two buttons
+        // are identical — without the cap this one went full-width and read as
+        // slightly wider.
+        checkPhoneButton = new TextView(context) {
+            @Override
+            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                int size = MeasureSpec.getSize(widthMeasureSpec);
+                if (size > dp(260)) {
+                    super.onMeasure(MeasureSpec.makeMeasureSpec(dp(320), MeasureSpec.EXACTLY), heightMeasureSpec);
+                } else {
+                    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+                }
+            }
+        };
+        ScaleStateListAnimator.apply(checkPhoneButton, .02f, 1.2f);
+        checkPhoneButton.setText(uz.jac.secure.android.JacStrings.get(context, R.string.jac_check_phone));
+        checkPhoneButton.setGravity(Gravity.CENTER);
+        checkPhoneButton.setTypeface(AndroidUtilities.bold());
+        checkPhoneButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+        checkPhoneButton.setPadding(dp(34), 0, dp(34), 0);
+        frameContainerView.addView(checkPhoneButton, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 16, 0, 16, 20));
+        checkPhoneButton.setOnClickListener(view -> {
+            if (startPressed) {
+                return;
+            }
+            presentFragment(new uz.jac.secure.android.PhoneCheckActivity());
         });
 
         bottomPages = new BottomPagesView(context, viewPager, 6);
@@ -478,6 +507,10 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
     public void onFragmentDestroy() {
         super.onFragmentDestroy();
         destroyed = true;
+        if (introIconAnim != null) {
+            introIconAnim.cancel();
+            introIconAnim = null;
+        }
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.suggestedLangpack);
         NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.configLoaded);
         MessagesController.getGlobalMainSettings().edit().putLong("intro_crashed_time", 0).apply();
@@ -992,6 +1025,10 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
         switchLanguageTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlueText4));
         startMessagingButton.setTextColor(Theme.getColor(Theme.key_featuredStickers_buttonText));
         startMessagingButton.setBackground(Theme.createSimpleSelectorRoundRectDrawable(dp(24), Color.TRANSPARENT, Theme.getColor(Theme.key_featuredStickers_addButtonPressed)));
+        // Humogram: a tonal button in the accent, second to "Start Messaging".
+        final int accent = getThemedColor(Theme.key_featuredStickers_addButton);
+        checkPhoneButton.setTextColor(accent);
+        checkPhoneButton.setBackground(Theme.createSimpleSelectorRoundRectDrawable(dp(22), Theme.multAlpha(accent, .12f), Theme.multAlpha(accent, .24f)));
         darkThemeDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_featuredStickers_addButton), PorterDuff.Mode.SRC_IN));
         bottomPages.invalidate();
         if (fromTheme) {
@@ -1013,7 +1050,10 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
                 TextView messageTextView = ch.findViewWithTag(pagerMessageTag);
                 messageTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText));
             }
-        } else Intro.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        } else if (eglThread != null) {
+            // Humogram: only meaningful for the GL renderer, which we no longer start.
+            Intro.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        }
     }
 
     @Override

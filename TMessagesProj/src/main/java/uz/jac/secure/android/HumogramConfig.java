@@ -32,29 +32,28 @@ public final class HumogramConfig {
      */
     public static final String SECURITY_CHANNEL = "jizzax_kiber";
 
-    private static final String KEY_CHANNEL_HINT_DONE = "channel_hint_done";
+    private static final String KEY_RATE_HINT_DONE = "rate_hint_done";
 
     /**
-     * Whether the chat list should still be suggesting the security channel.
+     * Whether the chat list should still be asking for a rating on Google Play
+     * ({@link RateApp}).
      *
-     * <p>Once: the hint disappears forever after one tap or one dismissal.
-     * A recommendation that keeps coming back is an advertisement, and this
-     * fork's standing with its users rests on never advertising at them.
+     * <p>Once: the hint disappears forever after one tap or one dismissal, or
+     * once the user has rated from Settings. A request that keeps
+     * coming back is nagging, and this fork's standing with its users rests on
+     * never advertising at them.
      */
-    public static boolean shouldShowChannelHint(Context context) {
-        if (SECURITY_CHANNEL.isEmpty()) {
-            return false;
-        }
+    public static boolean shouldShowRateHint(Context context) {
         try {
-            return !prefs(context).getBoolean(KEY_CHANNEL_HINT_DONE, false);
+            return !prefs(context).getBoolean(KEY_RATE_HINT_DONE, false);
         } catch (Throwable ignored) {
             return false;
         }
     }
 
-    public static void setChannelHintDismissed(Context context) {
+    public static void setRateHintDone(Context context) {
         try {
-            prefs(context).edit().putBoolean(KEY_CHANNEL_HINT_DONE, true).apply();
+            prefs(context).edit().putBoolean(KEY_RATE_HINT_DONE, true).apply();
         } catch (Throwable ignored) {
         }
     }
@@ -181,6 +180,101 @@ public final class HumogramConfig {
     public static void setTwoStepReminder(Context context, boolean on) {
         try {
             prefs(context).edit().putBoolean(KEY_TWO_STEP_REMINDER, on).apply();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // The threat alarm (ThreatAlert, JacAlarm). Local to this phone, like
+    // every scanner setting.
+    // ---------------------------------------------------------------------
+
+    private static final String KEY_THREAT_SOUND = "threat_sound";
+    private static final String KEY_ALARM_SOUND = "alarm_sound";
+    private static final String KEY_THREAT_IGNORED = "threat_ignored";
+    private static final String KEY_LANG_DEFAULT_DONE = "lang_default_uz_done";
+
+    /** Whether the first-launch switch to Uzbek ({@link JacDefaultLanguage}) has succeeded. */
+    public static boolean isDefaultLanguageDone(Context context) {
+        try {
+            return prefs(context).getBoolean(KEY_LANG_DEFAULT_DONE, false);
+        } catch (Throwable ignored) {
+            // Fail toward "done" so a broken store cannot re-apply the language
+            // on every launch and fight a user who has since changed it.
+            return true;
+        }
+    }
+
+    public static void setDefaultLanguageDone(Context context) {
+        try {
+            prefs(context).edit().putBoolean(KEY_LANG_DEFAULT_DONE, true).apply();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** Whether a threat sounds the alarm ("Sound on threat"). On by default; vibration is not affected. */
+    public static boolean isThreatSound(Context context) {
+        try {
+            return prefs(context).getBoolean(KEY_THREAT_SOUND, true);
+        } catch (Throwable ignored) {
+            return true;
+        }
+    }
+
+    public static void setThreatSound(Context context, boolean on) {
+        try {
+            prefs(context).edit().putBoolean(KEY_THREAT_SOUND, on).apply();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** Which of {@link JacAlarm}'s sounds plays: an index into {@code JacAlarm.SOUNDS}. */
+    public static int getAlarmSound(Context context) {
+        try {
+            return prefs(context).getInt(KEY_ALARM_SOUND, 0);
+        } catch (Throwable ignored) {
+            return 0;
+        }
+    }
+
+    public static void setAlarmSound(Context context, int index) {
+        try {
+            prefs(context).edit().putInt(KEY_ALARM_SOUND, index).apply();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    /** "Ignore" in the threat alarm: this app version or file never alarms again. */
+    public static boolean isThreatIgnored(Context context, String key) {
+        if (key == null) {
+            return false;
+        }
+        try {
+            java.util.Set<String> ignored = prefs(context).getStringSet(KEY_THREAT_IGNORED, null);
+            return ignored != null && ignored.contains(key);
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    public static synchronized void setThreatIgnored(Context context, String key) {
+        if (key == null) {
+            return;
+        }
+        try {
+            SharedPreferences prefs = prefs(context);
+            java.util.Set<String> current = prefs.getStringSet(KEY_THREAT_IGNORED, null);
+            java.util.Set<String> next = current != null
+                    ? new java.util.HashSet<>(current) : new java.util.HashSet<String>();
+            // Every update mints a new key; a bounded set keeps it from growing
+            // for ever. Which old ones go does not matter much: an ignored
+            // version that is still installed simply alarms once more.
+            if (next.size() >= MAX_NOTIFIED_KEYS) {
+                next.clear();
+            }
+            if (next.add(key)) {
+                prefs.edit().putStringSet(KEY_THREAT_IGNORED, next).apply();
+            }
         } catch (Throwable ignored) {
         }
     }

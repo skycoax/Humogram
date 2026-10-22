@@ -140,7 +140,7 @@ ma’lumotlarini tozalasangiz, o‘chib ketadi.
 #### Qurilma tekshiruvi va himoya darajasi
 
 Sozlamalar → Humogram sahifasida ilova telefonning o‘zida quyidagilarni
-tekshiradi: ekran qulfi o‘rnatilganmi, qurilmada root belgilari bormi, USB
+tekshiradi: qurilmada root belgilari bormi, USB
 orqali nosozliklarni tuzatish yoqilganmi va so‘nggi xavfsizlik yangilanishi
 qachon bo‘lgan. Buning uchun bir nechta tizim sozlamasi va fayllar mavjudligi
 o‘qiladi. Akkauntingizda bulut paroli (2FA) borligi Telegram’dan so‘raladi —
@@ -515,8 +515,8 @@ backups and is erased when you uninstall the app or clear its data.
 
 #### Device check and protection level
 
-On the Settings → Humogram page the app checks, on the phone itself, whether a
-screen lock is set, whether the device shows signs of root, whether USB
+On the Settings → Humogram page the app checks, on the phone itself, whether the
+device shows signs of root, whether USB
 debugging is on and how old the last security update is. It does this by
 reading a few system settings and checking whether certain files exist.
 Whether your account has a cloud password (2FA) is asked of Telegram, the same

@@ -79,7 +79,9 @@ import uz.jac.secure.core.model.Signal;
  *       disk reads on a budget phone.</li>
  *   <li>Judges each app with the core {@link InstalledAppPolicy} — bundled
  *       threat intel plus runtime heuristics — and each APK file with
- *       {@link InstalledAppPolicy#evaluateApkFile}.</li>
+ *       {@link InstalledAppPolicy#evaluateApkFile}. Each threat is announced
+ *       the moment it is found ({@link Listener#onThreat}; {@link ThreatAlert}
+ *       turns it into the alarm), not at the end.</li>
  *   <li>Writes the {@link DeviceScanReport} to
  *       {@code getNoBackupFilesDir()/jac-devscan/report.json} and hands it to
  *       the listeners on the UI thread.</li>
@@ -106,6 +108,14 @@ public final class DeviceScanner {
 
         /** UI thread, never null. */
         void onFinished(DeviceScanReport report);
+
+        /**
+         * UI thread, the moment a threat (SUSPICIOUS or worse) is found —
+         * before the scan has finished. Exactly one argument is non-null. The
+         * same result is in the report {@link #onFinished} delivers.
+         */
+        default void onThreat(DeviceScanReport.AppResult app, DeviceScanReport.FileResult file) {
+        }
     }
 
     private static final String TAG = "jac";
@@ -176,6 +186,8 @@ public final class DeviceScanner {
             }
         });
         this.executor.allowCoreThreadTimeOut(true);
+        // Every scan, whoever started it, alerts the moment it finds a threat.
+        this.listeners.add(ThreatAlert.LISTENER);
         try {
             // First job on the thread, so any scan queues behind it: parse the
             // threat intel and load the last report, off the main thread.
@@ -413,7 +425,16 @@ public final class DeviceScanner {
                     facts = c.toFacts();
                     assessment = policy.evaluate(facts);
                 }
-                checked.add(new CheckedApp(c, facts, assessment));
+                final CheckedApp checkedApp = new CheckedApp(c, facts, assessment);
+                checked.add(checkedApp);
+                if (assessment.getRisk().getLevel() >= suspicious) {
+                    // Said now, not at the end: the alert must not wait for
+                    // the other two hundred apps.
+                    if (c.system) {
+                        collector.ensureLabel(c);
+                    }
+                    threat(appResult(checkedApp, policy, previousPackages), null);
+                }
             } catch (DeviceAppCollector.Cancelled e) {
                 throw e;
             } catch (PackageManager.NameNotFoundException e) {
@@ -457,7 +478,11 @@ public final class DeviceScanner {
                         fp.rememberAssessment(verdictStamp, assessment);
                     }
                 }
-                checkedFiles.add(new CheckedFile(apk, assessment));
+                final CheckedFile checkedFile = new CheckedFile(apk, assessment);
+                checkedFiles.add(checkedFile);
+                if (assessment.getRisk().getLevel() >= suspicious) {
+                    threat(null, fileResult(checkedFile));
+                }
             } catch (DeviceAppCollector.Cancelled e) {
                 throw e;
             } catch (Throwable t) {
@@ -486,8 +511,6 @@ public final class DeviceScanner {
                 // then is its name worth resolving.
                 collector.ensureLabel(c);
             }
-            DeviceScanCache.AppEntry entry = c.entry;
-            boolean isNew = previousPackages != null && !c.system && !previousPackages.contains(c.packageName);
             if (!c.system && previousUpdatedAt != null) {
                 Long was = previousUpdatedAt.get(c.packageName);
                 // A previous report written before updatedAt existed stores 0;
@@ -496,22 +519,7 @@ public final class DeviceScanner {
                     newOrChanged++;
                 }
             }
-            apps.add(new DeviceScanReport.AppResult(
-                    c.packageName,
-                    entry != null && entry.labelLoaded ? entry.label : null,
-                    c.versionName,
-                    entry != null ? entry.installer : null,
-                    app.assessment.getVerdict().getWire(),
-                    app.assessment.getSource(),
-                    app.assessment.getFamily(),
-                    c.versionCode,
-                    c.lastUpdateTime,
-                    app.assessment.getRisk().getLevel(),
-                    c.system,
-                    policy.isStoreInstalled(app.facts),
-                    isNew,
-                    findingsOf(signals),
-                    entry != null ? entry.sha256 : null));
+            apps.add(appResult(app, policy, previousPackages));
         }
 
         List<DeviceScanReport.FileResult> fileResults = new ArrayList<>(checkedFiles.size());
@@ -531,6 +539,30 @@ public final class DeviceScanner {
                 apps,
                 fileResults,
                 null);
+    }
+
+    /** An installed app's row, exactly as the core judged it. */
+    private static DeviceScanReport.AppResult appResult(CheckedApp app, InstalledAppPolicy policy,
+                                                        Set<String> previousPackages) {
+        final DeviceAppCollector.Candidate c = app.candidate;
+        final DeviceScanCache.AppEntry entry = c.entry;
+        final boolean isNew = previousPackages != null && !c.system && !previousPackages.contains(c.packageName);
+        return new DeviceScanReport.AppResult(
+                c.packageName,
+                entry != null && entry.labelLoaded ? entry.label : null,
+                c.versionName,
+                entry != null ? entry.installer : null,
+                app.assessment.getVerdict().getWire(),
+                app.assessment.getSource(),
+                app.assessment.getFamily(),
+                c.versionCode,
+                c.lastUpdateTime,
+                app.assessment.getRisk().getLevel(),
+                c.system,
+                policy.isStoreInstalled(app.facts),
+                isNew,
+                findingsOf(app.assessment.getSignals()),
+                entry != null ? entry.sha256 : null);
     }
 
     /** An APK file's row, exactly as the core judged it. */
@@ -616,6 +648,27 @@ public final class DeviceScanner {
         }
     };
 
+    /** Tell every listener about one threat, on the UI thread, while the scan goes on. */
+    private void threat(final DeviceScanReport.AppResult app, final DeviceScanReport.FileResult file) {
+        AndroidUtilities.runOnUIThread(new Runnable() {
+            @Override
+            public void run() {
+                for (Listener l : listeners) {
+                    safeThreat(l, app, file);
+                }
+                List<Listener> once;
+                synchronized (lock) {
+                    once = new ArrayList<>(runListeners);
+                }
+                for (Listener l : once) {
+                    if (!listeners.contains(l)) {
+                        safeThreat(l, app, file);
+                    }
+                }
+            }
+        });
+    }
+
     /** Give a listener that joins mid-scan the current position straight away. */
     private void postCurrentProgress(final Listener l) {
         AndroidUtilities.runOnUIThread(new Runnable() {
@@ -658,6 +711,14 @@ public final class DeviceScanner {
     private static void safeProgress(Listener l, int done, int total, String label) {
         try {
             l.onProgress(done, total, label);
+        } catch (Throwable t) {
+            android.util.Log.e(TAG, "device scan listener failed", t);
+        }
+    }
+
+    private static void safeThreat(Listener l, DeviceScanReport.AppResult app, DeviceScanReport.FileResult file) {
+        try {
+            l.onThreat(app, file);
         } catch (Throwable t) {
             android.util.Log.e(TAG, "device scan listener failed", t);
         }

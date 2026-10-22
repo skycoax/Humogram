@@ -11345,7 +11345,7 @@
 
     <string name="jac_reason_unsigned">This app has no valid signature, so there is no way to tell who made it.</string>
 
-    <string name="jac_reason_apk_installable">This app can reach the money in your bank apps and your personal data, and can watch everything on your phone.</string>
+    <string name="jac_reason_apk_installable">This file installs an app on your phone.</string>
 
     <string name="jac_reason_remote_template">This document loads content from the internet when you open it.</string>
 
@@ -11416,8 +11416,6 @@
     <string name="jac_ornament_note">The pattern is drawn faintly along the top and bottom of the chat list. It follows your theme and never covers your chats.</string>
     <string name="jac_security_header">Security</string>
     <string name="jac_channel">Cyber-safety channel (recommended)</string>
-    <string name="jac_channel_hint_title">Stay safe from fraud</string>
-    <string name="jac_channel_hint_text">Cyber-awareness channel we recommend: %1$s</string>
     <string name="jac_creator">Creator</string>
     <string name="jac_made_by">Made by %1$s</string>
 

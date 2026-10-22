@@ -1084,11 +1084,11 @@ public final class LinkGuardUi {
             } catch (Throwable ignored) {
             }
 
-            final SpannableStringBuilder message = new SpannableStringBuilder(reasonText(activity, finding));
-            final String shown = shownLine(activity, finding);
-            if (shown != null) {
-                message.append("\n\n").append(shown);
-            }
+            // One fixed warning for every link the guard stops, in the owner's
+            // words (2026-10-16), hedged the same way the APK one is. The
+            // address itself is shown in the chip below.
+            final SpannableStringBuilder message =
+                    new SpannableStringBuilder(JacStrings.get(activity, R.string.jac_link_warn_body));
 
             final AlertDialog dialog = new AlertDialog.Builder(activity)
                     .setTopImage(glyph(finding.dangerous ? JacIcons.Glyph.BLOCK : JacIcons.Glyph.SHIELD), bandColor())
@@ -1105,12 +1105,12 @@ public final class LinkGuardUi {
             dialog.show();
             nowAsking(dialog, key, activity);
             colourButton(dialog, DialogInterface.BUTTON_NEGATIVE, Theme.getColor(Theme.key_text_RedBold));
-            // The siren an installer gets (JacAlarm), for every link the guard
-            // stops — a site on the block list and an unchecked one alike, the
-            // way an unchecked APK sounds it too. The owner's call (2026-10-13):
-            // the people this app is for tap red links as readily as they
-            // install unknown APKs, and the sound is what reaches them.
-            JacAlarm.sound(activity);
+            // A spoken Uzbek warning, once, for every link the guard stops — a
+            // site on the block list and an unchecked one alike, the way a
+            // dangerous APK is spoken too. The owner's call (2026-10-13, voice
+            // 2026-10-16): the people this app is for tap red links as readily
+            // as they install unknown APKs, and the voice is what reaches them.
+            JacAlarm.voice(activity, R.raw.jac_voice_link);
         } catch (Throwable t) {
             // Could not ask, so not opened.
             FileLog.e("link guard: step one failed: " + t.getClass().getSimpleName());
@@ -1181,8 +1181,8 @@ public final class LinkGuardUi {
             nowAsking(dialog, key, activity);
             if (now.dangerous && !first.dangerous) {
                 // Blocked while step one was up: worse news than step one
-                // sounded for, so the siren again.
-                JacAlarm.sound(activity);
+                // sounded for, so the spoken warning again.
+                JacAlarm.voice(activity, R.raw.jac_voice_link);
             }
 
             final View danger = dialog.getButton(DialogInterface.BUTTON_POSITIVE);

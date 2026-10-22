@@ -119,7 +119,8 @@ public final class LinkInterstitialActivity extends Activity {
         String[] chain = getIntent().getStringArrayExtra(EXTRA_CHAIN);
 
         malicious = Verdict.MALICIOUS.name().equals(stringExtra(EXTRA_VERDICT, ""));
-        accent = malicious ? JacTheme.danger(this) : JacTheme.warning(this);
+        // Red for a suspicious link too: a threat is never shown in yellow.
+        accent = JacTheme.danger(this);
 
         setResult(RESULT_CANCELED);
         setContentView(buildContent(url, displayHost, reason, displayText, chain));

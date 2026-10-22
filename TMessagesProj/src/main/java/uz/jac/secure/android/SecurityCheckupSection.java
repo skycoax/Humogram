@@ -21,8 +21,8 @@ import java.util.List;
 
 /**
  * The device check, as rows on {@link HumogramSettingsActivity} under the
- * virus scanner: screen lock, root, USB debugging, security updates and the
- * account's cloud password, each ending in a green tick or an "!"
+ * virus scanner: root, USB debugging, security updates and the account's
+ * cloud password, each ending in a green tick or an "!"
  * ({@link CheckupStatusDrawable}). Tapping a row says what the check means and,
  * when something is wrong, offers the one thing that fixes it — the system
  * settings screen, or Telegram's own cloud-password setup.
@@ -46,7 +46,6 @@ final class SecurityCheckupSection {
     private static final int ROW_BASE = 2_000;
 
     private static final int[] LOCAL_ORDER = {
-            SecurityCheckup.CHECK_SCREEN_LOCK,
             SecurityCheckup.CHECK_ROOT,
             SecurityCheckup.CHECK_ADB,
             SecurityCheckup.CHECK_PATCH,
@@ -145,7 +144,7 @@ final class SecurityCheckupSection {
     /** True when the row was one of the device check's and has been handled. */
     boolean onClick(UItem item) {
         final int id = item.id - ROW_BASE;
-        if (id < SecurityCheckup.CHECK_SCREEN_LOCK || id > SecurityCheckup.CHECK_2FA) {
+        if (id < SecurityCheckup.CHECK_ROOT || id > SecurityCheckup.CHECK_2FA) {
             return false;
         }
         final Activity activity = fragment.getParentActivity();
@@ -223,8 +222,6 @@ final class SecurityCheckupSection {
 
     private static int titleFor(int id) {
         switch (id) {
-            case SecurityCheckup.CHECK_SCREEN_LOCK:
-                return R.string.jac_checkup_screen_lock;
             case SecurityCheckup.CHECK_ROOT:
                 return R.string.jac_checkup_root;
             case SecurityCheckup.CHECK_ADB:
@@ -240,8 +237,6 @@ final class SecurityCheckupSection {
     private static int adviceFor(int id, int severity) {
         final boolean ok = severity == SecurityCheckup.OK;
         switch (id) {
-            case SecurityCheckup.CHECK_SCREEN_LOCK:
-                return ok ? R.string.jac_checkup_screen_lock_ok : R.string.jac_checkup_screen_lock_advice;
             case SecurityCheckup.CHECK_ROOT:
                 return ok ? R.string.jac_checkup_root_ok : R.string.jac_checkup_root_advice;
             case SecurityCheckup.CHECK_ADB:

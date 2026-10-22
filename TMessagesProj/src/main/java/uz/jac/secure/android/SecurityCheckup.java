@@ -1,6 +1,5 @@
 package uz.jac.secure.android;
 
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.SystemClock;
@@ -28,17 +27,17 @@ import java.util.Locale;
  *
  * <p>A messenger that scans files and links answers "is this thing I was sent
  * dangerous?". This class answers the question one level down — "is the
- * ground it all runs on solid?" — because a scanner on a rooted phone with no
- * screen lock is a seatbelt in a car with no brakes.
+ * ground it all runs on solid?" — because a scanner on a rooted phone is a
+ * seatbelt in a car with no brakes.
  *
  * <h3>What is checked, and what deliberately is not</h3>
  *
  * The device checks read local state and nothing else: a handful of
- * file-exists probes, two Settings values, one system service, one build
- * property. The one account-side check — does the account have a cloud
- * password — is the same {@code account.getPassword} status request Telegram's
- * own Privacy settings page makes, to Telegram and nobody else. Nothing about
- * any of it is sent anywhere.
+ * file-exists probes, two Settings values, one build property. The one
+ * account-side check — does the account have a cloud password — is the same
+ * {@code account.getPassword} status request Telegram's own Privacy settings
+ * page makes, to Telegram and nobody else. Nothing about any of it is sent
+ * anywhere.
  *
  * <p>Play Protect status and system-wide sideloading are not checked because
  * Android gives an ordinary app no honest way to read them; a check that
@@ -50,8 +49,8 @@ import java.util.Locale;
  * ({@link #weight}); a check whose answer is not known yet (the cloud password
  * before Telegram has answered, the scan before it has run) counts neither
  * way. Any threat the scanner found caps the result at {@link #THREAT_CAP}: a
- * phone with malware on it is not "70% protected" because its screen lock is
- * set. The Settings card and the Humogram page show the same number from the
+ * phone with malware on it is not "70% protected" because its cloud password
+ * is set. The Settings card and the Humogram page show the same number from the
  * same call.
  */
 public final class SecurityCheckup {
@@ -63,7 +62,6 @@ public final class SecurityCheckup {
     public static final int DANGER = 2;
 
     /** Stable ids; the page maps them to titles, advice and fix actions. */
-    public static final int CHECK_SCREEN_LOCK = 1;
     public static final int CHECK_ROOT = 2;
     public static final int CHECK_ADB = 3;
     public static final int CHECK_PATCH = 4;
@@ -110,8 +108,7 @@ public final class SecurityCheckup {
 
     /** Every local check. Cheap enough for the UI thread: a few file stats and settings reads. */
     public static List<Finding> runLocal(Context context) {
-        final List<Finding> findings = new ArrayList<>(4);
-        findings.add(new Finding(CHECK_SCREEN_LOCK, hasScreenLock(context) ? OK : DANGER));
+        final List<Finding> findings = new ArrayList<>(3);
         findings.add(new Finding(CHECK_ROOT, looksRooted() ? DANGER : OK));
         findings.add(new Finding(CHECK_ADB, isAdbEnabled(context) ? WARN : OK));
         findings.add(new Finding(CHECK_PATCH, isPatchStale() ? WARN : OK));
@@ -121,31 +118,12 @@ public final class SecurityCheckup {
     /** The settings screen that fixes a finding, or null when only advice helps. */
     static String settingsActionFor(int id) {
         switch (id) {
-            case CHECK_SCREEN_LOCK:
-                return Settings.ACTION_SECURITY_SETTINGS;
             case CHECK_ADB:
                 return Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS;
             case CHECK_PATCH:
                 return "android.settings.SYSTEM_UPDATE_SETTINGS";
             default:
                 return null; // root: there is no settings page out of root
-        }
-    }
-
-    private static boolean hasScreenLock(Context context) {
-        try {
-            final KeyguardManager km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-            if (km == null) {
-                return true; // unknowable — do not accuse
-            }
-            // isDeviceSecure arrived in API 23; below that isKeyguardSecure is
-            // the closest answer (it also counts a SIM lock, which overreports
-            // slightly — the right way to be wrong for a warning like this).
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                    ? km.isDeviceSecure()
-                    : km.isKeyguardSecure();
-        } catch (Throwable ignored) {
-            return true; // unknowable — do not accuse
         }
     }
 
@@ -289,7 +267,6 @@ public final class SecurityCheckup {
 
     static int weight(int id) {
         switch (id) {
-            case CHECK_SCREEN_LOCK:
             case CHECK_ROOT:
             case CHECK_2FA:
                 return 15;

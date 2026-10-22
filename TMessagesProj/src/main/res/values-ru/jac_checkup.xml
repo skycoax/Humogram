@@ -12,9 +12,6 @@
     <string name="jac_checkup_warn">Внимание</string>
     <string name="jac_checkup_risk">Риск</string>
     <string name="jac_checkup_unknown">Не удалось проверить</string>
-    <string name="jac_checkup_screen_lock">Блокировка экрана</string>
-    <string name="jac_checkup_screen_lock_advice">Без блокировки экрана любой, кто возьмёт телефон в руки, получит все ваши переписки. Установите PIN-код, графический ключ или отпечаток в настройках системы.</string>
-    <string name="jac_checkup_screen_lock_ok">Блокировка экрана установлена: тот, кто возьмёт телефон, без неё не откроет ваши переписки.</string>
     <string name="jac_checkup_root">Root-доступ</string>
     <string name="jac_checkup_root_advice">Похоже, на устройстве есть root. Root позволяет любому приложению читать данные других приложений, включая ваши сообщения. Если вы не делали root сами — покажите телефон специалисту.</string>
     <string name="jac_checkup_root_ok">Признаков root не найдено. Root позволил бы любому приложению читать данные других приложений, включая ваши сообщения.</string>

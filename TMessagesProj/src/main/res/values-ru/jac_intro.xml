@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="jac_intro_t2">Проверьте телефон</string>
+    <string name="jac_intro_t3">Защита от вирусных файлов</string>
+    <string name="jac_intro_t4">Защита от опасных ссылок</string>
+    <string name="jac_intro_t5">Защита аккаунта</string>
+    <string name="jac_intro_t6">Всё готово</string>
+
+    <string name="jac_intro_m1">Безопасный мессенджер, который защищает ваш телефон от вирусов.\nНеофициальное приложение на основе Telegram API.</string>
+    <string name="jac_intro_m2">Проверяйте телефон на вирусы даже до входа в аккаунт.</string>
+    <string name="jac_intro_m3">Опасные APK-файлы в чатах выделяются красным и предупреждают перед открытием.</string>
+    <string name="jac_intro_m4">Поддельные и фишинговые ссылки блокируются.</string>
+    <string name="jac_intro_m5">Защитите аккаунт от кражи двухэтапной аутентификацией.</string>
+    <string name="jac_intro_m6">Начните пользоваться безопасно.</string>
+</resources>

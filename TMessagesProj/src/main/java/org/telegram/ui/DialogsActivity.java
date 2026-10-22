@@ -6186,24 +6186,25 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                 MessagesController.getInstance(currentAccount).removeSuggestion(0, "SETUP_PASSKEY");
                 updateDialogsHint();
             });
-        } else if (folderId == 0 && communityId == 0 && uz.jac.secure.android.HumogramConfig.shouldShowChannelHint(getContext())) {
-            // Humogram: recommend a third-party cyber-awareness channel, pinned
-            // at the top of the chat list until the user opens or dismisses it.
+        } else if (folderId == 0 && communityId == 0 && uz.jac.secure.android.HumogramConfig.shouldShowRateHint(getContext())) {
+            // Humogram: ask for a rating — a tap opens Google Play's own rating
+            // sheet (RateApp) — pinned at the top of the chat list until the
+            // user taps or dismisses it. This slot used to recommend the
+            // cyber-awareness channel, which keeps its row on the Humogram page.
             // Ranked below the account-critical hints (frozen account, passkey)
             // but above the promotional ones (premium, birthday), so it is
             // reliably visible without ever hiding something that matters more.
             dialogsHintCellVisible = true;
-            final String channel = "@" + uz.jac.secure.android.HumogramConfig.SECURITY_CHANNEL;
             dialogsHintCell.setOnClickListener(v -> {
-                uz.jac.secure.android.HumogramConfig.setChannelHintDismissed(getContext());
-                Browser.openUrl(getContext(), "https://t.me/" + uz.jac.secure.android.HumogramConfig.SECURITY_CHANNEL);
+                uz.jac.secure.android.HumogramConfig.setRateHintDone(getContext());
+                uz.jac.secure.android.RateApp.launch(getParentActivity());
                 AndroidUtilities.runOnUIThread(this::updateDialogsHint, 250);
             });
             dialogsHintCell.setText(
-                uz.jac.secure.android.JacStrings.get(getContext(), R.string.jac_channel_hint_title),
-                uz.jac.secure.android.JacStrings.get(getContext(), R.string.jac_channel_hint_text, channel));
+                uz.jac.secure.android.JacStrings.get(getContext(), R.string.jac_rate_hint_title),
+                uz.jac.secure.android.JacStrings.get(getContext(), R.string.jac_rate_hint_text));
             dialogsHintCell.setOnCloseListener(v -> {
-                uz.jac.secure.android.HumogramConfig.setChannelHintDismissed(getContext());
+                uz.jac.secure.android.HumogramConfig.setRateHintDone(getContext());
                 updateDialogsHint();
             });
         } else if (folderId == 0 && communityId == 0 && getMessagesController().pendingSuggestions.contains("PREMIUM_GRACE")) {

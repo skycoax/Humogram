@@ -101,7 +101,7 @@
     <string name="jac_reason_overlay">Bu ilova boshqa ilovalar ustidan chiza oladi — soxta kirish oynasini haqiqiysi ustiga qo\'yish shu yo\'l bilan qilinadi.</string>
     <string name="jac_reason_device_admin">Bu ilova telefoningizni boshqarish huquqini so\'raydi, keyin uni o\'chirish qiyin bo\'ladi.</string>
     <string name="jac_reason_unsigned">Bu ilovaning haqiqiy imzosi yo\'q, ya\'ni uni kim yaratganini bilib bo\'lmaydi.</string>
-    <string name="jac_reason_apk_installable">Bu ilova bankdagi pullaringizni yoki shaxsiy ma’lumotlaringizni olishi va telefon ustidan to‘liq kuzatuvga olishi mumkin.</string>
+    <string name="jac_reason_apk_installable">Bu fayl telefoningizga ilova o‘rnatadi.</string>
     <string name="jac_reason_remote_template">Bu hujjat ochilganda internetdan ma\'lumot yuklaydi.</string>
     <string name="jac_reason_pdf_launch">Bu hujjat ochilganda boshqa dasturni ishga tushirmoqchi bo\'ladi.</string>
     <string name="jac_reason_archive_traversal">Bu arxiv siz ochgan papkadan tashqariga fayl yozmoqchi bo\'ladi.</string>
@@ -158,8 +158,6 @@
     <string name="jac_ornament_note">Naqsh suhbatlar ro‘yxatining yuqori va past qismida juda xira chiziladi. U mavzuingizga moslashadi va suhbatlaringizni hech qachon to‘smaydi.</string>
     <string name="jac_security_header">Xavfsizlik</string>
     <string name="jac_channel">Tavsiya etilgan kanal</string>
-    <string name="jac_channel_hint_title">Firibgarlikdan ehtiyot bo‘ling</string>
-    <string name="jac_channel_hint_text">Tavsiya etamiz — kibermadaniyat kanali: %1$s</string>
     <string name="jac_creator">Muallif</string>
     <string name="jac_made_by">%1$s tomonidan yaratilgan</string>
 

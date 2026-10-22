@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Русский — «Предложения и оценка Humogram» (uz.jac.secure.android.RateApp): строка под каналами
+  о кибербезопасности в Настройках и подсказка над списком чатов.
+-->
+<resources>
+    <string name="jac_rate_row">Предложения и оценка Humogram</string>
+    <string name="jac_rate_hint_title">Оцените Humogram</string>
+    <string name="jac_rate_hint_text">Оценка в Google Play поможет другим найти безопасный мессенджер.</string>
+</resources>

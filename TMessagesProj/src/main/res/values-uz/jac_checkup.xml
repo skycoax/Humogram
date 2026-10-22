@@ -12,9 +12,6 @@
     <string name="jac_checkup_warn">Diqqat</string>
     <string name="jac_checkup_risk">Xavf</string>
     <string name="jac_checkup_unknown">Tekshirib bo‘lmadi</string>
-    <string name="jac_checkup_screen_lock">Ekran qulfi</string>
-    <string name="jac_checkup_screen_lock_advice">Ekran qulfisiz telefonni qo‘lga olgan har kim barcha yozishmalaringizni ko‘ra oladi. Tizim sozlamalarida PIN-kod, grafik kalit yoki barmoq izini o‘rnating.</string>
-    <string name="jac_checkup_screen_lock_ok">Ekran qulfi o‘rnatilgan: telefonni olgan odam usiz yozishmalaringizni ocha olmaydi.</string>
     <string name="jac_checkup_root">Root ruxsati</string>
     <string name="jac_checkup_root_advice">Qurilmada root borga o‘xshaydi. Root har qanday ilovaga boshqa ilovalarning ma’lumotlarini, jumladan xabarlaringizni o‘qish imkonini beradi. Root-ni o‘zingiz qilmagan bo‘lsangiz, telefonni mutaxassisga ko‘rsating.</string>
     <string name="jac_checkup_root_ok">Root belgilari topilmadi. Root har qanday ilovaga boshqa ilovalarning ma’lumotlarini, jumladan xabarlaringizni o‘qish imkonini bergan bo‘lardi.</string>

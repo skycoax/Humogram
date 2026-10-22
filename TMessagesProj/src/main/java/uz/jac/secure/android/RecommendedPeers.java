@@ -2,6 +2,7 @@ package uz.jac.secure.android;
 
 import static org.telegram.messenger.AndroidUtilities.dp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -19,8 +20,10 @@ import org.telegram.messenger.browser.Browser;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.Theme;
+import org.telegram.ui.SettingsActivity;
 import org.telegram.ui.Components.AvatarDrawable;
 import org.telegram.ui.Components.BackupImageView;
+import org.telegram.ui.Components.IconBackgroundColors;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.UItem;
@@ -53,19 +56,30 @@ import java.util.HashMap;
  * These belong to their owners. The card's footnote says Humogram is not
  * connected with them, so a settings row with an official crest on it cannot
  * read as the app claiming to be — or to speak for — that organisation.
+ *
+ * <h3>Then ours</h3>
+ *
+ * The list ends with "Humogram taklif va baholash", right under the last bot:
+ * Google Play's own rating sheet ({@link RateApp}), in the same settings row
+ * upstream uses for everything else on this screen. It is there whether or not
+ * any of the usernames have resolved.
  */
 public final class RecommendedPeers {
 
-    /** Listed in this order after Wallet. */
+    /** Listed in this order after Wallet: the owner's order (2026-10-16). */
     static final String[] USERNAMES = {
-            "cyberpolice_iiv",
+            "Press_Secretary_Uz",
             "iivuz",
+            "cyberpolice_iiv",
+            "jizzax_kiber",
             "JIZZAXKIBERMASLAHATBOT",
             "JizzaxKiberT_bot",
     };
 
     /** Row ids, clear of SettingsActivity's own (1 … 26) and of Wallet's (its bot id, hashed). */
     private static final int ID_BASE = 3_000;
+    /** "Humogram taklif va baholash", under the last of them. */
+    private static final int ID_RATE = ID_BASE + 100;
 
     /** Per account: username → peer id, or 0 while asking / after a failed answer. UI thread. */
     @SuppressWarnings("unchecked")
@@ -77,8 +91,8 @@ public final class RecommendedPeers {
     }
 
     /**
-     * Add a row for each username Telegram has answered for, and the footnote
-     * after them; ask about the rest. {@code onResolved} runs on the UI thread
+     * Add a row for each username Telegram has answered for, the rating row
+     * and the footnote after them; ask about the rest. {@code onResolved} runs on the UI thread
      * when an answer arrives, so the screen can fill its list again.
      */
     public static void addItems(Context context, int account, ArrayList<UItem> items, Runnable onResolved) {
@@ -97,6 +111,9 @@ public final class RecommendedPeers {
             items.add(PeerCell.Factory.of(ID_BASE + i, account, username, peer));
             added++;
         }
+        items.add(SettingsActivity.SettingCell.Factory.of(ID_RATE,
+                IconBackgroundColors.GREEN.top, IconBackgroundColors.GREEN.bottom,
+                R.drawable.settings_stars, JacStrings.get(context, R.string.jac_rate_row)));
         if (added > 0) {
             items.add(UItem.asShadow(JacStrings.get(context, R.string.jac_peers_note)));
         }
@@ -104,6 +121,14 @@ public final class RecommendedPeers {
 
     /** True when the row was one of these and has been handled. */
     public static boolean onClick(Context context, UItem item) {
+        if (item.id == ID_RATE) {
+            // Rated from here, so the chat list need not ask any more.
+            HumogramConfig.setRateHintDone(context);
+            if (context instanceof Activity) {
+                RateApp.launch((Activity) context);
+            }
+            return true;
+        }
         final int index = item.id - ID_BASE;
         if (index < 0 || index >= USERNAMES.length || !(item.object instanceof TLObject)) {
             return false;

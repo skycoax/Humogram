@@ -85,6 +85,11 @@ public final class DeviceScanLaunch {
             if (fragment == null || fragment.getContext() == null || fragment.isInPreviewMode()) {
                 return;
             }
+            // The chat list resumes after the passcode is entered, which the
+            // activity does not: a threat alarm waiting behind the lock shows now.
+            if (!isLocked() && fragment.getParentActivity() != null) {
+                ThreatAlert.onResume(fragment.getParentActivity());
+            }
             if (started.get() && pendingOutcome == null) {
                 return;
             }
@@ -95,6 +100,17 @@ public final class DeviceScanLaunch {
             // The chat list must never be the thing that breaks.
             FileLog.e(t);
         }
+    }
+
+    /**
+     * The app left the foreground: let the launch scan run again next time it
+     * comes back. The owner wants the scan — and its threat modal — on every
+     * open, a return from minimising included, not once per process
+     * (2026-10-16). Called from {@code LaunchActivity.onPause}.
+     */
+    public static void onAppBackgrounded() {
+        started.set(false);
+        pendingOutcome = null;
     }
 
     private static void check(BaseFragment fragment) {
@@ -279,17 +295,29 @@ public final class DeviceScanLaunch {
         // frightens people into thinking it has.
         final ArrayList<String> severeApps = new ArrayList<>();
         final ArrayList<String> severeFiles = new ArrayList<>();
+        // Threats the alarm (ThreatAlert) already put in front of the user, or
+        // that they ignored there: not repeated here, and never followed by
+        // "no threats" either.
+        boolean alarmed = false;
         if (report.apps != null) {
             for (DeviceScanReport.AppResult app : report.apps) {
                 if (app != null && app.risk >= DeviceScanUi.RISK_DANGEROUS && !DeviceScanUi.isTrusted(context, app)) {
-                    severeApps.add(DeviceScanUi.appLabel(app));
+                    if (ThreatAlert.isHandled(context, app.trustKey())) {
+                        alarmed = true;
+                    } else {
+                        severeApps.add(DeviceScanUi.appLabel(app));
+                    }
                 }
             }
         }
         if (report.apkFiles != null) {
             for (DeviceScanReport.FileResult file : report.apkFiles) {
                 if (file != null && file.risk >= DeviceScanUi.RISK_DANGEROUS) {
-                    severeFiles.add(DeviceScanUi.fileLabel(file));
+                    if (ThreatAlert.isHandled(context, ThreatAlert.fileKey(file))) {
+                        alarmed = true;
+                    } else {
+                        severeFiles.add(DeviceScanUi.fileLabel(file));
+                    }
                 }
             }
         }
@@ -317,7 +345,9 @@ public final class DeviceScanLaunch {
             for (DeviceScanReport.AppResult app : report.apps) {
                 if (app != null && app.risk == DeviceScanUi.RISK_SUSPICIOUS && !DeviceScanUi.isTrusted(context, app)) {
                     anySuspicious = true;
-                    if (HumogramConfig.markThreatNotified(context, app.trustKey())) {
+                    // The alarm already said it (or the user ignored it there).
+                    if (!ThreatAlert.isHandled(context, app.trustKey())
+                            && HumogramConfig.markThreatNotified(context, app.trustKey())) {
                         fresh.add(DeviceScanUi.appLabel(app));
                     }
                 }
@@ -327,6 +357,9 @@ public final class DeviceScanLaunch {
             for (DeviceScanReport.FileResult file : report.apkFiles) {
                 if (file != null && file.risk == DeviceScanUi.RISK_SUSPICIOUS) {
                     anySuspicious = true;
+                    if (ThreatAlert.isHandled(context, ThreatAlert.fileKey(file))) {
+                        continue;
+                    }
                     if (file.ephemeral) {
                         // A file under the cache root, where secret-chat
                         // documents live: its path may not be written to the
@@ -347,7 +380,7 @@ public final class DeviceScanLaunch {
             bulletin(fragment, R.raw.chats_infotip, text, true);
             return true;
         }
-        if (anySuspicious) {
+        if (anySuspicious || alarmed) {
             // Already told about each of them; never follow that with "no
             // threats".
             return true;

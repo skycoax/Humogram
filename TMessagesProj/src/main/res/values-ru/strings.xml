@@ -429,7 +429,7 @@
 
     <string name="jac_reason_unsigned">У приложения нет действительной подписи, поэтому нельзя узнать, кто его сделал.</string>
 
-    <string name="jac_reason_apk_installable">Это приложение может добраться до денег в ваших банковских приложениях и личных данных, а также полностью следить за телефоном.</string>
+    <string name="jac_reason_apk_installable">Этот файл устанавливает приложение на телефон.</string>
 
     <string name="jac_reason_remote_template">Документ загружает содержимое из интернета при открытии.</string>
 
@@ -500,8 +500,6 @@
     <string name="jac_ornament_note">Узор рисуется еле заметно сверху и снизу списка чатов. Он подстраивается под вашу тему и никогда не перекрывает переписку.</string>
     <string name="jac_security_header">Безопасность</string>
     <string name="jac_channel">Рекомендуемый канал</string>
-    <string name="jac_channel_hint_title">Защитите себя от мошенников</string>
-    <string name="jac_channel_hint_text">Рекомендуем канал о киберграмотности: %1$s</string>
     <string name="jac_creator">Создатель</string>
     <string name="jac_made_by">Сделал %1$s</string>
 
