@@ -61,7 +61,7 @@ android {
             // below — the build succeeds and the APK is simply signed with the
             // wrong key, which only reading the certificate out of the finished
             // package reveals.
-            storeFile file("C:/Users/user/Documents/skysecure-keys/skysecure-release.jks")
+            storeFile file("D:/skysecure-keys/humogram-upload.jks")
             storePassword RELEASE_STORE_PASSWORD
             keyAlias RELEASE_KEY_ALIAS
             keyPassword RELEASE_KEY_PASSWORD
@@ -75,7 +75,7 @@ android {
             // below — the build succeeds and the APK is simply signed with the
             // wrong key, which only reading the certificate out of the finished
             // package reveals.
-            storeFile file("C:/Users/user/Documents/skysecure-keys/skysecure-release.jks")
+            storeFile file("D:/skysecure-keys/humogram-upload.jks")
             storePassword RELEASE_STORE_PASSWORD
             keyAlias RELEASE_KEY_ALIAS
             keyPassword RELEASE_KEY_PASSWORD
