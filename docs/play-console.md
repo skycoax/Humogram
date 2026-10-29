@@ -97,8 +97,10 @@ blocked sites, `https://lists.skycoax.uz/v1/lists.json`
 (`jac_linkguard_lists_url`), and matches links against it on the phone. It
 fetches a few seconds after start-up, when the app returns to the foreground,
 about every five minutes while it stays there, and when a warned link is
-opened, throttled to the same interval. It is an on/off toggle in Humogram
-settings, and when the user switches it off nothing is fetched at all. The
+opened, throttled to the same interval. Since 2026-10-27 the same file also
+carries the device scanner's app lists, so it is fetched while either link
+protection or "Scan for viruses at launch" is on; with both switched off
+nothing is fetched at all. The
 request is the same GET for everyone. It carries the phone's IP address, as
 every request does, `User-Agent: Humogram/<versionCode>`, and the ETag of the
 list already held. It has no link, host, message, account or device
@@ -142,6 +144,55 @@ reads this way. If anything is changed there, change this section in the same
 commit. `play_policy_check.py` checks this line, that the policy names the
 host and no longer says "operates no server", and that the About text
 (`jac_about_scanner_body`) names the host.
+
+## Data safety: review requests ("Send for review")
+
+`ReviewRequest`, added 2026-10-27. Under a red link's warning and in a flagged
+app's details, the user can tap "Send for review"; a dialog says exactly what
+goes, and only on "Send" does the app POST to
+`https://lists.skycoax.uz/v1/requests` (`jac_review_requests_url`):
+
+- a site: its host name only (punycode) — no path, query or chat;
+- an app: package name, SHA-256 of its signing certificate(s), label, version.
+
+The request carries the IP address and `User-Agent: Humogram/<versionCode>`
+as every request does, and nothing else: no account, phone number, device id
+or cookie. On the server nginx blanks `X-Real-IP`/`X-Forwarded-For` and logs
+`lg_anon` with `/dev/null` as the error log; `lists.py` stores the item, a count
+per day and the first/last time in its review queue; once the owner decides,
+the row stays as a record with the decision and is deleted a year after it was
+last sent (2026-10-29; the privacy policy says the same). `test_lists.py` holds
+both to that.
+
+This is the first data that comes from the user rather than being the same for
+everyone, so unlike the list download it IS collected in Play's sense. Answers
+for the Data safety form, worked out 2026-10-27:
+
+- **Web browsing → Web browsing history:** collected; not shared; processed
+  ephemerally: no (queued until reviewed); **optional** (users choose whether
+  to send); purposes: App functionality, Fraud prevention, security, and
+  compliance.
+- **App activity → Installed apps:** collected; not shared; not ephemeral;
+  **optional**; purposes: App functionality, Fraud prevention, security, and
+  compliance.
+- **Encrypted in transit:** yes (HTTPS only; the app refuses a plain-http URL).
+- **Deletion:** a request holds nothing that links it to a person, and it is
+  deleted once reviewed; say so if the form asks how users can request deletion.
+
+The privacy policy (site and `docs/`, three languages, 2026-10-27) has a "Send
+for review" subsection under section 3, and sections 1, 2, 4, 5 and 6 mention
+it. The About text (`jac_about_scanner_body`) says it in three languages.
+
+```
+data.review_requests = declared   # 1.0.12; the owner submits the Data safety form below before sending 1.0.12 to review
+```
+
+`pending` stops the release build (`play_policy_check.py`). Set to `declared`
+on 2026-10-29 for the 1.0.12 bundle, on the owner's word that the Data safety
+form with the two data types above is submitted, and the updated policy is
+live on hg.skycoax.uz/privacy, **before 1.0.12 is sent to review**. Until both
+are done, 1.0.12 must not go beyond the upload: a release that sends data the
+form does not declare is what Play removes apps for.
 
 ## Data safety: push notifications
 

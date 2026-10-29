@@ -721,6 +721,25 @@ final class DeviceAppCollector {
         }
     }
 
+    /**
+     * One installed app's signing digests, read now — for {@link ReviewRequest},
+     * which sends them with "send for review" so that the owner can vouch for
+     * exactly this signer. Empty, never null, when the app is gone or has none.
+     * Off the main thread.
+     */
+    @SuppressWarnings("deprecation")
+    static Set<String> signingDigestsOf(Context context, String pkg) {
+        try {
+            PackageManager pm = context.getPackageManager();
+            PackageInfo info = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                    ? pm.getPackageInfo(pkg, PackageManager.PackageInfoFlags.of(signingFlag()))
+                    : pm.getPackageInfo(pkg, signingFlag());
+            return signingDigests(info);
+        } catch (Throwable t) {
+            return Collections.emptySet();
+        }
+    }
+
     /** The digests {@link #applySigning} stores; empty, never null, when there are none. */
     @SuppressWarnings("deprecation")
     private static Set<String> signingDigests(PackageInfo info) {

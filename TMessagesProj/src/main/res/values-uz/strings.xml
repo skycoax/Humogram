@@ -20,7 +20,7 @@
     <string name="jac_about_title">Humogram haqida</string>
     <string name="jac_about_version">Versiya %1$s (%2$s)</string>
     <string name="jac_about_scanner_heading">Tekshiruv nima qiladi</string>
-    <string name="jac_about_scanner_body">Sizga kelgan har bir fayl ochilishidan yoki ulashilishidan oldin tekshiriladi, har bir havola esa ochilishidan oldin. Bu tekshiruvlar butunlay qurilmangizda bajariladi — ular uchun na fayllar, na raqamli izlar, na havolalar, na fayl nomlari, na xabar matni hech qayerga yuborilmaydi. Maxfiy chatlar ham xuddi shunday — faqat qurilmangizda tekshiriladi.\n\nO‘rnatilgan ilovalarni virusga tekshirish ham butunlay qurilmada ishlaydi; ilovalaringiz haqida hech narsa hech qayerga yuborilmaydi.\n\nIshonchli va qora ro‘yxatdagi saytlar ro‘yxati lists.skycoax.uz serveridan bitta ochiq fayl sifatida yuklab olinadi; havolalaringiz haqida hech narsa yuborilmaydi.</string>
+    <string name="jac_about_scanner_body">Sizga kelgan har bir fayl ochilishidan yoki ulashilishidan oldin tekshiriladi, har bir havola esa ochilishidan oldin. Bu tekshiruvlar butunlay qurilmangizda bajariladi — ular uchun na fayllar, na raqamli izlar, na havolalar, na fayl nomlari, na xabar matni hech qayerga yuborilmaydi. Maxfiy chatlar ham xuddi shunday — faqat qurilmangizda tekshiriladi.\n\nO‘rnatilgan ilovalarni virusga tekshirish ham butunlay qurilmada ishlaydi; ilovalaringiz haqida hech narsa hech qayerga yuborilmaydi.\n\nIshonchli va qora ro‘yxatdagi saytlar hamda ilovalar ro‘yxati lists.skycoax.uz serveridan bitta ochiq fayl sifatida yuklab olinadi; havolalaringiz va ilovalaringiz haqida hech narsa yuborilmaydi.\n\nFaqat o‘zingiz «Tekshiruvga yuborish»ni bosib tasdiqlasangiz, telefondan nimadir chiqadi: sayt nomi yoki ilova paketining nomi, imzo barmoq izi, nomi va versiyasi — lists.skycoax.uz ga, siz haqingizda hech narsasiz.</string>
     <string name="jac_about_licence_heading">Litsenziya va manba kodi</string>
     <string name="jac_about_open_source">Manba kodini ko\'rish</string>
     <string name="jac_about_privacy">Maxfiylik siyosati</string>
@@ -223,6 +223,17 @@
     <string name="jac_devscan_trust_confirm_title">Bu ilovaga ishonasizmi?</string>
     <string name="jac_devscan_trust_confirm">Humogram «%1$s» yangilanmaguncha u haqida ogohlantirmaydi. Buni faqat ilova qayerdan kelganiga amin bo‘lsangiz qiling.</string>
     <string name="jac_devscan_trusted_done">«%1$s» ishonchli deb belgilandi</string>
+
+    <string name="jac_review_site_offer">Bu haqiqiy saytmi, masalan, yangi davlat xizmati yoki bank? **Tekshiruvga yuborish**</string>
+    <string name="jac_review_app_offer">Ilova haqiqiy ekaniga aminmisiz? **Tekshiruvga yuborish**</string>
+    <string name="jac_review_title">Tekshiruvga yuborilsinmi?</string>
+    <string name="jac_review_site_body">Humogram jamoasi %1$s saytini tekshiradi. Agar sayt haqiqiy bo‘lsa, u ishonchli saytlar ro‘yxatiga qo‘shiladi va unga havolalar hamma uchun qizil bo‘lmay qoladi.\n\nFaqat sayt nomi yuboriladi — havola, chat yoki siz haqingizda hech narsa yuborilmaydi.</string>
+    <string name="jac_review_app_body">Humogram jamoasi «%1$s» ilovasini tekshiradi. Agar bu haqiqiy ilova bo‘lsa, keyingi telefon tekshiruvidan boshlab u sizda ham, hammada ham belgilanmaydi.\n\nYuboriladi: ilova paketining nomi, imzosining barmoq izi, nomi va versiyasi. Siz va boshqa ilovalaringiz haqida hech narsa yuborilmaydi.</string>
+    <string name="jac_review_send">Yuborish</string>
+    <string name="jac_review_sent">Tekshiruvga yuborildi. Rahmat!</string>
+    <string name="jac_review_already">Bu allaqachon ishonchli ro‘yxatda. Telefoningiz buni tez orada biladi.</string>
+    <string name="jac_review_busy">Hozir so‘rovlar juda ko‘p. Keyinroq urinib ko‘ring.</string>
+    <string name="jac_review_failed">Yuborib bo‘lmadi. Internetni tekshirib, qayta urinib ko‘ring.</string>
     <string name="jac_devscan_untrusted_done">«%1$s» endi ishonchli emas</string>
     <string name="jac_devscan_a11y_advice">Bu ilovada Maxsus imkoniyatlar yoqilgan: u ekraningizni ko‘radi va siz uchun tugmalarni bosa oladi — hatto o‘chirishni bekor qiladigan tugmani ham. Avval Maxsus imkoniyatlar sozlamalarida bu ilovaning ruxsatini o‘chiring.</string>
     <string name="jac_devscan_open_a11y">Maxsus imkoniyatlar</string>

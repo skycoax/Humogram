@@ -359,6 +359,10 @@ public final class DeviceScanner {
         if (policy == null) {
             return DeviceScanReport.failed(trigger, startedAt, DeviceScanReport.ERROR_NO_ENGINE);
         }
+        // The owner's app lists as they stand when the scan starts: apps
+        // vouched for by package and signer are not judged, listed
+        // indicators are matched like bundled ones (LinkGuard#appLists).
+        policy = policy.withLists(LinkGuard.appLists());
         ThreatIntel intel = ScannerBootstrap.getThreatIntel();
 
         // "New since the last scan" is only meaningful against a real
@@ -454,12 +458,12 @@ public final class DeviceScanner {
         // opens the zip, walks the v1 signature blocks and the v2/v3 signing
         // block, parses the binary manifest, and opens the zip again to decide
         // whether it is a bundle. Its answer is a pure function of the file
-        // bytes and of the reference data we ship — the threat intel and the
-        // brand allowlist, both assets inside our own APK — so it is cached
-        // under (path|size|mtime) plus the stamp below. Anything new that
-        // evaluateApkFile starts reading must join that stamp, or a stale
-        // verdict will outlive its input.
-        final String verdictStamp = self + "|" + intel.getVersion();
+        // bytes, of the reference data we ship — the threat intel and the
+        // brand allowlist, both assets inside our own APK — and of the owner's
+        // app lists, so it is cached under (path|size|mtime) plus the stamp
+        // below. Anything new that evaluateApkFile starts reading must join
+        // that stamp, or a stale verdict will outlive its input.
+        final String verdictStamp = self + "|" + intel.getVersion() + "|" + policy.getAppLists().getVersion();
         List<CheckedFile> checkedFiles = new ArrayList<>(files.size());
         for (DeviceAppCollector.ApkFile apk : files) {
             checkCancelled();

@@ -1,6 +1,6 @@
 # Humogram — Maxfiylik siyosati / Политика конфиденциальности / Privacy Policy
 
-**Oxirgi yangilanish / Последнее обновление / Last updated: 2026-10-14**
+**Oxirgi yangilanish / Последнее обновление / Last updated: 2026-10-29**
 
 <!--
   This is the USER-FACING policy and the reviewed text behind the published
@@ -24,8 +24,22 @@
     held, its ETag -- no link, host, message, account or device identifier.
     Switched off, it fetches nothing at all. The server keeps no IP address
     for list requests: the access log for the file is lg_anon and its error
-    log is /dev/null (linkguard nginx vhost). The server is a VPS in Tashkent,
-    Uzbekistan (AIRNET LLC).
+    log is /dev/null (linkguard nginx vhost); the same line minus time and
+    size (lg_stat) goes over loopback UDP to lists.py, which keeps only
+    per-hour counts by result and build number (Collector, since 2026-10-29).
+    The server is a VPS in Tashkent,
+    Uzbekistan (AIRNET LLC). Since 2026-10-27 the same file carries the
+    device scanner's app lists (AppLists), so it is fetched while link
+    protection OR the launch scan is on (LinkGuard.fetchWanted).
+  - "Send for review" (ReviewRequest) POSTs, only on a tap and a confirm, a
+    site's host or an app's package + signing-cert SHA-256 + label + version
+    to jac_review_requests_url = https://lists.skycoax.uz/v1/requests. nginx
+    blanks X-Real-IP / X-Forwarded-For and logs lg_anon; lists.py stores the
+    item, a count per day and times in its review queue, nothing about the
+    sender; once decided the row stays as a record with the decision and is
+    deleted a year after it was last sent (REQUEST_HISTORY_DAYS). Data
+    safety: docs/play-console.md,
+    data.review_requests.
 
   If anything else ever leaves the phone for a server of ours, rewrite the
   "who is responsible / what is processed / sharing / retention" sections here
@@ -49,11 +63,16 @@ Humogram — Telegram platformasi asosida ishlaydigan messenjer. Unga
 tekshiradigan virus skaneri, chatlardagi fayl va havolalarni tekshirish hamda
 havolalar himoyasi.
 
-- **Skanerimiz hech narsa yig‘maydi va yubormaydi.** Ilovalar, fayllar, ularning
-  raqamli izlari (SHA-256) va havolalar faqat telefoningizda tekshiriladi.
+- **Skanerimiz o‘zicha hech narsa yig‘maydi va yubormaydi.** Ilovalar,
+  fayllar, ularning raqamli izlari (SHA-256) va havolalar faqat telefoningizda
+  tekshiriladi.
 - **Havolalar himoyasi** dasturchi serveridan (lists.skycoax.uz) ishonchli va
-  bloklangan saytlarning bitta ochiq ro‘yxatini yuklab oladi; havolalaringiz
-  haqida hech narsa yuborilmaydi.
+  bloklangan saytlar hamda ilovalarning bitta ochiq ro‘yxatini yuklab oladi;
+  havolalaringiz va ilovalaringiz haqida hech narsa yuborilmaydi.
+- **«Tekshiruvga yuborish»** — yagona istisno, va faqat undan foydalansangiz:
+  havola ogohlantirishi ostida yoki skaner belgilagan ilovada uni bosib
+  tasdiqlasangiz, dasturchiga tekshirish uchun shu saytning nomi — yoki
+  ilova paketining nomi, imzosining barmoq izi, nomi va versiyasi — yuboriladi.
 - **Messenjer sifatida** ilova Telegram’dan foydalanadi, shuning uchun aloqa
   ma’lumotlaringiz Telegram serverlarida ishlanadi.
 
@@ -65,11 +84,12 @@ havolalar himoyasi.
 - **Xaridlar — Google (Google Play).** Obuna va xaridlar Google Play orqali.
 - **Ilova, skaner va saytlar ro‘yxati — dasturchi (Kamolov Muxammad).**
   Dasturchi bitta server yuritadi (lists.skycoax.uz va hg.skycoax.uz). U
-  faqat havolalar himoyasi uchun saytlarning ochiq ro‘yxatini (3-bo‘limga
-  qarang) va — bulut paroli eslatmasida «Batafsil»ni bossangiz — tushuntiruvchi
-  videoni beradi va
-  sizdan har qanday veb-so‘rov bilan keladigan texnik ma’lumotlardan
-  (IP-manzil, ilova versiyasi raqami, so‘rov vaqti) boshqa hech narsa olmaydi.
+  havolalar himoyasi va virus skaneri uchun saytlar va ilovalarning ochiq
+  ro‘yxatini (3-bo‘limga qarang) va — bulut paroli eslatmasida «Batafsil»ni
+  bossangiz — tushuntiruvchi videoni beradi. U sizdan har qanday veb-so‘rov
+  bilan keladigan texnik ma’lumotlardan (IP-manzil, ilova versiyasi raqami,
+  so‘rov vaqti) va «Tekshiruvga yuborish» orqali o‘zingiz yuborgan narsadan
+  (3-bo‘limga qarang) boshqa hech narsa olmaydi.
   Server Toshkentdagi (O‘zbekiston) VPS’da joylashgan, hosting provayderi —
   AIRNET LLC. Shuning uchun ilovadan boshqa davlatda foydalansangiz ham, bu
   so‘rov ma’lumotlari O‘zbekistonda ishlanadi.
@@ -92,8 +112,9 @@ yuboriladi (rasmiy Telegram ilovasidagidek):
 **Maxfiy chatlar** uchdan-uchgacha shifrlangan va faqat qurilmalaringizda qoladi.
 
 Quyida tavsiflangan tekshiruvlar telefoningizning o‘zida bajariladi. Tashqariga
-faqat «Havolalar himoyasi» bandida tavsiflangan ro‘yxatni yuklab olish so‘rovi
-chiqadi.
+faqat ikki narsa chiqadi: «Havolalar himoyasi» bandida tavsiflangan ro‘yxatni
+yuklab olish so‘rovi va — faqat undan foydalansangiz — shu bo‘lim oxirida
+tavsiflangan «Tekshiruvga yuborish».
 
 #### Chatlardagi fayllar va havolalar
 
@@ -130,9 +151,14 @@ Skaner faqat telefonning o‘zida quyidagilarni o‘qiydi:
   o‘rnatish fayllari).
 
 Bularning barchasi ilova ichida keladigan qoidalar va ma’lum zararli dasturlar
-raqamli izlari ro‘yxati bilan solishtiriladi. **Skaner o‘qigan yoki topgan hech
-narsa hech qayerga yuborilmaydi** — na dasturchiga, na Telegram’ga, na boshqa
-birovga: skaner tekshiruv uchun internetdan foydalanmaydi. Natijalar faqat telefoningizda,
+raqamli izlari ro‘yxati bilan, shuningdek dasturchining ilovalar ro‘yxati —
+tasdiqlangan ilovalar (paket nomi va nashriyotchining imzo sertifikati) va
+ma’lum zararli dasturlar — bilan solishtiriladi; bu ro‘yxat saytlar ro‘yxati
+bilan bir xil ochiq faylda keladi («Havolalar himoyasi»ga qarang). **Skaner
+o‘qigan yoki topgan hech narsa hech qayerga yuborilmaydi** — na dasturchiga,
+na Telegram’ga, na boshqa birovga: skaner tekshiruv uchun internetdan
+foydalanmaydi. Yagona istisno — o‘zingiz tekshiruvga yuborgan ilova (quyida
+«Tekshiruvga yuborish»ga qarang). Natijalar faqat telefoningizda,
 Humogram’ning boshqa ilovalar ko‘ra olmaydigan ichki xotirasida saqlanadi. Bu
 xotira zaxira nusxalarga kirmaydi va ilovani o‘chirsangiz yoki uning
 ma’lumotlarini tozalasangiz, o‘chib ketadi.
@@ -167,33 +193,69 @@ IP-manzilingiz va ilova nomi hamda versiya raqamini ko‘rsatadigan User-Agent
 sarlavhasi (`Humogram/<versiya raqami>`). Telefonda ro‘yxat allaqachon bo‘lsa,
 server «o‘zgarmagan» deb javob bera olishi uchun uning versiya belgisi ham
 yuboriladi. Ro‘yxat dasturchi tomonidan imzolangan; havolalar u bilan
-telefoningizning o‘zida solishtiriladi.
+telefoningizning o‘zida solishtiriladi. Xuddi shu faylda virus skaneri uchun
+dasturchining ilovalar ro‘yxati ham keladi.
 
 Server ro‘yxat so‘rovlari uchun IP-manzillarni saqlamaydi: bu fayl jurnaliga
-faqat vaqt, natija va versiya raqami yoziladi.
+faqat vaqt, natija va versiya raqami yoziladi. Shulardan server ro‘yxat kuniga
+necha marta va ilovaning qaysi versiyalaridan so‘ralganini ham hisoblaydi.
 
 Havolalar himoyasini Sozlamalar → Humogram → Havolalar himoyasi orqali
-o‘chirish mumkin. U o‘chirilgan bo‘lsa, ilova ro‘yxatni umuman yuklab olmaydi.
+o‘chirish mumkin. Virus skaneri ham shu fayldan foydalanadi, shuning uchun
+«Ishga tushganda viruslarni tekshirish» yoqilgan ekan, ilova uni yuklab olishda
+davom etadi; ikkalasi ham o‘chirilsa, ro‘yxat umuman yuklab olinmaydi.
+
+#### Tekshiruvga yuborish
+
+Agar havola ogohlantirishi siz haqiqiy deb biladigan saytni ko‘rsatsa
+(masalan, yangi davlat xizmati yoki bank), yoki virus skaneri siz ishonadigan
+ilovani belgilasa, ogohlantirish ostidagi **«Tekshiruvga yuborish»**ni bosishingiz
+mumkin. Shunda nima yuborilishini aniq aytadigan oyna chiqadi va faqat siz
+tasdiqlasangiz, ilova <https://lists.skycoax.uz/v1/requests> manziliga bitta
+so‘rov yuboradi:
+
+- sayt uchun — uning nomi (masalan, `new-service.example.uz`); havolaning
+  o‘zi, uning yo‘li yoki u bo‘lgan chat emas;
+- ilova uchun — paket nomi, imzo sertifikatining SHA-256 barmoq izi, nomi va
+  versiyasi; boshqa ilovalaringiz haqida hech narsa.
+
+Har qanday veb-so‘rov kabi, unda IP-manzilingiz va `Humogram/<versiya raqami>`
+User-Agent sarlavhasi bo‘ladi. Unda hisob, telefon raqami, qurilma
+identifikatori yoki xabarlar yo‘q. Server so‘rov bilan birga IP-manzilni va
+User-Agent’ni saqlamaydi: u faqat nima yuborilgani, necha marta va qachon
+yuborilganini dasturchi ko‘rib chiqadigan navbatda saqlaydi. Dasturchi qaror
+qilgach, so‘rov navbatdan chiqadi va tarixda — nima yuborilgani, necha marta
+va qanday qaror qilingani — oxirgi yuborilganidan keyin bir yilgacha
+saqlanadi, so‘ng o‘chiriladi; sayt yoki ilova haqiqiy bo‘lsa, u ochiq ro‘yxatga
+qo‘shiladi va unga havolalar hamma uchun qizil bo‘lmay qoladi — yoki ilova
+belgilanmay qoladi. Sizning bosishingiz va tasdig‘ingizsiz tekshiruvga hech
+narsa yuborilmaydi.
 
 ### 4. Ma’lumotlar nima uchun ishlatiladi
 
 Xabar almashish, qo‘ng‘iroq va fayl uzatish (Telegram orqali); kontaktlardan
 tanishlarni topish; obuna va xaridlar (Google Play); zararli ilovalar, fayllar
-va havolalardan himoya (tekshiruv faqat qurilmada); havolalar himoyasi uchun
-saytlar ro‘yxatini yangilab turish; xizmat xavfsizligi.
+va havolalardan himoya (tekshiruv faqat qurilmada); saytlar va ilovalar
+ro‘yxatini yangilab turish; siz tekshiruvga yuborgan sayt va ilovalarni
+ko‘rib chiqish; xizmat xavfsizligi.
 
 ### 5. Uchinchi tomonlarga uzatish
 
 Biz ma’lumotlaringizni sotmaymiz. Ilovadan foydalanish aloqa ma’lumotlarini
 **Telegram LLC**’ga, xarid ma’lumotlarini **Google**’ga yuboradi. Qurilmadagi
-skaner hech kimga hech narsa uzatmaydi. Ro‘yxat serveriga kelgan so‘rovlar
-haqidagi ma’lumotlarni dasturchi hech kimga bermaydi.
+skaner hech kimga hech narsa uzatmaydi. Ro‘yxat serveriga kelgan so‘rovlar va
+siz tekshiruvga yuborgan narsalar haqidagi ma’lumotlarni dasturchi hech kimga
+bermaydi.
 
 ### 6. Ma’lumotlar qancha saqlanadi
 
 Dasturchida hisobingiz, xabarlaringiz yoki tekshiruv natijalaringiz
 saqlanmaydi. Ro‘yxat serveri ro‘yxat so‘rovlari uchun IP-manzillarni
-saqlamaydi. Aloqa ma’lumotlari Telegram’da (ularni Telegram’dan o‘chirishingiz mumkin),
+saqlamaydi. Tekshiruvga yuborilgan so‘rov yuboruvchi haqida hech qanday
+ma’lumotsiz saqlanadi: dasturchi qaror qilguncha navbatda, so‘ng tarixda (nima
+yuborilgani, necha marta, qanday qaror) oxirgi yuborilganidan keyin bir
+yilgacha, keyin o‘chiriladi. Aloqa
+ma’lumotlari Telegram’da (ularni Telegram’dan o‘chirishingiz mumkin),
 xaridlar Google va Telegram’da saqlanadi. Skaner natijalari va ishchi
 ma’lumotlari faqat qurilmada turadi va ilova o‘chirilganda yoki uning
 ma’lumotlari tozalanganda o‘chadi.
@@ -242,11 +304,16 @@ Humogram — мессенджер на базе Telegram со встроенно
 **работает на вашем устройстве**: сканером вирусов для приложений на телефоне,
 проверкой файлов и ссылок в чатах и защитой ссылок.
 
-- **Наш сканер ничего не собирает и не отправляет.** Приложения, файлы, их
-  цифровые отпечатки (SHA-256) и ссылки проверяются только на вашем телефоне.
+- **Наш сканер сам ничего не собирает и не отправляет.** Приложения, файлы,
+  их цифровые отпечатки (SHA-256) и ссылки проверяются только на вашем телефоне.
 - **Защита ссылок** скачивает с сервера разработчика (lists.skycoax.uz) один
-  общедоступный список доверенных и заблокированных сайтов; ничего о ваших
-  ссылках не отправляется.
+  общедоступный список доверенных и заблокированных сайтов и приложений;
+  ничего о ваших ссылках и приложениях не отправляется.
+- **«Отправить на проверку»** — единственное исключение, и только если вы им
+  воспользуетесь: если нажать эту ссылку под предупреждением о сайте или у
+  приложения, отмеченного сканером, и подтвердить, разработчику на проверку
+  уходит имя этого сайта — или имя пакета приложения, отпечаток его подписи,
+  название и версия.
 - **Как мессенджер** приложение использует Telegram, поэтому данные вашей
   переписки обрабатываются на серверах Telegram.
 
@@ -258,11 +325,12 @@ Humogram — мессенджер на базе Telegram со встроенно
 - **Покупки — Google (Google Play).**
 - **Приложение, сканер и список сайтов — разработчик (Kamolov Muxammad).** У
   разработчика есть один сервер (адреса lists.skycoax.uz и hg.skycoax.uz). Он
-  только раздаёт общедоступный список сайтов для защиты ссылок (см. раздел 3)
-  и — если вы нажали «Подробнее» в напоминании об облачном пароле —
-  обучающее видео, и не получает от
-  вас ничего, кроме технических данных, которые несёт любой веб-запрос:
-  IP-адреса, номера сборки приложения и времени запроса. Сервер размещён на
+  раздаёт общедоступный список сайтов и приложений для защиты ссылок и сканера
+  вирусов (см. раздел 3) и — если вы нажали «Подробнее» в напоминании об
+  облачном пароле — обучающее видео. Он не получает от вас ничего, кроме
+  технических данных, которые несёт любой веб-запрос (IP-адреса, номера сборки
+  приложения и времени запроса), и того, что вы сами отправите кнопкой
+  «Отправить на проверку» (см. раздел 3). Сервер размещён на
   VPS в Ташкенте (Узбекистан), хостинг-провайдер — AIRNET LLC. Поэтому, даже
   если вы пользуетесь приложением в другой стране, данные этого запроса
   обрабатываются в Узбекистане.
@@ -285,8 +353,10 @@ Telegram** (как в официальном приложении):
 **Секретные чаты** защищены сквозным шифрованием и остаются только на ваших
 устройствах.
 
-Описанные ниже проверки выполняются на самом телефоне. Наружу уходит только
-запрос на скачивание списка, описанный в пункте «Защита ссылок».
+Описанные ниже проверки выполняются на самом телефоне. Наружу уходят только две
+вещи: запрос на скачивание списка, описанный в пункте «Защита ссылок», и —
+только если вы ею воспользуетесь — «Отправить на проверку», описанная в конце
+этого раздела.
 
 #### Файлы и ссылки в чатах
 
@@ -323,9 +393,14 @@ Telegram** (как в официальном приложении):
   кеша Humogram.
 
 Всё это сравнивается с правилами и списком отпечатков известных вредоносных
-программ, которые поставляются внутри приложения. **Ничего из того, что сканер
+программ, которые поставляются внутри приложения, и со списком приложений
+разработчика — проверенных (имя пакета вместе с сертификатом подписи
+издателя) и известных вредоносных, — который приходит в том же общедоступном
+файле, что и список сайтов (см. «Защита ссылок»). **Ничего из того, что сканер
 читает или находит, никуда не отправляется** — ни разработчику, ни в Telegram,
-ни кому-либо ещё: для проверки сканер не обращается к интернету. Результаты хранятся только
+ни кому-либо ещё: для проверки сканер не обращается к интернету. Единственное
+исключение — приложение, которое вы сами отправите на проверку (см. ниже
+«Отправить на проверку»). Результаты хранятся только
 на телефоне, во внутреннем хранилище Humogram, недоступном другим приложениям.
 Это хранилище не попадает в резервные копии и стирается при удалении
 приложения или очистке его данных.
@@ -359,32 +434,67 @@ User-Agent с названием приложения и номером сбор
 (`Humogram/<номер сборки>`). Если на телефоне уже есть список, передаётся ещё
 метка его версии,
 чтобы сервер мог ответить «не изменился». Список подписан разработчиком, а
-ссылки сверяются с ним на вашем телефоне.
+ссылки сверяются с ним на вашем телефоне. В том же файле приходит список
+приложений разработчика для сканера вирусов.
 
 Для запросов списка сервер не хранит IP-адреса: в журнал по этому файлу
-записываются только время, результат и номер сборки.
+записываются только время, результат и номер сборки. Из них сервер также
+считает, сколько раз в день список запрашивали и с каких версий приложения.
 
-Защиту ссылок можно выключить: Настройки → Humogram → Защита ссылок. Когда она
-выключена, приложение вообще не скачивает список.
+Защиту ссылок можно выключить: Настройки → Humogram → Защита ссылок. Сканер
+вирусов пользуется тем же файлом, поэтому, пока включено «Проверять на вирусы
+при запуске», приложение продолжает его скачивать; если выключить оба
+переключателя, список не скачивается вовсе.
+
+#### Отправить на проверку
+
+Если предупреждение о ссылке называет сайт, который вы знаете как настоящий
+(например, новый госсервис или банк), или сканер вирусов отметил приложение, в
+котором вы уверены, под предупреждением можно нажать **«Отправить на
+проверку»**. Появится окно, где точно сказано, что будет отправлено, и только
+после вашего подтверждения приложение отправит один запрос на
+<https://lists.skycoax.uz/v1/requests>:
+
+- для сайта — его имя (например, `new-service.example.uz`), но не ссылку, не её
+  путь и не чат, в котором она была;
+- для приложения — имя пакета, отпечаток SHA-256 его сертификата подписи,
+  название и версию; ничего о других ваших приложениях.
+
+Как любой веб-запрос, он несёт ваш IP-адрес и User-Agent
+`Humogram/<номер сборки>`. В нём нет аккаунта, номера телефона, идентификатора
+устройства или сообщений. Сервер не сохраняет IP-адрес и User-Agent вместе с
+запросом: он хранит только то, что было отправлено, сколько раз и когда, в
+очереди, которую просматривает разработчик. Когда разработчик принял решение,
+запрос уходит из очереди и остаётся в истории — что отправлено, сколько раз и
+какое принято решение — до года после последней отправки, затем удаляется;
+если сайт или приложение настоящие, они попадают в
+общедоступный список, и ссылки на сайт перестают быть красными — или
+приложение перестаёт помечаться — у всех. Без вашего нажатия и подтверждения
+на проверку не отправляется ничего.
 
 ### 4. Для чего используются данные
 
 Переписка, звонки и передача файлов (через Telegram); поиск знакомых среди
 контактов; подписки и покупки (Google Play); защита от вредоносных приложений,
-файлов и ссылок (проверка — только на устройстве); обновление списка сайтов для
-защиты ссылок; безопасность сервиса.
+файлов и ссылок (проверка — только на устройстве); обновление списков сайтов и
+приложений; проверка сайтов и приложений, которые вы отправили на проверку;
+безопасность сервиса.
 
 ### 5. Передача третьим сторонам
 
 Мы не продаём ваши данные. Использование приложения отправляет данные переписки
 в **Telegram LLC**, данные о покупках — в **Google**. Сканер на устройстве не
-передаёт никому ничего. Сведения о запросах к серверу списков разработчик
-никому не передаёт.
+передаёт никому ничего. Сведения о запросах к серверу списков и то, что вы
+отправили на проверку, разработчик никому не передаёт.
 
 ### 6. Сколько храним
 
 У разработчика не хранятся ваш аккаунт, переписка или результаты проверок.
-Сервер списков не хранит IP-адреса для запросов списка. Данные переписки — в
+Сервер списков не хранит IP-адреса для запросов списка. Запрос, отправленный
+на проверку, хранится без каких-либо сведений об отправителе: в очереди — пока
+разработчик не примет решение, затем в истории (что отправлено, сколько раз,
+какое решение) — до года после последней отправки, после чего удаляется.
+Данные переписки — в
 Telegram (можно удалить в Telegram), покупки — у Google и Telegram. Результаты
 и рабочие данные сканера хранятся только на устройстве и удаляются вместе с
 приложением или при очистке его данных.
@@ -432,11 +542,15 @@ Humogram is a messenger built on the Telegram platform, with built-in
 protection that **runs on your device**: a virus scanner for the apps on your
 phone, checks of the files and links you receive in chats, and link protection.
 
-- **Our scanner collects and sends nothing.** Apps, files, their fingerprints
-  (SHA-256) and links are checked only on your phone.
-- **Link protection** downloads one public list of trusted and blocked sites
-  from the developer's server (lists.skycoax.uz); nothing about your links is
-  sent.
+- **Our scanner collects and sends nothing by itself.** Apps, files, their
+  fingerprints (SHA-256) and links are checked only on your phone.
+- **Link protection** downloads one public list of trusted and blocked sites and
+  apps from the developer's server (lists.skycoax.uz); nothing about your links
+  or apps is sent.
+- **Send for review** is the one exception, and only when you use it: if you
+  tap it under a link warning or on an app the scanner flagged, and confirm,
+  that site's name — or that app's package name, signature fingerprint, name
+  and version — is sent to the developer to check.
 - **As a messenger**, the app uses Telegram, so your messaging data is processed
   on Telegram's servers.
 
@@ -448,11 +562,12 @@ phone, checks of the files and links you receive in chats, and link protection.
 - **Purchases — Google (Google Play).**
 - **The app, the scanner and the site list — the developer (Kamolov
   Muxammad).** The developer runs one server (lists.skycoax.uz and
-  hg.skycoax.uz). It only serves the public list of sites used by link
-  protection (see section 3) and, when you tap "Learn more" on the
-  cloud-password reminder, the explainer video, and receives
-  nothing from you beyond the technical data every web request carries: your
-  IP address, the app's build number and the time of the request. The server
+  hg.skycoax.uz). It serves the public list of sites and apps used by link
+  protection and the virus scanner (see section 3) and, when you tap "Learn
+  more" on the cloud-password reminder, the explainer video. It receives
+  nothing from you beyond the technical data every web request carries — your
+  IP address, the app's build number and the time of the request — except
+  what you yourself send with "Send for review" (see section 3). The server
   is a VPS in Tashkent, Uzbekistan (hosting provider AIRNET LLC), so if you
   use the app from another country, this request data is processed in
   Uzbekistan.
@@ -474,8 +589,9 @@ servers** (the same as the official app):
 
 **Secret chats** are end-to-end encrypted and stay only on your devices.
 
-The checks described below run on your phone itself. The only thing that goes
-out is the request for the site list described under Link protection.
+The checks described below run on your phone itself. Only two things go out:
+the request for the list described under Link protection, and — only if you
+use it — "Send for review", described at the end of this section.
 
 #### Files and links in chats
 
@@ -508,8 +624,13 @@ On the phone only, the scanner reads:
 - APK files (app installers) in Humogram's own download and cache folders.
 
 All of this is compared with rules and a list of known-malware fingerprints
-that ship inside the app. **Nothing the scanner reads or finds is sent
-anywhere** — not to the developer, not to Telegram, not to anyone else: the scanner does not go online at all. Results are kept only on your phone, in Humogram's
+that ship inside the app, and with the developer's list of apps — apps vouched
+for (a package together with its publisher's signing certificate) and known
+malware — which arrives in the same public file as the site list (see Link
+protection). **Nothing the scanner reads or finds is sent anywhere** — not to
+the developer, not to Telegram, not to anyone else: the scanner does not go
+online at all. The one exception is an app you yourself send for review (see
+"Send for review" below). Results are kept only on your phone, in Humogram's
 private storage that other apps cannot read. That storage is excluded from
 backups and is erased when you uninstall the app or clear its data.
 
@@ -541,32 +662,66 @@ request carries: your IP address and a User-Agent header naming the app and its
 build number (`Humogram/<build number>`). If the phone already has a list, the
 request also names that list's version, so that the server can answer
 "unchanged". The list is signed by the developer, and links are matched
-against it on your phone.
+against it on your phone. The same file carries the developer's list of apps
+for the virus scanner.
 
 The server keeps no IP addresses for list requests: its log for this file
-records only the time, the result and the build number.
+records only the time, the result and the build number. From these the server
+also counts how many times a day the list is requested, and from which app
+versions.
 
 You can switch link protection off in Settings → Humogram → Link protection.
-While it is off, the app does not download the list at all.
+The virus scanner uses the same file, so the app still downloads it while
+"Scan for viruses at launch" is on; with both switched off, it does not
+download the list at all.
+
+#### Send for review
+
+If a link warning names a site you know is genuine — a new government or bank
+service, say — or the virus scanner flags an app you are sure is genuine, you
+can tap **Send for review** under the warning. A dialog then says exactly what
+will be sent, and only if you confirm does the app send one request to
+<https://lists.skycoax.uz/v1/requests>:
+
+- for a site: its name (for example `new-service.example.uz`) — not the link,
+  its path, or the chat it was in;
+- for an app: its package name, the SHA-256 fingerprint of its signing
+  certificate, its name and its version — nothing about your other apps.
+
+Like any web request it also carries your IP address and the
+`Humogram/<build number>` User-Agent. It contains no account, phone number,
+device identifier or message. The server does not store the IP address or the
+User-Agent with the request: it keeps only what was sent, how many times and
+when, in a queue the developer reviews. Once the developer has decided, the
+request leaves the queue and stays in a record — what was sent, how many times
+and what was decided — for up to a year after it was last sent, and is then
+deleted; if the site or app is genuine, it is added to the public
+list, and its links stop being red — or the app stops being flagged — for
+everyone. Nothing is ever sent for review without your tap and confirmation.
 
 ### 4. How data is used
 
 Messaging, calls and file transfer (via Telegram); finding people you know among
 your contacts; subscriptions and purchases (Google Play); protection from
 malicious apps, files and links (checked on the device only); keeping the site
-list for link protection up to date; service security.
+and app lists up to date; reviewing the sites and apps you send for review;
+service security.
 
 ### 5. Sharing with third parties
 
 We do not sell your data. Using the app sends messaging data to **Telegram LLC**
 and purchase data to **Google**. The on-device scanner discloses nothing to
 anyone, and the developer does not pass on anything about requests to the list
-server.
+server or anything you send for review.
 
 ### 6. Data retention
 
 The developer keeps no account, message or scan data about you. The list
-server keeps no IP addresses for list requests. Messaging data is retained by
+server keeps no IP addresses for list requests. A request you send for review
+is kept with nothing about who sent it: in the queue until the developer has
+decided on it, then as a record (what was sent, how many times, the decision)
+for up to a year after it was last sent, and is then deleted. Messaging data
+is retained by
 Telegram (you can delete it in Telegram); purchases by Google and Telegram. The
 scanner's results and working data stay only on your device and are deleted
 when you uninstall the app or clear its data.

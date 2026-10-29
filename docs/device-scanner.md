@@ -54,9 +54,36 @@ Not yet tested: the scanner page and the launch dialogs on a signed-in account
 - `STORE_CERT_SHA256` is empty, so apps installed by RuStore or Amazon Appstore
   count as "not from a store" (listed under "Worth a look", not as threats).
 - Split installs are fingerprinted from `base.apk` only.
-- Only what ships in the APK can recognise malware: a sample newer than the
-  bundled `device-threat-intel.json` is caught by the heuristics or not at all,
-  until an app update brings new indicators.
+- A sample newer than the bundled `device-threat-intel.json` is caught by the
+  heuristics, or by the owner's deny list once it is on it (below), or not at
+  all until an app update brings new indicators.
+- An app installed outside a store the long way round — a bank's own site, a
+  phone-transfer tool (Smart Switch, Mi Mover, Phone Clone), Google Play
+  sideloaded onto a Huawei/Honor phone without Google services — is judged as
+  sideloaded, and a genuine messenger with SMS and calls granted comes out
+  DANGEROUS (seen with WhatsApp, 2026-10-26). The owner's allow list fixes it
+  per app; the rules themselves still treat those installers as unknown.
+
+## The owner's app lists (2026-10-27)
+
+`InstalledAppPolicy` also judges with `AppLists`, the `apps` section of the
+link guard's signed document (`LinkGuard.appLists()`; the scan takes the list
+current when it starts, and the APK-file verdict cache is stamped with its
+version):
+
+- **allow** = package + publisher's signing certificate. A match skips every
+  rule: risk NONE, source `owner_allowlist`. Same package, other signer: the
+  rules run as before.
+- **deny** = ThreatIntel families (APK hash, certificate, package). Matched
+  after the bundled intel and just as decisive; the chat-file gate
+  (`ScannerBootstrap`'s installer intel) uses it too.
+- Any indicator, bundled or listed, beats an allow entry.
+
+The details dialog of an app flagged by the rules (NOTICE to DANGEROUS, not
+MALICIOUS, not a system app) offers "Send for review" (`ReviewRequest`): on
+confirm it sends the package, the signing-certificate SHA-256s read at that
+moment, the label and the version to `lists.skycoax.uz/v1/requests`, where the
+owner can allow or deny it from the admin page.
 
 ## Privacy policy and Data safety
 
@@ -66,7 +93,9 @@ declares nothing for the scanner (`data.scanner_sends = no` in
 sensitive data under Play's User Data policy however it is obtained, so the
 privacy policy (`docs/privacy-policy.md` and the copy on hg.skycoax.uz/privacy)
 must keep describing what the scanner reads on the phone and that it sends
-none of it.
+none of it. "Send for review" is the user's own action, declared on its own
+(`data.review_requests`): it sends one app's package, signer, name and
+version, only when the user taps and confirms.
 
 `Tools/play_policy_check.py` stops a release build if code that reads
 `jac_api_base_url` comes back while `data.scanner_sends` says `no`. That string

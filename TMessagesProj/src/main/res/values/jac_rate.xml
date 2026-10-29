@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  "Humogram feedback and rating" (uz.jac.secure.android.RateApp): the row under the cyber-safety channels on
-  Settings and the hint at the top of the chat list. Both open Google Play's own rating
-  sheet, so the words only invite; they never ask the user's opinion first,
-  which Play's review guidelines forbid.
+  Our two rows under the cyber-safety channels on Settings
+  (uz.jac.secure.android.RecommendedPeers), and the hint at the top of the chat
+  list. "Rate" and the hint open Google Play's own rating sheet
+  (uz.jac.secure.android.RateApp), so the words only invite; they never ask the
+  user's opinion first, which Play's review guidelines forbid. "Feedback" opens
+  a chat with the owner's account (@skycoax, shown under the row). The two were
+  one row, "Humogram feedback and rating", until 2026-10-29.
 -->
 <resources>
-    <string name="jac_rate_row">Humogram feedback and rating</string>
+    <string name="jac_rate_row">Rate Humogram</string>
+    <string name="jac_feedback_row">Send feedback</string>
     <string name="jac_rate_hint_title">Rate Humogram</string>
     <string name="jac_rate_hint_text">A rating on Google Play helps others find a safe messenger.</string>
 </resources>

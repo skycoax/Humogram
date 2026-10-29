@@ -533,6 +533,40 @@ def check_linkguard_disclosure_matches_code():
               'jac_about_scanner_body in %s does not mention %s' % (os.path.relpath(path, ROOT), host))
 
 
+def check_review_request_disclosure_matches_code():
+    """Code that sends review requests needs declarations that say so.
+
+    "Send for review" (ReviewRequest) is the first thing the app sends that
+    comes from the user rather than being the same for everyone: a site's
+    name, or an installed app's package, signer, name and version, when the
+    user taps it and confirms. Optional and user-initiated, but Play still
+    counts it as collected, so Data safety has to list it -- unlike the list
+    download, which adds no data type. It is keyed on its own string,
+    jac_review_requests_url, for the reason the list download is.
+
+    The declaration line has a third state, `pending`: the code is in, the
+    console form is not yet. The release stops on it until the form is
+    submitted and the line says `declared`.
+    """
+    users = sorted(os.path.relpath(p, ROOT) for p in java_files()
+                   if 'R.string.jac_review_requests_url' in read(p))
+    if not users:
+        return
+    todo = ('Do all three, then record it: (1) docs/privacy-policy.md and the site copy -- describe "Send for '
+            'review": what it sends, to lists.skycoax.uz, only on tap, nothing about the sender kept; (2) Play '
+            'Console Data safety -- "Web browsing history" and "Installed apps": collected, not shared, optional, '
+            'for app functionality and fraud prevention (see docs/play-console.md); (3) docs/play-console.md -- '
+            'data.review_requests = declared.')
+    declared = declared_answers().get('data.review_requests')
+    check('review requests are declared (data.review_requests = declared)', declared == 'declared',
+          '%s send(s) review requests, but docs/play-console.md says %r. %s' % (', '.join(users), declared, todo))
+    policy = os.path.join(ROOT, 'docs', 'privacy-policy.md')
+    body = read(policy) if os.path.exists(policy) else ''
+    check('privacy policy describes review requests',
+          'Send for review' in body and '/v1/requests' in body,
+          'docs/privacy-policy.md does not describe "Send for review" and /v1/requests. %s' % todo)
+
+
 def app_package():
     match = re.search(r'^APP_PACKAGE\s*=\s*(\S+)', read(os.path.join(ROOT, 'gradle.properties')), re.M)
     return match.group(1) if match else None
@@ -615,6 +649,7 @@ def main():
         ('declarations', check_content_rating_matches_code),
         ('declarations', check_scanner_disclosure_matches_code),
         ('declarations', check_linkguard_disclosure_matches_code),
+        ('declarations', check_review_request_disclosure_matches_code),
         ('declarations', check_push_disclosure_matches_code),
         ('declarations', check_age_limit_matches_policy),
     ]:

@@ -714,10 +714,28 @@ final class DeviceScanSection {
             message.append("\n\n").append(JacStrings.get(context, R.string.jac_devscan_sms_advice));
         }
 
+        // Flagged by the rules, not matched as known malware: it may be the
+        // genuine app installed the long way round (a bank's own site, a
+        // phone-transfer tool). The user who is sure can ask the owner to
+        // vouch for it (ReviewRequest), which fixes it for everyone.
+        final AlertDialog[] asked = new AlertDialog[1];
+        final CharSequence text;
+        if (!app.system && app.risk >= DeviceScanUi.RISK_NOTICE && app.risk < DeviceScanUi.RISK_MALICIOUS) {
+            text = new SpannableStringBuilder(message).append("\n\n").append(AndroidUtilities.replaceSingleTag(
+                    JacStrings.get(context, R.string.jac_review_app_offer), () -> {
+                        if (asked[0] != null) {
+                            asked[0].dismiss();
+                        }
+                        ReviewRequest.confirmApp(fragment, app.packageName, DeviceScanUi.appLabel(app), app.versionName);
+                    }));
+        } else {
+            text = message.toString();
+        }
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                 .setTitle(DeviceScanUi.appLabel(app))
                 .setSubtitle(appSubtitle(context, app))
-                .setMessage(message.toString());
+                .setMessage(text);
         if (!app.system) {
             builder.setPositiveButton(JacStrings.get(context, R.string.jac_devscan_uninstall),
                     (d, which) -> uninstall(app));
@@ -743,6 +761,7 @@ final class DeviceScanSection {
                     (d, which) -> openSettings(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS));
         }
         final AlertDialog dialog = builder.create();
+        asked[0] = dialog;
         if (fragment.showDialog(dialog) != null && !app.system) {
             tint(dialog, DialogInterface.BUTTON_POSITIVE, Theme.key_text_RedBold);
         }

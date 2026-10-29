@@ -108,14 +108,23 @@ public final class ScannerBootstrap {
             // The list is the device scanner's ~500 KB of indicators, loaded
             // by the first installer that needs it (on a scan thread), not
             // here at every process start.
+            // The owner's deny list (LinkGuard#appLists) is consulted after
+            // the bundled list, the same way the device scanner does: an
+            // installer the owner has named as malware since this build
+            // shipped is caught in the chat too.
             final ScanEngine.InstallerIntel installerIntel = (sha256, certs, packageName) -> {
-                final ThreatIntel intel = getThreatIntel();
-                ThreatEntry entry = intel.matchHash(sha256, null, null);
-                if (entry == null) {
-                    entry = intel.matchCert(certs);
-                }
-                if (entry == null) {
-                    entry = intel.matchPackage(packageName);
+                ThreatEntry entry = null;
+                for (ThreatIntel intel : new ThreatIntel[]{getThreatIntel(), LinkGuard.appLists().getDeny()}) {
+                    entry = intel.matchHash(sha256, null, null);
+                    if (entry == null) {
+                        entry = intel.matchCert(certs);
+                    }
+                    if (entry == null) {
+                        entry = intel.matchPackage(packageName);
+                    }
+                    if (entry != null) {
+                        break;
+                    }
                 }
                 return entry != null ? entry.getFamilyName() : null;
             };

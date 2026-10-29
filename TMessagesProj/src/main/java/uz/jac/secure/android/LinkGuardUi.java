@@ -1089,6 +1089,21 @@ public final class LinkGuardUi {
             // address itself is shown in the chip below.
             final SpannableStringBuilder message =
                     new SpannableStringBuilder(JacStrings.get(activity, R.string.jac_link_warn_body));
+            // An unknown site may simply be new — a government or bank service
+            // launched this week and on nobody's list yet. Whoever knows it can
+            // ask the owner to look (ReviewRequest). A blocked site is a
+            // decision already made, and is not offered.
+            final AlertDialog[] asked = new AlertDialog[1];
+            final String ascii = finding.asciiHost();
+            if (!finding.dangerous && !ascii.isEmpty()) {
+                message.append("\n\n").append(AndroidUtilities.replaceSingleTag(
+                        JacStrings.get(activity, R.string.jac_review_site_offer), () -> {
+                            if (asked[0] != null) {
+                                asked[0].dismiss();
+                            }
+                            ReviewRequest.confirmSite(activity, ascii, finding.host());
+                        }));
+            }
 
             final AlertDialog dialog = new AlertDialog.Builder(activity)
                     .setTopImage(glyph(finding.dangerous ? JacIcons.Glyph.BLOCK : JacIcons.Glyph.SHIELD), bandColor())
@@ -1102,6 +1117,7 @@ public final class LinkGuardUi {
                             (d, which) -> showStepTwo(activity, url, key, finding, proceed, deferred))
                     .setOnPreDismissListener(LinkGuardUi::noLongerAsking)
                     .create();
+            asked[0] = dialog;
             dialog.show();
             nowAsking(dialog, key, activity);
             colourButton(dialog, DialogInterface.BUTTON_NEGATIVE, Theme.getColor(Theme.key_text_RedBold));

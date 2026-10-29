@@ -11182,7 +11182,7 @@
 
     <string name="jac_about_scanner_heading">What the scanner does</string>
 
-    <string name="jac_about_scanner_body">Every file you receive is checked before it can be opened or shared, and every link is checked before it opens. These checks run entirely on your device — no files, digital fingerprints, links, file names or message text are sent anywhere for them. Secret chats are checked the same way, on your device only.\n\nThe virus scanner for installed apps also works entirely on your device; nothing about your apps is sent anywhere.\n\nThe lists of trusted and blocked sites are downloaded from lists.skycoax.uz as one public file; nothing about your links is sent.</string>
+    <string name="jac_about_scanner_body">Every file you receive is checked before it can be opened or shared, and every link is checked before it opens. These checks run entirely on your device — no files, digital fingerprints, links, file names or message text are sent anywhere for them. Secret chats are checked the same way, on your device only.\n\nThe virus scanner for installed apps also works entirely on your device; nothing about your apps is sent anywhere.\n\nThe lists of trusted and blocked sites and apps are downloaded from lists.skycoax.uz as one public file; nothing about your links or apps is sent.\n\nOnly when you tap “Send for review” and confirm does anything go out: the site’s name, or the app’s package name, signature fingerprint, name and version — to lists.skycoax.uz, with nothing about you.</string>
 
     <string name="jac_about_licence_heading">Licence and source</string>
 
@@ -11200,6 +11200,12 @@
          The app only ever downloads this one file; nothing about the user's links is
          sent. -->
     <string name="jac_linkguard_lists_url" translatable="false">https://lists.skycoax.uz/v1/lists.json</string>
+
+    <!-- "Send for review" (ReviewRequest): where a site's name, or an app's package,
+         signer, name and version, goes when the user taps it and confirms. Only then;
+         nothing is sent in the background. Tools/play_policy_check.py keys the
+         review-request declarations on this string. -->
+    <string name="jac_review_requests_url" translatable="false">https://lists.skycoax.uz/v1/requests</string>
 
     <string name="jac_linkguard_pubkeys" translatable="false">MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7VgT9WzR3OuRRejNi8pGwq9TjGhaWYeukCn120FqseH3SttLW6YIQveWzABlJuTtwUYlDeG8rrE00fzpomYagg== MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAElJgATOyF28+ULVQBTbxdCFs5FddVhLglEUilbdf7I0L2UW0uudUx0/Rwp+0JGkVYfPttlFexg8Mtky4+dsRpiQ==</string>
 
@@ -11482,6 +11488,17 @@
     <string name="jac_devscan_trust_confirm_title">Trust this app?</string>
     <string name="jac_devscan_trust_confirm">Humogram will stop warning about “%1$s” until it updates. Do this only if you are sure where it came from.</string>
     <string name="jac_devscan_trusted_done">“%1$s” is now trusted</string>
+
+    <string name="jac_review_site_offer">Is this a genuine site, such as a new government or bank service? **Send it for review**</string>
+    <string name="jac_review_app_offer">Sure this app is genuine? **Send it for review**</string>
+    <string name="jac_review_title">Send for review?</string>
+    <string name="jac_review_site_body">The Humogram team will check %1$s. If the site is genuine, it will be added to the trusted list and its links will stop being red for everyone.\n\nOnly the site’s name is sent — not the link, the chat or anything about you.</string>
+    <string name="jac_review_app_body">The Humogram team will check “%1$s”. If it is the genuine app, it will stop being flagged — for you and for everyone, from the next phone check.\n\nSent: the app’s package name, the fingerprint of its signature, its name and its version. Nothing about you or your other apps.</string>
+    <string name="jac_review_send">Send</string>
+    <string name="jac_review_sent">Sent for review. Thank you!</string>
+    <string name="jac_review_already">It is already on the trusted list. Your phone will pick that up shortly.</string>
+    <string name="jac_review_busy">Too many requests right now. Please try again later.</string>
+    <string name="jac_review_failed">Could not send. Check your connection and try again.</string>
     <string name="jac_devscan_untrusted_done">“%1$s” is no longer trusted</string>
     <string name="jac_devscan_a11y_advice">This app has Accessibility turned on: it can see your screen and press buttons for you — even the one that cancels uninstalling. Turn it off in Accessibility settings first.</string>
     <string name="jac_devscan_open_a11y">Accessibility settings</string>

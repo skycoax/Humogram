@@ -32,6 +32,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocketFactory;
 
+import uz.jac.secure.core.device.AppLists;
 import uz.jac.secure.core.engine.EngineFactory;
 import uz.jac.secure.core.link.DomainLists;
 import uz.jac.secure.core.link.LinkDecision;
@@ -95,6 +96,16 @@ import uz.jac.secure.core.link.SignedLists;
  * and when the user taps a link ({@link LinkGuardUi} asks). All of them are the
  * same conditional GET, which the server answers with a 304 and no body when
  * nothing changed, and none runs more often than the minimum interval.
+ *
+ * <h3>The app lists ride along</h3>
+ *
+ * The same signed document carries the owner's app lists — apps vouched for
+ * by package and signer, and app indicators known to be malware — in its
+ * {@code apps} section. They are taken from a document only once it has
+ * passed everything above and been put in force, and handed out through
+ * {@link #appLists()} to the device scanner and the chat-file gate. Because
+ * the scanner needs them too, the list is fetched while either feature is on:
+ * link protection, or the virus scan at launch ({@link #fetchWanted}).
  */
 public final class LinkGuard {
 
@@ -233,6 +244,8 @@ public final class LinkGuard {
 
     /** Non-null once installed; the single publication point that turns the guard on. */
     private static volatile LinkPolicy policy;
+    /** The {@code apps} section of the document in force; empty until one with it has been accepted. */
+    private static volatile AppLists appLists = AppLists.empty();
     private static volatile Context appContext;
     private static volatile EngineFactory.ReferenceData referenceData;
 
@@ -362,6 +375,41 @@ public final class LinkGuard {
     private static boolean enabled() {
         Context context = appContext;
         return context != null && HumogramConfig.isLinkGuard(context);
+    }
+
+    /**
+     * Whether the list is worth fetching: link protection is on, or the virus
+     * scan at launch is, which reads the app lists from the same document.
+     * With both off nothing is fetched at all.
+     */
+    private static boolean fetchWanted() {
+        Context context = appContext;
+        return context != null
+                && (HumogramConfig.isLinkGuard(context) || HumogramConfig.isDeviceScanOnLaunch(context));
+    }
+
+    /**
+     * The owner's app lists from the document in force: what the device
+     * scanner and the chat-file gate judge apps with on top of the bundled
+     * intel. {@link AppLists#empty()} until a signed document with an
+     * {@code apps} section has been accepted. Never null; any thread.
+     */
+    public static AppLists appLists() {
+        return appLists;
+    }
+
+    /**
+     * Worker only, and only with a payload that has just been put in force.
+     * A section that cannot be read leaves the lists that were there: the
+     * site lists in the same document are already in force, and losing the
+     * app lists to a newer format must not cost the deny entries.
+     */
+    private static void takeAppLists(String payload) {
+        try {
+            appLists = AppLists.parse(payload);
+        } catch (Throwable t) {
+            android.util.Log.w(LOG_TAG, "link guard: app lists not read: " + t.getClass().getSimpleName());
+        }
     }
 
     // ------------------------------------------------------------------
@@ -625,6 +673,7 @@ public final class LinkGuard {
                 applied = current.update(lists);
                 if (applied) {
                     versionFloor = Math.max(versionFloor, lists.getVersion());
+                    takeAppLists(payload);
                 }
             } catch (Throwable t) {
                 android.util.Log.w(LOG_TAG, "link guard: cached list rejected: " + t.getClass().getSimpleName());
@@ -675,8 +724,12 @@ public final class LinkGuard {
         return Collections.unmodifiableList(keys);
     }
 
-    /** The build number: the one thing the request says about the app, so the owner can see how old the clients are. */
-    private static long versionCode(Context context) {
+    /**
+     * The build number: the one thing the request says about the app, so the
+     * owner can see how old the clients are. {@link ReviewRequest} sends the
+     * same user agent.
+     */
+    static long versionCode(Context context) {
         try {
             PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ? info.getLongVersionCode() : info.versionCode;
@@ -704,9 +757,9 @@ public final class LinkGuard {
             if (policy == null) {
                 return;
             }
-            if (!enabled()) {
-                // Switched off means silent: no background traffic for a
-                // feature the user declined.
+            if (!fetchWanted()) {
+                // Switched off means silent: no background traffic for
+                // features the user declined.
                 return;
             }
             long last = lastAttemptAt;
@@ -942,6 +995,7 @@ public final class LinkGuard {
         // download and store it again instead of trusting a 304.
         etag = store.writeEnvelope(body) ? newEtag : null;
         versionFloor = lists.getVersion();
+        takeAppLists(payload);
         changedAt = now;
         checkedAt = now;
         return RESULT_OK;

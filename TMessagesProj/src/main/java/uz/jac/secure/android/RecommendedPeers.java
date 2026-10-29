@@ -59,10 +59,18 @@ import java.util.HashMap;
  *
  * <h3>Then ours</h3>
  *
- * The list ends with "Humogram taklif va baholash", right under the last bot:
- * Google Play's own rating sheet ({@link RateApp}), in the same settings row
- * upstream uses for everything else on this screen. It is there whether or not
- * any of the usernames have resolved.
+ * The list ends with two rows of our own, right under the last bot, in the
+ * same settings row upstream uses for everything else on this screen, and
+ * there whether or not any of the usernames have resolved:
+ * <ul>
+ *   <li>"Rate Humogram": Google Play's own rating sheet ({@link RateApp});</li>
+ *   <li>"Send feedback": a chat with the owner's account, {@link #FEEDBACK_USERNAME},
+ *       opened like any t.me link. The user writes from their own account, so
+ *       nothing is sent on their behalf.</li>
+ * </ul>
+ * They were one row until 2026-10-29. Kept side by side and independent: Play
+ * forbids steering unhappy users away from the rating, so neither row asks
+ * what the user thinks before the other one.
  */
 public final class RecommendedPeers {
 
@@ -76,10 +84,15 @@ public final class RecommendedPeers {
             "JizzaxKiberT_bot",
     };
 
+    /** Where "Send feedback" goes: the owner's Telegram account. */
+    static final String FEEDBACK_USERNAME = "skycoax";
+
     /** Row ids, clear of SettingsActivity's own (1 … 26) and of Wallet's (its bot id, hashed). */
     private static final int ID_BASE = 3_000;
-    /** "Humogram taklif va baholash", under the last of them. */
+    /** "Rate Humogram", under the last of them. */
     private static final int ID_RATE = ID_BASE + 100;
+    /** "Send feedback", under the rating row. */
+    private static final int ID_FEEDBACK = ID_BASE + 101;
 
     /** Per account: username → peer id, or 0 while asking / after a failed answer. UI thread. */
     @SuppressWarnings("unchecked")
@@ -91,8 +104,8 @@ public final class RecommendedPeers {
     }
 
     /**
-     * Add a row for each username Telegram has answered for, the rating row
-     * and the footnote after them; ask about the rest. {@code onResolved} runs on the UI thread
+     * Add a row for each username Telegram has answered for, the rating and
+     * feedback rows and the footnote after them; ask about the rest. {@code onResolved} runs on the UI thread
      * when an answer arrives, so the screen can fill its list again.
      */
     public static void addItems(Context context, int account, ArrayList<UItem> items, Runnable onResolved) {
@@ -114,6 +127,10 @@ public final class RecommendedPeers {
         items.add(SettingsActivity.SettingCell.Factory.of(ID_RATE,
                 IconBackgroundColors.GREEN.top, IconBackgroundColors.GREEN.bottom,
                 R.drawable.settings_stars, JacStrings.get(context, R.string.jac_rate_row)));
+        items.add(SettingsActivity.SettingCell.Factory.of(ID_FEEDBACK,
+                IconBackgroundColors.ORANGE.top, IconBackgroundColors.ORANGE.bottom,
+                R.drawable.settings_ask, JacStrings.get(context, R.string.jac_feedback_row),
+                "@" + FEEDBACK_USERNAME));
         if (added > 0) {
             items.add(UItem.asShadow(JacStrings.get(context, R.string.jac_peers_note)));
         }
@@ -127,6 +144,11 @@ public final class RecommendedPeers {
             if (context instanceof Activity) {
                 RateApp.launch((Activity) context);
             }
+            return true;
+        }
+        if (item.id == ID_FEEDBACK) {
+            // A t.me link, as for the rows above: upstream opens the chat inside the app.
+            Browser.openUrl(context, "https://t.me/" + FEEDBACK_USERNAME);
             return true;
         }
         final int index = item.id - ID_BASE;
