@@ -34,6 +34,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 import uz.jac.secure.core.device.AppLists;
 import uz.jac.secure.core.engine.EngineFactory;
+import uz.jac.secure.core.link.ChatLists;
 import uz.jac.secure.core.link.DomainLists;
 import uz.jac.secure.core.link.LinkDecision;
 import uz.jac.secure.core.link.LinkPolicy;
@@ -106,6 +107,14 @@ import uz.jac.secure.core.link.SignedLists;
  * {@link #appLists()} to the device scanner and the chat-file gate. Because
  * the scanner needs them too, the list is fetched while either feature is on:
  * link protection, or the virus scan at launch ({@link #fetchWanted}).
+ *
+ * <h3>And the chat list</h3>
+ *
+ * Its {@code chats} section names the channels and groups the owner warns
+ * about, by id, username or the hash of an invite link. Taken the same way and
+ * at the same moment as the app lists, handed out through {@link #chatLists()}
+ * to {@link ChatGuard}, and the reason the list is also fetched while the chat
+ * warning is on.
  */
 public final class LinkGuard {
 
@@ -246,6 +255,8 @@ public final class LinkGuard {
     private static volatile LinkPolicy policy;
     /** The {@code apps} section of the document in force; empty until one with it has been accepted. */
     private static volatile AppLists appLists = AppLists.empty();
+    /** The {@code chats} section of the document in force; empty until one with it has been accepted. */
+    private static volatile ChatLists chatLists = ChatLists.empty();
     private static volatile Context appContext;
     private static volatile EngineFactory.ReferenceData referenceData;
 
@@ -379,13 +390,15 @@ public final class LinkGuard {
 
     /**
      * Whether the list is worth fetching: link protection is on, or the virus
-     * scan at launch is, which reads the app lists from the same document.
-     * With both off nothing is fetched at all.
+     * scan at launch is, which reads the app lists from the same document, or
+     * the chat warning is, which reads the chat list. With all three off
+     * nothing is fetched at all.
      */
     private static boolean fetchWanted() {
         Context context = appContext;
         return context != null
-                && (HumogramConfig.isLinkGuard(context) || HumogramConfig.isDeviceScanOnLaunch(context));
+                && (HumogramConfig.isLinkGuard(context) || HumogramConfig.isDeviceScanOnLaunch(context)
+                || HumogramConfig.isChatGuard(context));
     }
 
     /**
@@ -410,6 +423,22 @@ public final class LinkGuard {
         } catch (Throwable t) {
             android.util.Log.w(LOG_TAG, "link guard: app lists not read: " + t.getClass().getSimpleName());
         }
+        // The chat list rides in the same document and is taken at the same
+        // moment, under the same rule: unreadable leaves what was there.
+        try {
+            chatLists = ChatLists.parse(payload);
+        } catch (Throwable t) {
+            android.util.Log.w(LOG_TAG, "link guard: chat list not read: " + t.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * The owner's channel and group list from the document in force
+     * ({@link ChatGuard}). {@link ChatLists#empty()} until a signed document
+     * with a {@code chats} section has been accepted. Never null; any thread.
+     */
+    public static ChatLists chatLists() {
+        return chatLists;
     }
 
     // ------------------------------------------------------------------

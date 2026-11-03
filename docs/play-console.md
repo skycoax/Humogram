@@ -177,7 +177,14 @@ for the Data safety form, worked out 2026-10-27:
   compliance.
 - **Encrypted in transit:** yes (HTTPS only; the app refuses a plain-http URL).
 - **Deletion:** a request holds nothing that links it to a person, and it is
-  deleted once reviewed; say so if the form asks how users can request deletion.
+  deleted a year after it was last sent; say so if the form asks how users can
+  request deletion.
+
+Both types were filled in and sent to Google for review on 2026-10-30, as answered
+above. The same submission corrected two older answers: account creation is
+"Username and other authentication" (phone number and code; `LoginActivity` can
+register a new account), and the delete-account link is
+https://hg.skycoax.uz/privacy (section 10).
 
 The privacy policy (site and `docs/`, three languages, 2026-10-27) has a "Send
 for review" subsection under section 3, and sections 1, 2, 4, 5 and 6 mention
@@ -193,6 +200,48 @@ form with the two data types above is submitted, and the updated policy is
 live on hg.skycoax.uz/privacy, **before 1.0.12 is sent to review**. Until both
 are done, 1.0.12 must not go beyond the upload: a release that sends data the
 form does not declare is what Play removes apps for.
+
+## Data safety: reports about channels, groups and sites ("Report")
+
+Added 2026-11-02 (`ChatGuard`, `ChatGuardUi`, `ReviewRequest`). Two things:
+
+- **Warnings before scam channels and groups.** The signed list file
+  (`lists.json`) gained a `chats` section: Bot API ids, public usernames and the
+  SHA-256 of invite-link hashes, with a reason. The phone matches the chat it is
+  about to open or join against it, and against Telegram's own SCAM/FAKE marks,
+  and asks twice; nothing about which chats are opened leaves the phone. Like
+  the rest of the list this adds no data type. The warning never blocks:
+  Telegram's API terms (§1.4) forbid interfering with basic functionality.
+- **Reports and appeals**, the same POST to `/v1/requests` as "Send for
+  review", only on a tap and a confirm that lists what goes:
+  - `site_report`: a site's name and a reason (link menu, "Report a dangerous
+    link");
+  - `chat`: a channel's or group's Bot API id, public usernames, title,
+    channel/group, a reason, and the invite link's hash when the chat was
+    opened through one (chat menu, "Report to Humogram"; link menu on an invite
+    link);
+  - `chat_appeal`: the same without a reason ("Marked by mistake?");
+  - a blocked site's appeal is an ordinary `site` request.
+  Nothing about the sender; nginx and `lists.py` keep them exactly like review
+  requests (no address, a year after the last one once decided).
+
+New for Data safety, worked out 2026-11-02:
+
+- **App activity → Other user-generated content:** collected; not shared; not
+  ephemeral; **optional**; purposes: App functionality, Fraud prevention,
+  security, and compliance. (A report is the user's own statement about a
+  chat or a site.) "Web browsing history" already covers the site's name.
+- Encryption in transit and deletion: as for review requests above.
+
+```
+data.chat_reports    = declared  # 1.0.13; Data safety "Other user-generated content" submitted 2026-11-03 (owner's word)
+```
+
+`pending` stops the release build (`play_policy_check.py`). Set to `declared`
+on 2026-11-03, on the owner's word that the Data safety form with the type
+above is submitted; the updated policy (2026-11-02) was checked live on
+hg.skycoax.uz/privacy the same day, and the list service restarted with the
+new code (list re-signed 2026-11-03 15:07 UTC).
 
 ## Data safety: push notifications
 

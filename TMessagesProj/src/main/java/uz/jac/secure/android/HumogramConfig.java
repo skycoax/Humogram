@@ -387,6 +387,36 @@ public final class HumogramConfig {
         }
     }
 
+    private static final String KEY_CHAT_GUARD = "chat_guard";
+
+    /**
+     * Whether channels and groups on the owner's list, or marked SCAM or FAKE
+     * by Telegram, ask twice before they are opened or joined
+     * ({@link ChatGuardUi}). On by default, and a read that fails reads as
+     * on, for the reason the link guard gives.
+     */
+    public static boolean isChatGuard(Context context) {
+        try {
+            return prefs(context).getBoolean(KEY_CHAT_GUARD, true);
+        } catch (Throwable ignored) {
+            return true;
+        }
+    }
+
+    public static void setChatGuard(Context context, boolean value) {
+        try {
+            prefs(context).edit().putBoolean(KEY_CHAT_GUARD, value).apply();
+        } catch (Throwable ignored) {
+        }
+        if (value) {
+            // It may have been off for days, with the list not fetched.
+            try {
+                LinkGuard.refresh();
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
     // ---------------------------------------------------------------------
     // Device virus scanner (DeviceScanner, DeviceScanSection, DeviceScanLaunch)
     //

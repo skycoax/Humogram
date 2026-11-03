@@ -4886,6 +4886,9 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                         boolean hideProgressDialog = true;
                         if (error == null && actionBarLayout != null) {
                             TLRPC.ChatInvite invite = (TLRPC.ChatInvite) response;
+                            // Humogram: remember which invite link reached this chat,
+                            // so the chat guard can match it once the chat is open.
+                            uz.jac.secure.android.ChatGuard.noteInvite(group, invite);
                             if (invite.chat != null && (!ChatObject.isLeftFromChat(invite.chat) || !invite.chat.kicked && (ChatObject.isPublic(invite.chat) || invite instanceof TLRPC.TL_chatInvitePeek || invite.chat.has_geo))) {
                                 MessagesController.getInstance(intentAccount).putChat(invite.chat, false);
                                 ArrayList<TLRPC.Chat> chats = new ArrayList<>();
@@ -4958,7 +4961,12 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
                                 });
                             } else {
                                 BaseFragment fragment = mainFragmentsStack.get(mainFragmentsStack.size() - 1);
-                                fragment.showDialog(new JoinGroupAlert(LaunchActivity.this, invite, group, fragment, (fragment instanceof ChatActivity ? ((ChatActivity) fragment).themeDelegate : null)));
+                                // Humogram: a group on Humogram's list, or marked by
+                                // Telegram, asks twice before its join sheet.
+                                Runnable join = () -> fragment.showDialog(new JoinGroupAlert(LaunchActivity.this, invite, group, fragment, (fragment instanceof ChatActivity ? ((ChatActivity) fragment).themeDelegate : null)));
+                                if (!uz.jac.secure.android.ChatGuardUi.holdInvite(fragment, group, invite, join)) {
+                                    join.run();
+                                }
                             }
                         } else {
                             AlertDialog.Builder builder = new AlertDialog.Builder(LaunchActivity.this);

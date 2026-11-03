@@ -29,9 +29,12 @@ import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.MessageObject;
 import org.telegram.messenger.R;
+import org.telegram.messenger.browser.Browser;
 import org.telegram.ui.ActionBar.AlertDialog;
+import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Cells.CheckBoxCell;
+import org.telegram.ui.Components.ItemOptions;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.LinkSpanDrawable;
 import org.telegram.ui.Components.TextStyleSpan;
@@ -458,6 +461,63 @@ public final class LinkGuardUi {
 
     private static int withAlpha(int color, int alpha) {
         return alpha >= 255 ? color : ColorUtils.setAlphaComponent(color, Math.max(0, alpha));
+    }
+
+    // ------------------------------------------------------------------
+    // Reporting a link
+    // ------------------------------------------------------------------
+
+    /**
+     * For {@code ChatActivity.didLongPressLink}: "Report a dangerous link" in
+     * a link's menu, for a web link the guard lets through — trusted or merely
+     * unknown — so that a user who knows a link that looks fine is a scam can
+     * tell the owner ({@link ReviewRequest#confirmSiteReport}). A blocked link
+     * is not offered: it is red already, and its warning carries the appeal.
+     * Telegram's own links (t.me and the rest) open a chat, and a chat is
+     * reported from its own menu ({@link ChatGuardUi}) — except an invite
+     * link, which always leads to a group or channel and is offered as one
+     * (while the chat warning is on). Nothing else is added while the link
+     * guard is off.
+     */
+    public static void addReportOption(ItemOptions options, BaseFragment fragment, String url) {
+        try {
+            if (options == null || fragment == null || url == null) {
+                return;
+            }
+            final ReviewRequest.ChatRef invite = ReviewRequest.ChatRef.ofInviteLink(url);
+            if (invite != null) {
+                if (ChatGuard.isOn()) {
+                    options.add(R.drawable.msg_report, JacStrings.get(fragment.getContext(), R.string.jac_report_invite_link),
+                            true, () -> {
+                                final Activity activity = fragment.getParentActivity();
+                                if (activity != null) {
+                                    ReviewRequest.confirmChatReport(activity, fragment, invite);
+                                }
+                            });
+                }
+                return;
+            }
+            if (!isOn(fragment.getContext()) || Browser.isInternalUri(Uri.parse(url), null)) {
+                return;
+            }
+            final LinkDecision decision = LinkGuard.decide(url, null);
+            if (decision == null || decision.getTier() == LinkTier.DANGEROUS || decision.getTier() == LinkTier.NOT_WEB) {
+                return;
+            }
+            final String ascii = decision.getAsciiHost();
+            if (ascii == null || ascii.isEmpty()) {
+                return;
+            }
+            final String host = decision.getDisplayHost();
+            options.add(R.drawable.msg_report, JacStrings.get(fragment.getContext(), R.string.jac_report_link), true, () -> {
+                final Activity activity = fragment.getParentActivity();
+                if (activity != null) {
+                    ReviewRequest.confirmSiteReport(activity, fragment, ascii, host);
+                }
+            });
+        } catch (Throwable ignored) {
+            // A menu without the item is the menu upstream had.
+        }
     }
 
     // ------------------------------------------------------------------
@@ -1091,17 +1151,25 @@ public final class LinkGuardUi {
                     new SpannableStringBuilder(JacStrings.get(activity, R.string.jac_link_warn_body));
             // An unknown site may simply be new — a government or bank service
             // launched this week and on nobody's list yet. Whoever knows it can
-            // ask the owner to look (ReviewRequest). A blocked site is a
-            // decision already made, and is not offered.
+            // ask the owner to look (ReviewRequest). A site on the owner's
+            // block list can be appealed the same way (2026-11-02): a decision
+            // made on reports can be wrong. A look-alike of a brand cannot —
+            // no list entry made it dangerous, so none can take it back.
             final AlertDialog[] asked = new AlertDialog[1];
             final String ascii = finding.asciiHost();
-            if (!finding.dangerous && !ascii.isEmpty()) {
+            final boolean listed = finding.decision != null && finding.decision.getReason() == LinkReason.DENYLISTED;
+            if (!ascii.isEmpty() && (!finding.dangerous || listed)) {
                 message.append("\n\n").append(AndroidUtilities.replaceSingleTag(
-                        JacStrings.get(activity, R.string.jac_review_site_offer), () -> {
+                        JacStrings.get(activity, finding.dangerous
+                                ? R.string.jac_appeal_site_offer : R.string.jac_review_site_offer), () -> {
                             if (asked[0] != null) {
                                 asked[0].dismiss();
                             }
-                            ReviewRequest.confirmSite(activity, ascii, finding.host());
+                            if (finding.dangerous) {
+                                ReviewRequest.confirmSiteAppeal(activity, ascii, finding.host());
+                            } else {
+                                ReviewRequest.confirmSite(activity, ascii, finding.host());
+                            }
                         }));
             }
 
@@ -1279,7 +1347,7 @@ public final class LinkGuardUi {
      * explains the wait. Back and a tap outside still close the dialog — that
      * is the safe direction and is never held.
      */
-    private static void countDown(AlertDialog dialog, Runnable whenOver) {
+    static void countDown(AlertDialog dialog, Runnable whenOver) {
         final View cancel = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
         if (!(cancel instanceof TextView)) {
             whenOver.run();
@@ -1428,7 +1496,7 @@ public final class LinkGuardUi {
     }
 
     /** A verdict glyph for the dialog's top band, in the white upstream draws on filled buttons. */
-    private static DeviceScanGlyphDrawable glyph(JacIcons.Glyph glyph) {
+    static DeviceScanGlyphDrawable glyph(JacIcons.Glyph glyph) {
         return new DeviceScanGlyphDrawable(glyph, 52, Theme.key_featuredStickers_buttonText);
     }
 
@@ -1444,14 +1512,14 @@ public final class LinkGuardUi {
                 Theme.getColor(Theme.key_featuredStickers_buttonText) | 0xFF000000);
     }
 
-    private static void colourButton(AlertDialog dialog, int button, int color) {
+    static void colourButton(AlertDialog dialog, int button, int color) {
         final View view = dialog.getButton(button);
         if (view instanceof TextView) {
             ((TextView) view).setTextColor(color);
         }
     }
 
-    private static void setEnabled(View button, boolean enabled) {
+    static void setEnabled(View button, boolean enabled) {
         if (button != null) {
             button.setEnabled(enabled);
         }

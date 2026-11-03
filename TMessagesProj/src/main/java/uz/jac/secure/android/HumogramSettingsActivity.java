@@ -27,7 +27,8 @@ import java.util.ArrayList;
  * root, USB debugging, security updates, cloud password), whose
  * results count towards the same percentage; one card of security switches
  * (scan at every launch, link protection, the threat alarm's sound and which
- * one plays, the launch reminder about a missing cloud password) with the
+ * one plays, the launch reminder about a missing cloud password, the warning
+ * before scam channels and groups) with the
  * recommended cyber-safety channel; one for chats
  * (the chat-type tabs, on a page of their own, and the ID in a chat's
  * header); and the ornament the chat list wears — a suzani border, an
@@ -73,6 +74,7 @@ public class HumogramSettingsActivity extends UniversalFragment {
     private static final int CHECK_CHAT_ID = 10;
     private static final int CHECK_THREAT_SOUND = 11;
     private static final int BUTTON_ALARM_SOUND = 12;
+    private static final int CHECK_CHAT_GUARD = 13;
 
     /**
      * The creator's name, shown in the creator row and the footer. A proper
@@ -158,6 +160,9 @@ public class HumogramSettingsActivity extends UniversalFragment {
         }
         items.add(UItem.asCheck(CHECK_LINK_GUARD, JacStrings.get(context, R.string.jac_linkguard_title))
                 .setChecked(HumogramConfig.isLinkGuard(context)));
+        // Scam channels and groups ask before they are opened or joined (ChatGuardUi).
+        items.add(UItem.asCheck(CHECK_CHAT_GUARD, JacStrings.get(context, R.string.jac_chatguard_switch))
+                .setChecked(HumogramConfig.isChatGuard(context)));
         // The alarm a threat raises (ThreatAlert): on/off, and which sound.
         items.add(UItem.asCheck(CHECK_THREAT_SOUND, JacStrings.get(context, R.string.jac_threat_sound_switch))
                 .setChecked(HumogramConfig.isThreatSound(context)));
@@ -228,6 +233,13 @@ public class HumogramSettingsActivity extends UniversalFragment {
             ((org.telegram.ui.Cells.TextCheckCell) view).setChecked(on);
             // The cell animates, but the adapter's cached item still holds the
             // old value and a scroll-recycled rebind would draw it: flip it too.
+            item.checked = on;
+            return;
+        }
+        if (item.id == CHECK_CHAT_GUARD) {
+            final boolean on = !HumogramConfig.isChatGuard(getContext());
+            HumogramConfig.setChatGuard(getContext(), on);
+            ((org.telegram.ui.Cells.TextCheckCell) view).setChecked(on);
             item.checked = on;
             return;
         }

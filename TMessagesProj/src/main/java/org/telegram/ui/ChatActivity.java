@@ -1666,6 +1666,9 @@ public class ChatActivity extends BaseFragment implements
 
     private final static int chat_menu_topic_create = 73;
 
+    // Humogram: "Report to Humogram" / "Marked by mistake?" (ChatGuardUi).
+    private final static int humogram_report = 90;
+
     private final static int id_chat_compose_panel = 1000;
 
     RecyclerListView.OnItemLongClickListenerExtended onItemLongClickListener = new RecyclerListView.OnItemLongClickListenerExtended() {
@@ -3881,6 +3884,9 @@ public class ChatActivity extends BaseFragment implements
                     }
                 } else if (id == report) {
                     ReportBottomSheet.openChat(ChatActivity.this);
+                } else if (id == humogram_report) {
+                    // Humogram: see the menu item.
+                    uz.jac.secure.android.ChatGuardUi.onMenu(ChatActivity.this, currentChat);
                 } else if (id == star) {
                     for (int a = 0; a < 2; a++) {
                         for (int b = 0; b < selectedMessagesCanStarIds[a].size(); b++) {
@@ -4386,6 +4392,12 @@ public class ChatActivity extends BaseFragment implements
             updateTranslateItemVisibility();
             if (currentChat != null && !currentChat.creator && !ChatObject.hasAdminRights(currentChat)) {
                 headerItem.lazilyAddSubItem(report, R.drawable.msg_report, LocaleController.getString(R.string.ReportChat));
+                // Humogram: report the chat to Humogram's list, or appeal its
+                // warning there; null when the chat guard is off.
+                CharSequence humogramReport = uz.jac.secure.android.ChatGuardUi.menuLabel(getContext(), currentChat);
+                if (humogramReport != null) {
+                    headerItem.lazilyAddSubItem(humogram_report, R.drawable.msg_report, humogramReport);
+                }
             }
             if (currentUser != null && currentUser.id != UserObject.VERIFY && currentUser.id != UserObject.REPLY_BOT) {
                 addContactItem = headerItem.lazilyAddSubItem(share_contact, R.drawable.msg_addcontact, LocaleController.getString(R.string.AddToContacts));
@@ -8512,6 +8524,11 @@ public class ChatActivity extends BaseFragment implements
             } else {
                 if (ChatObject.isChannel(currentChat) && !(currentChat instanceof TLRPC.TL_channelForbidden)) {
                     if (ChatObject.isNotInChat(currentChat)) {
+                        // Humogram: a flagged chat asks twice before it is
+                        // joined; the second confirmation presses this again.
+                        if (uz.jac.secure.android.ChatGuardUi.holdJoin(ChatActivity.this, currentChat, view::performClick)) {
+                            return;
+                        }
                         if (currentChat.join_request) {
 //                            showDialog(new JoinGroupAlert(context, currentChat, null, this));
                             showBottomOverlayProgress(true, true);
@@ -26902,6 +26919,9 @@ public class ChatActivity extends BaseFragment implements
                 .setOnHideListener(this::checkConversionDateTimeToast)
                 .show(true);
         }
+        // Humogram: a channel or group on Humogram's list, or marked SCAM or
+        // FAKE by Telegram, asks twice before it is read; "back" closes it.
+        uz.jac.secure.android.ChatGuardUi.onChatVisible(this, currentChat);
     }
 
     private boolean shownConversionDateTimeToast;
@@ -40397,6 +40417,10 @@ public class ChatActivity extends BaseFragment implements
                 joinChannel.setTextAndIcon(LocaleController.getString(R.string.ProfileJoinChannel), R.drawable.msg_addbot);
                 joinChannel.setMinimumWidth(160);
                 joinChannel.setOnClickListener(view -> {
+                    // Humogram: a flagged channel asks twice before it is joined.
+                    if (uz.jac.secure.android.ChatGuardUi.holdJoin(ChatActivity.this, chat, view::performClick)) {
+                        return;
+                    }
                     finishPreviewFragment();
                     chat.left = false;
                     if (cell != null && cell.channelRecommendationsCell != null) {
@@ -44278,6 +44302,10 @@ public class ChatActivity extends BaseFragment implements
                 undoView.showWithAction(0, UndoView.ACTION_LINK_COPIED, null);
             }
         });
+
+        // Humogram: report a link that looks fine as dangerous, or an invite
+        // link's group as a scam (LinkGuardUi); nothing for other links.
+        uz.jac.secure.android.LinkGuardUi.addReportOption(options, ChatActivity.this, str);
 
         if (inAppBrowser && !isHashtag && !isMail && !str.startsWith("tg:")) {
             options.add(R.drawable.outline_saved_24, getString(R.string.WebBookmarkAdd), () -> {

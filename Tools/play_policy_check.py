@@ -567,6 +567,36 @@ def check_review_request_disclosure_matches_code():
           'docs/privacy-policy.md does not describe "Send for review" and /v1/requests. %s' % todo)
 
 
+def check_report_disclosure_matches_code():
+    """Code that sends reports about chats and sites needs declarations that say so.
+
+    "Report" (2026-11-02) sends what the review requests do not: a Telegram
+    channel's or group's id, usernames, title and the invite link the user
+    opened it with, and the reason picked; or a site's name with a reason.
+    The same POST as "Send for review", but a new data type for Data safety
+    ("Other user-generated content": the report is the user's statement), so
+    it has its own declaration line, keyed on the request kinds the app sends.
+    `pending` stops the release like the line above.
+    """
+    users = sorted(os.path.relpath(p, ROOT) for p in java_files()
+                   if '"chat_appeal"' in read(p) or '"site_report"' in read(p))
+    if not users:
+        return
+    todo = ('Do all three, then record it: (1) docs/privacy-policy.md and the site copy -- describe "Report": '
+            'what a chat or site report sends, to lists.skycoax.uz, only on tap, nothing about the sender kept; '
+            '(2) Play Console Data safety -- add "Other user-generated content": collected, not shared, optional, '
+            'app functionality and fraud prevention (see docs/play-console.md); (3) docs/play-console.md -- '
+            'data.chat_reports = declared.')
+    declared = declared_answers().get('data.chat_reports')
+    check('chat and site reports are declared (data.chat_reports = declared)', declared == 'declared',
+          '%s send(s) reports, but docs/play-console.md says %r. %s' % (', '.join(users), declared, todo))
+    policy = os.path.join(ROOT, 'docs', 'privacy-policy.md')
+    body = read(policy) if os.path.exists(policy) else ''
+    check('privacy policy describes chat reports',
+          'Report' in body and 'invite link' in body,
+          'docs/privacy-policy.md does not describe reports about channels and groups. %s' % todo)
+
+
 def app_package():
     match = re.search(r'^APP_PACKAGE\s*=\s*(\S+)', read(os.path.join(ROOT, 'gradle.properties')), re.M)
     return match.group(1) if match else None
@@ -650,6 +680,7 @@ def main():
         ('declarations', check_scanner_disclosure_matches_code),
         ('declarations', check_linkguard_disclosure_matches_code),
         ('declarations', check_review_request_disclosure_matches_code),
+        ('declarations', check_report_disclosure_matches_code),
         ('declarations', check_push_disclosure_matches_code),
         ('declarations', check_age_limit_matches_policy),
     ]:
