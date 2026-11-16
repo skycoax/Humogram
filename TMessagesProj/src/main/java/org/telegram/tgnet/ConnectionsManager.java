@@ -426,6 +426,8 @@ public class ConnectionsManager extends BaseController {
                         error = new TLRPC.TL_error();
                         error.code = errorCode;
                         error.text = errorText;
+                        // Humogram: why a session ended (401) and sign-in floods, for SessionGuard.
+                        uz.jac.secure.android.SessionGuard.noteError(currentAccount, error);
                         if (BuildVars.LOGS_ENABLED && error.code != -2000) {
                             FileLog.e(object + " got error " + error.code + " " + error.text);
                         }
@@ -829,6 +831,8 @@ public class ConnectionsManager extends BaseController {
         AndroidUtilities.runOnUIThread(() -> {
             AccountInstance accountInstance = AccountInstance.getInstance(currentAccount);
             if (accountInstance.getUserConfig().getClientUserId() != 0) {
+                // Humogram: the server ended this session; say so and why, instead of a silent sign-in screen.
+                uz.jac.secure.android.SessionGuard.onServerLogout(currentAccount);
                 accountInstance.getUserConfig().clearConfig();
                 accountInstance.getMessagesController().performLogout(0);
             }

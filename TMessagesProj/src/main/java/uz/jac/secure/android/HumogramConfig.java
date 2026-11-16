@@ -20,7 +20,8 @@ import org.telegram.messenger.R;
  */
 public final class HumogramConfig {
 
-    private static final String PREFS = "jac_humogram";
+    /** Package-visible for SessionGuard, which keeps its small log in the same file. */
+    static final String PREFS = "jac_humogram";
     private static final String KEY_ORNAMENT = "ornament";
     private static final String KEY_LINK_GUARD = "link_guard";
 

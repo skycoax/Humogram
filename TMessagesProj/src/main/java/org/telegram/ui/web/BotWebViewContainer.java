@@ -1021,6 +1021,12 @@ public abstract class BotWebViewContainer extends FrameLayout implements Notific
     }
 
     public void loadUrl(int currentAccount, String url) {
+        // Humogram: a bot's mini app on a site the link guard blocks, or a
+        // brand look-alike, asks twice before it loads; "back" closes it.
+        if (bot && uz.jac.secure.android.WebGuard.holdMiniApp(this, url, () -> loadUrl(currentAccount, url),
+                () -> { if (delegate != null) delegate.onCloseRequested(null); })) {
+            return;
+        }
         this.currentAccount = currentAccount;
         NotificationCenter.getInstance(currentAccount).doOnIdle(() -> {
             isPageLoaded = false;
@@ -3728,6 +3734,18 @@ public abstract class BotWebViewContainer extends FrameLayout implements Notific
             return isPageLoaded;
         }
 
+        // Humogram: what WebGuard's "close the page" does — closes the browser
+        // tab or the mini app the way their own close does.
+        private void humogramClosePage() {
+            if (botWebViewContainer != null && botWebViewContainer.delegate != null) {
+                botWebViewContainer.delegate.onCloseRequested(null);
+            } else if (canGoBack()) {
+                goBack();
+            } else {
+                loadUrl("about:blank");
+            }
+        }
+
         public void whenPageLoaded(Runnable runnable, long maxDelay) {
             this.whenPageLoaded = runnable;
             AndroidUtilities.runOnUIThread(() -> {
@@ -3993,6 +4011,8 @@ public abstract class BotWebViewContainer extends FrameLayout implements Notific
                     if (botWebViewContainer != null) {
                         botWebViewContainer.onURLChanged(dangerousUrl ? urlFallback : url, !canGoBack(), !canGoForward());
                     }
+                    // Humogram: see onPageFinished; a page can change its address without loading.
+                    uz.jac.secure.android.WebGuard.onPage(MyWebView.this, url, MyWebView.this::humogramClosePage);
                     super.doUpdateVisitedHistory(view, url, isReload);
                 }
 
@@ -4174,6 +4194,9 @@ public abstract class BotWebViewContainer extends FrameLayout implements Notific
                     if (botWebViewContainer != null) {
                         botWebViewContainer.onURLChanged(dangerousUrl ? urlFallback : getUrl(), !canGoBack(), !canGoForward());
                     }
+                    // Humogram: a page that is not Telegram's asking for a Telegram
+                    // number, code, password or QR scan asks twice; "close" closes it.
+                    uz.jac.secure.android.WebGuard.onPage(MyWebView.this, url, MyWebView.this::humogramClosePage);
 //                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //                        CookieManager.getInstance().flush();
 //                    }

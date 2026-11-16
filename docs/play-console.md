@@ -222,6 +222,12 @@ Added 2026-11-02 (`ChatGuard`, `ChatGuardUi`, `ReviewRequest`). Two things:
     link);
   - `chat_appeal`: the same without a reason ("Marked by mistake?");
   - a blocked site's appeal is an ordinary `site` request.
+  - Since 2026-11-11 (1.0.14) `chat` and `chat_appeal` also name **accounts
+    and bots** (`type` user/bot): the account's own id (a positive Bot API
+    id), its public usernames and the name its profile shows — from a private
+    chat's menu. Same data type, same answer below: the report is still the
+    user's own statement, nothing about the sender. The list publishes only
+    the id and usernames, never the profile name.
   Nothing about the sender; nginx and `lists.py` keep them exactly like review
   requests (no address, a year after the last one once decided).
 

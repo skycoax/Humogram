@@ -18,13 +18,16 @@ import android.widget.TextView;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.FileLog;
+import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.R;
+import org.telegram.messenger.UserObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Cells.CheckBoxCell;
 import org.telegram.ui.ChatActivity;
+import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.TypefaceSpan;
 
@@ -32,10 +35,12 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import uz.jac.secure.core.link.ChatLists;
+
 /**
  * Everything the user sees of the chat guard: two confirmations in front of a
- * channel or group that the owner's list or Telegram marks as a scam, and the
- * "report" and "marked by mistake" requests.
+ * channel, group, account or bot that the owner's list or Telegram marks as a
+ * scam, and the "report" and "marked by mistake" requests.
  *
  * <p>{@link ChatGuard} decides; this class asks. It is called from a few
  * one-line patches in upstream — {@code ChatActivity} when a chat becomes
@@ -71,6 +76,14 @@ public final class ChatGuardUi {
     /** The reasons a chat is reported for, in the order the picker shows them; {@code ChatLists.REASONS}. */
     static final String[] REASONS = {"scam", "romance", "phishing", "malware", "fake", "other"};
 
+    /**
+     * The same for an account or a bot, most common first: what people in
+     * Uzbekistan lose money to in private messages — a "seller" or "bank"
+     * that wants a transfer or a code, a friend's hacked account asking to
+     * borrow — and only then the rest.
+     */
+    static final String[] USER_REASONS = {"scam", "phishing", "hacked", "fake", "romance", "malware", "other"};
+
     private static final int MODE_OPEN = 0, MODE_JOIN = 1;
 
     /** Seconds step two holds both buttons. */
@@ -102,6 +115,9 @@ public final class ChatGuardUi {
             case "fake":
                 res = R.string.jac_chat_reason_fake;
                 break;
+            case "hacked":
+                res = R.string.jac_chat_reason_hacked;
+                break;
             default:
                 res = R.string.jac_report_other;
                 break;
@@ -132,6 +148,28 @@ public final class ChatGuardUi {
             ask(fragment, target, flag, MODE_OPEN, null, fragment::finishFragment);
         } catch (Throwable t) {
             FileLog.e("chat guard: open check failed: " + t.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * The same for a private chat: an account or a bot the owner's list or
+     * Telegram marks asks before its messages are read, with "block" next to
+     * "back" — in a private chat the danger writes to you, and leaving the
+     * chat does not stop it.
+     */
+    public static void onUserVisible(ChatActivity fragment, TLRPC.User user) {
+        try {
+            if (fragment == null || user == null || fragment.isInPreviewMode() || fragment.getChatMode() != 0
+                    || fragment.isReport() || ChatGuard.isApproved(user)) {
+                return;
+            }
+            final ChatGuard.Flag flag = ChatGuard.flagOf(user);
+            if (flag == null) {
+                return;
+            }
+            ask(fragment, Target.of(user), flag, MODE_OPEN, null, fragment::finishFragment);
+        } catch (Throwable t) {
+            FileLog.e("chat guard: account check failed: " + t.getClass().getSimpleName());
         }
     }
 
@@ -197,6 +235,40 @@ public final class ChatGuardUi {
         }
     }
 
+    /** The same item in a private chat with an account or a bot. */
+    public static CharSequence menuLabel(Context context, TLRPC.User user) {
+        try {
+            if (user == null || context == null || user.self || UserObject.isService(user.id)
+                    || UserObject.isReplyUser(user) || user.id == UserObject.VERIFY || !ChatGuard.isOn()) {
+                return null;
+            }
+            final ChatGuard.Flag flag = ChatGuard.flagOf(user);
+            return JacStrings.get(context, flag != null && flag.appealable()
+                    ? R.string.jac_chatguard_menu_appeal : R.string.jac_chatguard_menu_report);
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    /** That item was tapped. */
+    public static void onMenu(BaseFragment fragment, TLRPC.User user) {
+        try {
+            final Activity activity = fragment != null ? fragment.getParentActivity() : null;
+            if (activity == null || user == null) {
+                return;
+            }
+            final ChatGuard.Flag flag = ChatGuard.flagOf(user);
+            final Target target = Target.of(user);
+            if (flag != null && flag.appealable()) {
+                ReviewRequest.confirmChatAppeal(activity, fragment, target.ref);
+            } else {
+                ReviewRequest.confirmChatReport(activity, fragment, target.ref);
+            }
+        } catch (Throwable t) {
+            FileLog.e("chat guard: account menu failed: " + t.getClass().getSimpleName());
+        }
+    }
+
     /** The item was tapped. */
     public static void onMenu(BaseFragment fragment, TLRPC.Chat chat) {
         try {
@@ -220,24 +292,36 @@ public final class ChatGuardUi {
     // The two confirmations
     // ------------------------------------------------------------------
 
-    /** What the dialogs are about: the chat when it is known, and what a request about it would carry. */
+    /**
+     * What the dialogs are about: the chat — or the account — when it is
+     * known, and what a request about it would carry.
+     */
     private static final class Target {
         final TLRPC.Chat chat;
+        final TLRPC.User user;
         final String invite;
         final ReviewRequest.ChatRef ref;
         final String key;
 
-        private Target(TLRPC.Chat chat, String invite, ReviewRequest.ChatRef ref) {
+        private Target(TLRPC.Chat chat, TLRPC.User user, String invite, ReviewRequest.ChatRef ref) {
             this.chat = chat;
+            this.user = user;
             this.invite = invite;
             this.ref = ref;
-            this.key = chat != null ? "peer:" + ChatGuard.peerOf(chat) : "invite:" + invite;
+            this.key = user != null ? "peer:" + ChatLists.peerOfUser(user.id)
+                    : chat != null ? "peer:" + ChatGuard.peerOf(chat) : "invite:" + invite;
         }
 
         static Target of(TLRPC.Chat chat, String invite) {
-            return new Target(chat, invite, new ReviewRequest.ChatRef(ChatGuard.peerOf(chat),
+            return new Target(chat, null, invite, new ReviewRequest.ChatRef(ChatGuard.peerOf(chat),
                     ChatGuard.usernamesOf(chat), invite, chat.title,
                     ChatObject.isChannelAndNotMegaGroup(chat) ? 1 : 0));
+        }
+
+        static Target of(TLRPC.User user) {
+            return new Target(null, user, null, new ReviewRequest.ChatRef(ChatLists.peerOfUser(user.id),
+                    ChatGuard.usernamesOf(user), null, UserObject.getUserName(user),
+                    user.bot ? ReviewRequest.ChatRef.KIND_BOT : ReviewRequest.ChatRef.KIND_ACCOUNT));
         }
 
         static Target of(TLRPC.ChatInvite invite, String inviteHash) {
@@ -247,12 +331,39 @@ public final class ChatGuardUi {
             }
             final boolean channel = invite != null && invite.channel && !invite.megagroup;
             final String title = invite != null ? invite.title : null;
-            return new Target(null, inviteHash, new ReviewRequest.ChatRef(0, new ArrayList<>(), inviteHash,
+            return new Target(null, null, inviteHash, new ReviewRequest.ChatRef(0, new ArrayList<>(), inviteHash,
                     title, channel ? 1 : 0));
         }
 
         boolean channel() {
             return ref.kind == 1;
+        }
+
+        /** An account or a bot: a private chat. */
+        boolean account() {
+            return user != null;
+        }
+
+        boolean bot() {
+            return user != null && user.bot;
+        }
+
+        /** The title of step one. */
+        int titleRes() {
+            return bot() ? R.string.jac_userguard_title_bot : account() ? R.string.jac_userguard_title_user
+                    : channel() ? R.string.jac_chatguard_title_channel : R.string.jac_chatguard_title_group;
+        }
+
+        /** "Based on users' reports, Humogram considers this … dangerous:" */
+        int listRes() {
+            return bot() ? R.string.jac_userguard_list_bot : account() ? R.string.jac_userguard_list_user
+                    : channel() ? R.string.jac_chatguard_list_channel : R.string.jac_chatguard_list_group;
+        }
+
+        /** What it is when it has no title or username to show. */
+        int kindRes() {
+            return bot() ? R.string.jac_userguard_kind_bot : account() ? R.string.jac_userguard_kind_user
+                    : channel() ? R.string.jac_chatguard_kind_channel : R.string.jac_chatguard_kind_group;
         }
     }
 
@@ -282,19 +393,22 @@ public final class ChatGuardUi {
 
         final SpannableStringBuilder message = new SpannableStringBuilder();
         if (flag.source == ChatGuard.SOURCE_LIST) {
-            message.append(JacStrings.get(activity, target.channel()
-                    ? R.string.jac_chatguard_list_channel : R.string.jac_chatguard_list_group));
+            message.append(JacStrings.get(activity, target.listRes()));
             final String reason = reasonLabel(activity, flag.reason);
             message.append("\n\n");
             final int at = message.length();
             message.append(reason);
             message.setSpan(new TypefaceSpan(AndroidUtilities.bold()), at, message.length(),
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else if (target.account()) {
+            message.append(JacStrings.get(activity, flag.source == ChatGuard.SOURCE_TELEGRAM_FAKE
+                    ? R.string.jac_userguard_tg_fake : R.string.jac_userguard_tg_scam));
         } else {
             message.append(JacStrings.get(activity, flag.source == ChatGuard.SOURCE_TELEGRAM_FAKE
                     ? R.string.jac_chatguard_tg_fake : R.string.jac_chatguard_tg_scam));
         }
-        message.append("\n\n").append(JacStrings.get(activity, R.string.jac_chatguard_advice));
+        message.append("\n\n").append(JacStrings.get(activity, target.account()
+                ? R.string.jac_userguard_advice : R.string.jac_chatguard_advice));
 
         final AlertDialog[] shown = new AlertDialog[1];
         final boolean[] going = {false};
@@ -313,10 +427,9 @@ public final class ChatGuardUi {
                     }));
         }
 
-        final AlertDialog dialog = new AlertDialog.Builder(activity)
+        final AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                 .setTopImage(LinkGuardUi.glyph(JacIcons.Glyph.BLOCK), LinkGuardUi.bandColor())
-                .setTitle(JacStrings.get(activity, target.channel()
-                        ? R.string.jac_chatguard_title_channel : R.string.jac_chatguard_title_group))
+                .setTitle(JacStrings.get(activity, target.titleRes()))
                 .setSubtitle(JacStrings.get(activity, R.string.jac_quarantine_step, 1, 2))
                 .setMessage(message)
                 .setView(chatView(activity, target))
@@ -328,8 +441,28 @@ public final class ChatGuardUi {
                 .setNegativeButton(JacStrings.get(activity, R.string.jac_link_continue), (d, which) -> {
                     going[0] = true;
                     stepTwo(activity, target, flag, mode, proceed, back);
-                })
-                .create();
+                });
+        if (target.account()) {
+            // A safe way out that also stops the messages: Telegram's own
+            // block, the same request upstream's "Block user" sends. A
+            // neutral button dismisses rather than cancels, so the chat is
+            // closed here.
+            final int account = fragment.getCurrentAccount();
+            final TLRPC.User user = target.user;
+            builder.setNeutralButton(JacStrings.get(activity, R.string.jac_userguard_block), (d, which) -> {
+                going[0] = true;
+                try {
+                    MessagesController.getInstance(account).blockPeer(user.id);
+                    BulletinFactory.global().createBanBulletin(true).show();
+                } catch (Throwable t) {
+                    FileLog.e("chat guard: block failed: " + t.getClass().getSimpleName());
+                }
+                if (back != null) {
+                    back.run();
+                }
+            });
+        }
+        final AlertDialog dialog = builder.create();
         shown[0] = dialog;
         if (back != null) {
             // Back, or a tap beside the dialog, is "no" too: the chat closes.
@@ -370,13 +503,18 @@ public final class ChatGuardUi {
                     .setTitle(JacStrings.get(activity, mode == MODE_OPEN
                             ? R.string.jac_chatguard_confirm_open_title : R.string.jac_chatguard_confirm_join_title))
                     .setSubtitle(JacStrings.get(activity, R.string.jac_quarantine_step, 2, 2))
-                    .setMessage(JacStrings.get(activity, R.string.jac_chatguard_confirm_body))
+                    .setMessage(JacStrings.get(activity, target.account()
+                            ? R.string.jac_userguard_confirm_body : R.string.jac_chatguard_confirm_body))
                     .setView(acknowledge)
                     .setPositiveButton(JacStrings.get(activity, mode == MODE_OPEN
                             ? R.string.jac_chatguard_open : (target.channel()
                             ? R.string.jac_chatguard_join_channel : R.string.jac_chatguard_join_group)), (d, which) -> {
                         done[0] = true;
-                        ChatGuard.approve(target.chat, target.invite);
+                        if (target.account()) {
+                            ChatGuard.approve(target.user);
+                        } else {
+                            ChatGuard.approve(target.chat, target.invite);
+                        }
                         if (proceed != null) {
                             proceed.run();
                         }
@@ -431,8 +569,7 @@ public final class ChatGuardUi {
         pill.setBackground(background);
 
         final TextView title = new TextView(context);
-        title.setText(target.ref.title.isEmpty() ? JacStrings.get(context, target.channel()
-                ? R.string.jac_chatguard_kind_channel : R.string.jac_chatguard_kind_group) : target.ref.title);
+        title.setText(target.ref.title.isEmpty() ? JacStrings.get(context, target.kindRes()) : target.ref.title);
         title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         title.setTypeface(AndroidUtilities.bold());
         title.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
@@ -443,8 +580,7 @@ public final class ChatGuardUi {
 
         final List<String> names = target.ref.usernames;
         final TextView sub = new TextView(context);
-        sub.setText(!names.isEmpty() ? "@" + names.get(0) : JacStrings.get(context, target.channel()
-                ? R.string.jac_chatguard_kind_channel : R.string.jac_chatguard_kind_group));
+        sub.setText(!names.isEmpty() ? "@" + names.get(0) : JacStrings.get(context, target.kindRes()));
         sub.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
         sub.setTextColor(Theme.getColor(Theme.key_dialogTextGray2));
         sub.setGravity(Gravity.CENTER);

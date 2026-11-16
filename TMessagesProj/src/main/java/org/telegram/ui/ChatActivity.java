@@ -3886,7 +3886,11 @@ public class ChatActivity extends BaseFragment implements
                     ReportBottomSheet.openChat(ChatActivity.this);
                 } else if (id == humogram_report) {
                     // Humogram: see the menu item.
-                    uz.jac.secure.android.ChatGuardUi.onMenu(ChatActivity.this, currentChat);
+                    if (currentChat != null) {
+                        uz.jac.secure.android.ChatGuardUi.onMenu(ChatActivity.this, currentChat);
+                    } else {
+                        uz.jac.secure.android.ChatGuardUi.onMenu(ChatActivity.this, currentUser);
+                    }
                 } else if (id == star) {
                     for (int a = 0; a < 2; a++) {
                         for (int b = 0; b < selectedMessagesCanStarIds[a].size(); b++) {
@@ -4401,6 +4405,14 @@ public class ChatActivity extends BaseFragment implements
             }
             if (currentUser != null && currentUser.id != UserObject.VERIFY && currentUser.id != UserObject.REPLY_BOT) {
                 addContactItem = headerItem.lazilyAddSubItem(share_contact, R.drawable.msg_addcontact, LocaleController.getString(R.string.AddToContacts));
+            }
+            if (currentUser != null && chatMode == 0) {
+                // Humogram: the same for an account or a bot; null for your
+                // own chat, Telegram's service accounts, or the guard off.
+                CharSequence humogramReport = uz.jac.secure.android.ChatGuardUi.menuLabel(getContext(), currentUser);
+                if (humogramReport != null) {
+                    headerItem.lazilyAddSubItem(humogram_report, R.drawable.msg_report, humogramReport);
+                }
             }
             if (currentEncryptedChat != null) {
                 timeItem2 = headerItem.lazilyAddSubItem(chat_enc_timer, R.drawable.msg_autodelete, LocaleController.getString(R.string.SetTimer));
@@ -26919,9 +26931,11 @@ public class ChatActivity extends BaseFragment implements
                 .setOnHideListener(this::checkConversionDateTimeToast)
                 .show(true);
         }
-        // Humogram: a channel or group on Humogram's list, or marked SCAM or
-        // FAKE by Telegram, asks twice before it is read; "back" closes it.
+        // Humogram: a channel, group, account or bot on Humogram's list, or
+        // marked SCAM or FAKE by Telegram, asks twice before it is read;
+        // "back" closes it.
         uz.jac.secure.android.ChatGuardUi.onChatVisible(this, currentChat);
+        uz.jac.secure.android.ChatGuardUi.onUserVisible(this, currentUser);
     }
 
     private boolean shownConversionDateTimeToast;

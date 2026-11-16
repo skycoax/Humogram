@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SessionGuard: сеанс, который завершил Telegram, и пауза входа после многих попыток. -->
+<resources>
+    <string name="jac_session_end_title">Telegram завершил сеанс</string>
+    <string name="jac_session_end_revoked">Сеанс завершили с другого устройства: в разделе «Устройства» Telegram или кнопкой «Это не я» в уведомлении о новом входе.</string>
+    <string name="jac_session_end_expired">Срок сеанса истёк: им долго не пользовались.</string>
+    <string name="jac_session_end_deactivated">Telegram удалил или заблокировал этот аккаунт. Причину может подсказать @SpamBot, или напишите на recover@telegram.org.</string>
+    <string name="jac_session_end_unknown">Обычные причины: сеанс завершили с другого устройства, им долго не пользовались, или с аккаунта за короткое время разослали много одинаковых сообщений — Telegram считает это спамом.</string>
+    <string name="jac_session_end_advice">Если это сделали не вы, аккаунт может быть в чужих руках. Сразу войдите снова, в «Настройки → Устройства» завершите чужие сеансы (только что вошедшее устройство не может закрыть старые до 24 часов) и включите облачный пароль. Никому не сообщайте код.</string>
+    <string name="jac_session_end_saved">Причина записана: после входа её можно отправить в Humogram через «Оставить отзыв» в настройках.</string>
+    <string name="jac_session_share">Поделиться</string>
+    <string name="jac_session_report">Сеанс завершён. %1$s, %2$s, Telegram: %3$s</string>
+    <string name="jac_login_pause_title">Вход приостановлен</string>
+    <string name="jac_login_pause_attempts">Из-за слишком большого числа попыток Telegram временно приостановил вход с этого номера. Попробовать снова можно через:</string>
+    <string name="jac_login_pause_codes">Для этого номера слишком часто запрашивали код. Telegram просит подождать несколько часов, иногда до суток.</string>
+    <string name="jac_login_pause_password">Пароль слишком много раз ввели неверно. Попробуйте чуть позже.</string>
+    <string name="jac_login_pause_scam">Если вы сами столько раз не пытались, кто-то пробует войти с вашим номером: мошенники делают так специально, чтобы владелец не мог попасть в свой аккаунт. Никому не сообщайте коды из SMS и Telegram. Когда время выйдет, войдите и сразу включите облачный пароль.</string>
+    <string name="jac_login_pause_until">в %1$s</string>
+    <string name="jac_login_pause_done">Теперь можно попробовать снова</string>
+</resources>

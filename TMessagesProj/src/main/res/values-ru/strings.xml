@@ -279,7 +279,7 @@
 
     <string name="jac_about_scanner_heading">Что делает проверка</string>
 
-    <string name="jac_about_scanner_body">Каждый полученный файл проверяется, прежде чем его можно открыть или переслать, а каждая ссылка — прежде чем она откроется. Эти проверки выполняются полностью на вашем устройстве — ни файлы, ни цифровые отпечатки, ни ссылки, ни имена файлов, ни тексты сообщений для них никуда не отправляются. Секретные чаты проверяются так же — только на вашем устройстве.\n\nПроверка установленных приложений на вирусы тоже работает полностью на устройстве; о ваших приложениях ничего никуда не отправляется.\n\nСписки доверенных и заблокированных сайтов и приложений, а также каналов и групп, о которых предупреждает Humogram, загружаются с lists.skycoax.uz одним общедоступным файлом; о ваших ссылках, приложениях и открываемых чатах ничего не отправляется.\n\nЧто-то уходит с телефона, только если вы сами нажмёте «Отправить на проверку» или «Пожаловаться» и подтвердите: имя сайта; имя пакета приложения, отпечаток подписи, название и версия; или номер (ID), имя, название канала или группы, ссылка-приглашение, по которой вы его открыли, и выбранная причина — на lists.skycoax.uz, без каких-либо данных о вас.</string>
+    <string name="jac_about_scanner_body">Каждый полученный файл проверяется, прежде чем его можно открыть или переслать, а каждая ссылка — прежде чем она откроется. Эти проверки выполняются полностью на вашем устройстве — ни файлы, ни цифровые отпечатки, ни ссылки, ни имена файлов, ни тексты сообщений для них никуда не отправляются. Секретные чаты проверяются так же — только на вашем устройстве.\n\nПроверка установленных приложений на вирусы тоже работает полностью на устройстве; о ваших приложениях ничего никуда не отправляется.\n\nСписки доверенных и заблокированных сайтов и приложений, а также каналов, групп и аккаунтов, о которых предупреждает Humogram, загружаются с lists.skycoax.uz одним общедоступным файлом; о ваших ссылках, приложениях и открываемых чатах ничего не отправляется.\n\nЧто-то уходит с телефона, только если вы сами нажмёте «Отправить на проверку» или «Пожаловаться» и подтвердите: имя сайта; имя пакета приложения, отпечаток подписи, название и версия; номер (ID), имя, название канала или группы и ссылка-приглашение, по которой вы его открыли, или номер (ID), имя и имя профиля аккаунта или бота, вместе с выбранной причиной — на lists.skycoax.uz, без каких-либо данных о вас.</string>
 
     <string name="jac_about_licence_heading">Лицензия и исходный код</string>
 
@@ -575,7 +575,7 @@
     <string name="jac_review_already">Это уже есть в списке доверенных. Телефон скоро это узнает.</string>
     <string name="jac_review_busy">Сейчас слишком много запросов. Попробуйте позже.</string>
     <string name="jac_review_failed">Не удалось отправить. Проверьте соединение и попробуйте ещё раз.</string>
-    <string name="jac_chatguard_switch">Предупреждать о мошеннических каналах и группах</string>
+    <string name="jac_chatguard_switch">Предупреждать о мошеннических каналах, группах и аккаунтах</string>
     <string name="jac_chatguard_menu_report">Пожаловаться в Humogram</string>
     <string name="jac_chatguard_menu_appeal">Помечено ошибочно?</string>
     <string name="jac_chatguard_title_channel">Опасный канал</string>
@@ -595,11 +595,23 @@
     <string name="jac_chatguard_open">Открыть</string>
     <string name="jac_chatguard_join_channel">Подписаться</string>
     <string name="jac_chatguard_join_group">Вступить</string>
+    <string name="jac_userguard_title_user">Опасный аккаунт</string>
+    <string name="jac_userguard_title_bot">Опасный бот</string>
+    <string name="jac_userguard_list_user">По жалобам пользователей Humogram считает этот аккаунт опасным:</string>
+    <string name="jac_userguard_list_bot">По жалобам пользователей Humogram считает этого бота опасным:</string>
+    <string name="jac_userguard_tg_scam">Telegram сам поставил этому аккаунту метку SCAM: на него жаловались как на мошенника.</string>
+    <string name="jac_userguard_tg_fake">Telegram сам поставил этому аккаунту метку FAKE: он выдаёт себя за другого — банк, госслужащего или известного человека.</string>
+    <string name="jac_userguard_advice">Не переводите деньги и никому не сообщайте коды из SMS и Telegram, пароли и данные карты — даже если пишет будто бы знакомый: сначала позвоните ему. Не открывайте от него файлы и ссылки.</string>
+    <string name="jac_userguard_confirm_body">В личных сообщениях мошенники представляются банком, сотрудником МВД, продавцом или знакомым, торопят и просят перевести деньги или продиктовать код. Ни Humogram, ни Telegram не смогут вернуть эти деньги.</string>
+    <string name="jac_userguard_block">Заблокировать</string>
+    <string name="jac_userguard_kind_user">Аккаунт</string>
+    <string name="jac_userguard_kind_bot">Бот</string>
     <string name="jac_chat_reason_scam">Мошенничество: обещают деньги, бонусы, заработок, выигрыш</string>
     <string name="jac_chat_reason_romance">Романтическое мошенничество: знакомятся, потом просят деньги</string>
     <string name="jac_chat_reason_phishing">Крадут аккаунты: просят коды, пароли, данные карты</string>
     <string name="jac_chat_reason_malware">Рассылают вирусы и вредные файлы (APK)</string>
     <string name="jac_chat_reason_fake">Выдают себя за банк, госорган или известного человека</string>
+    <string name="jac_chat_reason_hacked">Взломанный аккаунт: пишет от имени знакомого и просит деньги</string>
     <string name="jac_report_other">Другое</string>
     <string name="jac_report_site_phishing">Просит пароль, данные карты или код из SMS</string>
     <string name="jac_report_site_malware">Предлагает скачать файл или приложение</string>
@@ -612,13 +624,20 @@
     <string name="jac_report_channel_title">Что не так с этим каналом?</string>
     <string name="jac_report_group_title">Что не так с этой группой?</string>
     <string name="jac_report_chat_title">Что не так с этой группой или каналом?</string>
+    <string name="jac_report_user_title">Что не так с этим аккаунтом?</string>
+    <string name="jac_report_bot_title">Что не так с этим ботом?</string>
+    <string name="jac_report_user_body">Команда Humogram проверит %1$s. Если это мошенник, всех пользователей Humogram будут предупреждать, прежде чем открыть с ним переписку.\n\nПричина: «%2$s».\n\nОтправляется: %3$s и причина. Ничего о вас и о ваших переписках.</string>
+    <string name="jac_report_user_telegram">Если он выдаёт себя за другого — за вас, банк или госслужащего, — сообщите о нём и официальному боту Telegram @NoToScam.</string>
+    <string name="jac_report_bot_telegram">Чтобы проверил и сам Telegram, нажмите и удерживайте любое его сообщение и выберите «Пожаловаться».</string>
     <string name="jac_report_chat_body">Команда Humogram проверит %1$s. Если это мошенники, всех пользователей Humogram будут предупреждать перед входом.\n\nПричина: «%2$s».\n\nОтправляется: %3$s и причина. Ничего о вас и о ваших переписках.</string>
     <string name="jac_report_chat_telegram">Чтобы проверил и сам Telegram, пожалуйтесь также через пункт «Пожаловаться» в меню этого чата.</string>
     <string name="jac_report_chat_named">«%1$s»</string>
     <string name="jac_report_chat_unnamed">эту группу или канал</string>
+    <string name="jac_report_user_unnamed">этот аккаунт</string>
     <string name="jac_report_sends_username">имя %1$s</string>
     <string name="jac_report_sends_id">номер (ID)</string>
     <string name="jac_report_sends_title">название</string>
+    <string name="jac_report_sends_name">имя профиля</string>
     <string name="jac_report_sends_invite">ссылка-приглашение, по которой вы его открыли</string>
     <string name="jac_report_chat_already">Humogram уже предупреждает об этом чате. Телефон скоро это узнает.</string>
     <string name="jac_report_link">Пожаловаться: опасная ссылка</string>
@@ -725,4 +744,13 @@
     <string name="jac_linkguard_confirm_unknown">Humogram не знает сайт %1$s. Если страница попросит пароль, номер карты или код из SMS — закройте её: именно так крадут деньги.</string>
     <string name="jac_linkguard_confirm_dangerous">Сайт %1$s отмечен в Humogram как опасный. Не вводите там пароли, данные карт и коды из SMS и ничего оттуда не устанавливайте.</string>
     <string name="jac_linkguard_confirm_checkbox">Я понимаю, что этот сайт может украсть мои деньги или данные</string>
+    <string name="jac_webguard_login_title">Сайт просит ваш код Telegram</string>
+    <string name="jac_webguard_login_body">%1$s — это не Telegram. Номер, код, пароль или QR-код для входа в Telegram вводят только в самом приложении Telegram — никогда на сайте или в мини-приложении. Через такие страницы мошенники крадут аккаунты под видом «голосования», «подарка» или «проверки аккаунта».</string>
+    <string name="jac_webguard_close">Закрыть страницу</string>
+    <string name="jac_webguard_confirm_title">Всё равно продолжить?</string>
+    <string name="jac_webguard_confirm_body">С кодом или паролем, введённым на этой странице, мошенники войдут в ваш аккаунт и от вашего имени попросят деньги у ваших знакомых. Вернуть аккаунт трудно.</string>
+    <string name="jac_webguard_confirm_checkbox">Я понимаю, что здесь у меня могут украсть аккаунт</string>
+    <string name="jac_webguard_proceed">Продолжить</string>
+    <string name="jac_webguard_miniapp_title">Опасное мини-приложение</string>
+    <string name="jac_webguard_miniapp_body">Мини-приложение этого бота открывается на сайте, который Humogram считает опасным: %1$s. Не вводите там данные карты, коды и пароли.</string>
 </resources>

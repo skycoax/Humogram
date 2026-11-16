@@ -1,6 +1,6 @@
 # Humogram — Maxfiylik siyosati / Политика конфиденциальности / Privacy Policy
 
-**Oxirgi yangilanish / Последнее обновление / Last updated: 2026-11-02**
+**Oxirgi yangilanish / Последнее обновление / Last updated: 2026-11-11**
 
 <!--
   This is the USER-FACING policy and the reviewed text behind the published
@@ -47,6 +47,10 @@
     ChatLists) arrives in lists.json and is matched on the phone; it is
     published with SHA-256 of invite hashes, never the invites. Data safety:
     data.chat_reports.
+  - Since 2026-11-11 the same kinds cover accounts and bots (type user/bot):
+    the account's own id (positive Bot API id), its public usernames and the
+    name its profile shows. Still nothing about the sender; the same Data
+    safety answer (other user-generated content, optional) covers it.
 
   If anything else ever leaves the phone for a server of ours, rewrite the
   "who is responsible / what is processed / sharing / retention" sections here
@@ -81,11 +85,12 @@ havolalar himoyasi.
   tasdiqlasangiz, dasturchiga tekshirish uchun shu saytning nomi — yoki
   ilova paketining nomi, imzosining barmoq izi, nomi va versiyasi — yuboriladi.
 - **«Shikoyat qilish»** — ikkinchi istisno, va faqat o‘zingiz bossangiz: kanal,
-  guruh yoki havola ustidan firibgarlik deb shikoyat qilsangiz yoki
-  ogohlantirish xato deb hisoblasangiz, dasturchiga shu kanal yoki guruhning
-  raqami (ID), ommaviy nomi, sarlavhasi, uni ochgan taklif havolangiz va
-  tanlangan sabab — yoki sayt nomi va sabab — yuboriladi. Siz haqingizda hech
-  narsa yuborilmaydi.
+  guruh, akkaunt, bot yoki havola ustidan firibgarlik deb shikoyat qilsangiz
+  yoki ogohlantirish xato deb hisoblasangiz, dasturchiga shu kanal yoki
+  guruhning raqami (ID), ommaviy nomi, sarlavhasi, uni ochgan taklif havolangiz
+  — akkaunt yoki bot uchun uning raqami (ID), ommaviy nomi va profildagi ismi —
+  va tanlangan sabab — yoki sayt nomi va sabab — yuboriladi. Siz haqingizda
+  hech narsa yuborilmaydi.
 - **Messenjer sifatida** ilova Telegram’dan foydalanadi, shuning uchun aloqa
   ma’lumotlaringiz Telegram serverlarida ishlanadi.
 
@@ -203,14 +208,14 @@ IP-manzilingiz va ilova nomi hamda versiya raqamini ko‘rsatadigan User-Agent
 sarlavhasi (`Humogram/<versiya raqami>`). Telefonda ro‘yxat allaqachon bo‘lsa,
 server «o‘zgarmagan» deb javob bera olishi uchun uning versiya belgisi ham
 yuboriladi. Ro‘yxat dasturchi tomonidan imzolangan; havolalar u bilan
-telefoningizning o‘zida solishtiriladi. Xuddi shu faylda virus skaneri uchun dasturchining ilovalar ro‘yxati hamda kanal va guruhlar ro‘yxati ham keladi.
+telefoningizning o‘zida solishtiriladi. Xuddi shu faylda virus skaneri uchun dasturchining ilovalar ro‘yxati hamda kanal, guruh va akkauntlar ro‘yxati ham keladi.
 
 Server ro‘yxat so‘rovlari uchun IP-manzillarni saqlamaydi: bu fayl jurnaliga
 faqat vaqt, natija va versiya raqami yoziladi. Shulardan server ro‘yxat kuniga
 necha marta va ilovaning qaysi versiyalaridan so‘ralganini ham hisoblaydi.
 
 Havolalar himoyasini Sozlamalar → Humogram → Havolalar himoyasi orqali
-o‘chirish mumkin. Virus skaneri hamda kanal va guruhlar haqidagi ogohlantirishlar ham shu fayldan foydalanadi, shuning uchun «Ishga tushganda viruslarni tekshirish» yoki «Firibgar kanal va guruhlardan ogohlantirish» yoqilgan ekan, ilova uni yuklab olishda davom etadi; uchalasi ham o‘chirilsa, ro‘yxat umuman yuklab olinmaydi.
+o‘chirish mumkin. Virus skaneri hamda kanal, guruh va akkauntlar haqidagi ogohlantirishlar ham shu fayldan foydalanadi, shuning uchun «Ishga tushganda viruslarni tekshirish» yoki «Firibgar kanal, guruh va akkauntlardan ogohlantirish» yoqilgan ekan, ilova uni yuklab olishda davom etadi; uchalasi ham o‘chirilsa, ro‘yxat umuman yuklab olinmaydi.
 
 #### Tekshiruvga yuborish
 
@@ -238,18 +243,21 @@ qo‘shiladi va unga havolalar hamma uchun qizil bo‘lmay qoladi — yoki ilova
 belgilanmay qoladi. Sizning bosishingiz va tasdig‘ingizsiz tekshiruvga hech
 narsa yuborilmaydi.
 
-#### Kanal va guruhlar haqida ogohlantirish va shikoyatlar
+#### Kanal, guruh va akkauntlar haqida ogohlantirish va shikoyatlar
 
-«Firibgar kanal va guruhlardan ogohlantirish» yoqilgan bo‘lsa (standart holatda
-yoqilgan), Telegram kanali yoki guruhi dasturchining kanal va guruhlar
+«Firibgar kanal, guruh va akkauntlardan ogohlantirish» yoqilgan bo‘lsa
+(standart holatda yoqilgan), Telegram kanali yoki guruhi dasturchining
 ro‘yxatida bo‘lsa — u dasturchi tekshirgan foydalanuvchilar shikoyatlaridan
 tuziladi — yoki Telegram’ning o‘zi unga SCAM yoki FAKE belgisini qo‘ygan
 bo‘lsa, u ochilishidan yoki unga qo‘shilishingizdan oldin ikki marta tasdiqlash
-so‘raladi. Tekshiruv telefoningizda «Havolalar himoyasi» bandida tavsiflangan
-ochiq fayl bo‘yicha bajariladi: qaysi kanal va guruhlarni ochishingiz hech
-qayerga yuborilmaydi. Tasdiqlagach, har doim davom etishingiz mumkin — ilova
-chatlarni ochish va ularga qo‘shilishni taqiqlamaydi. Ogohlantirishlarni
-Sozlamalar → Humogram orqali o‘chirish mumkin.
+so‘raladi. Xuddi shunday, akkaunt yoki bot shu ro‘yxatda bo‘lsa yoki Telegram
+unga SCAM yoki FAKE belgisini qo‘ygan bo‘lsa, u bilan yozishma ochilishidan
+oldin ikki marta tasdiqlash so‘raladi; o‘sha oynada uni Telegram’ning o‘z
+bloklash funksiyasi bilan bloklash ham mumkin. Tekshiruv telefoningizda
+«Havolalar himoyasi» bandida tavsiflangan ochiq fayl bo‘yicha bajariladi:
+qaysi chatlarni ochishingiz hech qayerga yuborilmaydi. Tasdiqlagach, har doim
+davom etishingiz mumkin — ilova chatlarni ochish va ularga qo‘shilishni
+taqiqlamaydi. Ogohlantirishlarni Sozlamalar → Humogram orqali o‘chirish mumkin.
 
 Chat menyusidan (**«Humogram’ga shikoyat qilish»**), havola menyusidan
 (**«Shikoyat: xavfli havola»**, taklif havolasi uchun — **«Guruh yoki kanal
@@ -263,6 +271,9 @@ manziliga bitta so‘rov yuboradi:
   kanal yoki guruh ekani, tanlangan sabab va, agar uni taklif havolasi orqali
   ochgan bo‘lsangiz, o‘sha havola (invite link) — dasturchi yopiq guruhni
   ko‘rib baholay olishi uchun;
+- akkaunt yoki bot uchun — uning raqami (ID), ommaviy nomlari (@username),
+  profilida ko‘rsatilgan ismi, bot ekani va tanlangan sabab; u bilan
+  yozishmangiz emas;
 - havola uchun — sayt nomi va sabab; havolaning o‘zi, uning yo‘li yoki u
   bo‘lgan chat emas.
 
@@ -272,9 +283,10 @@ identifikatori bo‘lmaydi. «Tekshiruvga yuborish» kabi unda IP-manzilingiz va
 saqlamaydi; so‘rov ham xuddi shunday saqlanadi: dasturchi ko‘rib chiqadigan
 navbatda, so‘ng tarixda oxirgi yuborilganidan keyin bir yilgacha. Bitta
 shikoyat hech narsani o‘zgartirmaydi: faqat dasturchi uni tekshirib rozi
-bo‘lsa, kanal yoki guruh ochiq ro‘yxatga — raqami, nomlari va taklif
+bo‘lsa, kanal, guruh yoki akkaunt ochiq ro‘yxatga — raqami, nomlari va taklif
 havolasining SHA-256 barmoq izi bo‘yicha, hech qachon havolaning o‘zi bo‘yicha
-emas — yoki sayt qora ro‘yxatga qo‘shiladi. Dasturchi rozi bo‘lgan e’tiroz
+emas; akkauntning ismi ro‘yxatga kirmaydi — yoki sayt qora ro‘yxatga
+qo‘shiladi. Dasturchi rozi bo‘lgan e’tiroz
 belgini hamma uchun olib tashlaydi.
 
 
@@ -360,10 +372,12 @@ Humogram — мессенджер на базе Telegram со встроенно
   уходит имя этого сайта — или имя пакета приложения, отпечаток его подписи,
   название и версия.
 - **«Пожаловаться»** — второе исключение, и тоже только если вы сами нажмёте:
-  если пожаловаться на канал, группу или ссылку как на мошеннические или
-  сообщить, что предупреждение ошибочно, разработчику уходят номер (ID) канала
-  или группы, его публичное имя, название, ссылка-приглашение, по которой вы
-  его открыли, и выбранная причина — или имя сайта и причина. Ничего о вас.
+  если пожаловаться на канал, группу, аккаунт, бота или ссылку как на
+  мошеннические или сообщить, что предупреждение ошибочно, разработчику уходят
+  номер (ID) канала или группы, его публичное имя, название,
+  ссылка-приглашение, по которой вы его открыли, — для аккаунта или бота его
+  номер (ID), публичное имя и имя в профиле — и выбранная причина — или имя
+  сайта и причина. Ничего о вас.
 - **Как мессенджер** приложение использует Telegram, поэтому данные вашей
   переписки обрабатываются на серверах Telegram.
 
@@ -480,13 +494,13 @@ User-Agent с названием приложения и номером сбор
 (`Humogram/<номер сборки>`). Если на телефоне уже есть список, передаётся ещё
 метка его версии,
 чтобы сервер мог ответить «не изменился». Список подписан разработчиком, а
-ссылки сверяются с ним на вашем телефоне. В том же файле приходят список приложений разработчика для сканера вирусов и список каналов и групп.
+ссылки сверяются с ним на вашем телефоне. В том же файле приходят список приложений разработчика для сканера вирусов и список каналов, групп и аккаунтов.
 
 Для запросов списка сервер не хранит IP-адреса: в журнал по этому файлу
 записываются только время, результат и номер сборки. Из них сервер также
 считает, сколько раз в день список запрашивали и с каких версий приложения.
 
-Защиту ссылок можно выключить: Настройки → Humogram → Защита ссылок. Сканер вирусов и предупреждения о каналах и группах пользуются тем же файлом, поэтому, пока включено «Проверять на вирусы при запуске» или «Предупреждать о мошеннических каналах и группах», приложение продолжает его скачивать; если выключить все три переключателя, список не скачивается вовсе.
+Защиту ссылок можно выключить: Настройки → Humogram → Защита ссылок. Сканер вирусов и предупреждения о каналах, группах и аккаунтах пользуются тем же файлом, поэтому, пока включено «Проверять на вирусы при запуске» или «Предупреждать о мошеннических каналах, группах и аккаунтах», приложение продолжает его скачивать; если выключить все три переключателя, список не скачивается вовсе.
 
 #### Отправить на проверку
 
@@ -514,15 +528,18 @@ User-Agent с названием приложения и номером сбор
 приложение перестаёт помечаться — у всех. Без вашего нажатия и подтверждения
 на проверку не отправляется ничего.
 
-#### Предупреждения о каналах и группах и жалобы
+#### Предупреждения о каналах, группах и аккаунтах и жалобы
 
-Когда включено «Предупреждать о мошеннических каналах и группах» (по умолчанию
-включено), канал или группа в Telegram просит двух подтверждений, прежде чем
-откроется или прежде чем вы в неё вступите, если она есть в списке каналов и
-групп разработчика — он составляется из жалоб пользователей, проверенных
-разработчиком, — или если сам Telegram пометил её как SCAM или FAKE. Проверка
+Когда включено «Предупреждать о мошеннических каналах, группах и аккаунтах»
+(по умолчанию включено), канал или группа в Telegram просит двух
+подтверждений, прежде чем откроется или прежде чем вы в неё вступите, если
+она есть в списке разработчика — он составляется из жалоб пользователей,
+проверенных разработчиком, — или если сам Telegram пометил её как SCAM или
+FAKE. Так же аккаунт или бот из этого списка или с меткой Telegram SCAM или
+FAKE просит двух подтверждений, прежде чем откроется переписка с ним; в том
+же окне его можно заблокировать — обычной блокировкой Telegram. Проверка
 выполняется на вашем телефоне по общедоступному файлу из пункта «Защита
-ссылок»: какие каналы и группы вы открываете, никуда не отправляется. После
+ссылок»: какие чаты вы открываете, никуда не отправляется. После
 подтверждения вы всегда можете продолжить — приложение не запрещает открывать
 чаты и вступать в них. Предупреждения можно выключить: Настройки → Humogram.
 
@@ -538,6 +555,9 @@ User-Agent с названием приложения и номером сбор
   или группа, выбранная причина и, если вы открыли его по ссылке-приглашению,
   эта ссылка (invite link) — чтобы разработчик мог увидеть закрытую группу и
   оценить её;
+- для аккаунта или бота — его номер (ID), публичные имена (@username), имя,
+  которое показывает его профиль, бот ли это и выбранная причина; не ваша
+  переписка с ним;
 - для ссылки — имя сайта и причина; не сама ссылка, не её путь и не чат, в
   котором она была.
 
@@ -546,9 +566,10 @@ User-Agent с названием приложения и номером сбор
 `Humogram/<номер сборки>`, которые сервер не сохраняет, и хранится так же: в
 очереди, которую просматривает разработчик, затем в истории до года после
 последней отправки. Одна жалоба ничего не меняет: только если разработчик
-проверит её и согласится, канал или группа попадёт в общедоступный список — по
-номеру, именам и отпечатку SHA-256 ссылки-приглашения, но никогда не по самой
-ссылке, — или сайт попадёт в чёрный список. Обжалование, с которым разработчик
+проверит её и согласится, канал, группа или аккаунт попадёт в общедоступный
+список — по номеру, именам и отпечатку SHA-256 ссылки-приглашения, но никогда
+не по самой ссылке; имя профиля аккаунта в список не попадает, — или сайт
+попадёт в чёрный список. Обжалование, с которым разработчик
 согласится, снимает пометку — у всех.
 
 
@@ -630,10 +651,11 @@ phone, checks of the files and links you receive in chats, and link protection.
   that site's name — or that app's package name, signature fingerprint, name
   and version — is sent to the developer to check.
 - **Report** is the other exception, and also only when you use it: if you
-  report a channel, group or link as a scam, or say a warning is a mistake, the
-  channel's or group's ID, public username, title, the invite link you opened
-  it with and the reason you chose — or a site's name and the reason — are sent
-  to the developer. Nothing about you.
+  report a channel, group, account, bot or link as a scam, or say a warning is a
+  mistake, the channel's or group's ID, public username, title and the invite
+  link you opened it with — for an account or bot, its ID, public username and
+  the name its profile shows — and the reason you chose — or a site's name and
+  the reason — are sent to the developer. Nothing about you.
 - **As a messenger**, the app uses Telegram, so your messaging data is processed
   on Telegram's servers.
 
@@ -751,7 +773,7 @@ also counts how many times a day the list is requested, and from which app
 versions.
 
 You can switch link protection off in Settings → Humogram → Link protection.
-The virus scanner and the warnings about channels and groups use the same file, so the app still downloads it while "Scan for viruses at launch" or "Warn about scam channels and groups" is on; with all three switched off, it does not download the list at all.
+The virus scanner and the warnings about channels, groups and accounts use the same file, so the app still downloads it while "Scan for viruses at launch" or "Warn about scam channels, groups and accounts" is on; with all three switched off, it does not download the list at all.
 
 #### Send for review
 
@@ -777,17 +799,19 @@ deleted; if the site or app is genuine, it is added to the public
 list, and its links stop being red — or the app stops being flagged — for
 everyone. Nothing is ever sent for review without your tap and confirmation.
 
-#### Warnings about channels and groups, and reports
+#### Warnings about channels, groups and accounts, and reports
 
-When "Warn about scam channels and groups" is on (it is on by default), a
-Telegram channel or group asks for two confirmations before it opens or before
-you join it if it is on the developer's list of channels and groups — built
-from users' reports that the developer has checked — or if Telegram itself has
-marked it SCAM or FAKE. The check runs on your phone against the public file
-described under Link protection: nothing about which channels and groups you
-open is sent anywhere. After confirming you can always continue; the app never
-stops you from opening or joining a chat. You can switch the warnings off in
-Settings → Humogram.
+When "Warn about scam channels, groups and accounts" is on (it is on by
+default), a Telegram channel or group asks for two confirmations before it
+opens or before you join it if it is on the developer's list — built from
+users' reports that the developer has checked — or if Telegram itself has
+marked it SCAM or FAKE. In the same way, an account or bot on that list, or
+marked SCAM or FAKE by Telegram, asks for two confirmations before a chat with
+it opens; the same dialog lets you block it with Telegram's own block. The
+check runs on your phone against the public file described under Link
+protection: nothing about which chats you open is sent anywhere. After
+confirming you can always continue; the app never stops you from opening or
+joining a chat. You can switch the warnings off in Settings → Humogram.
 
 From a chat's menu (**Report to Humogram**), from a link's menu (**Report a
 dangerous link**, or **Report this group or channel** for an invite link), or
@@ -800,6 +824,8 @@ request to <https://lists.skycoax.uz/v1/requests>:
   is a channel or a group, the reason you chose and, if you opened it through
   an invite link, that invite link — so that the developer can see a private
   group to judge it;
+- for an account or bot: its ID, its public usernames, the name its profile
+  shows, whether it is a bot, and the reason you chose — not your chat with it;
 - for a link: the site's name and the reason — not the link, its path, or the
   chat it was in.
 
@@ -808,9 +834,10 @@ identifier. Like "Send for review", it carries your IP address and the
 `Humogram/<build number>` User-Agent, which the server does not store, and it
 is kept the same way: in a queue the developer reviews, then as a record for up
 to a year after it was last sent. A report alone changes nothing: only if the
-developer, having checked it, agrees does a channel or group go on the public
-list — under its ID, usernames and a SHA-256 fingerprint of the invite link,
-never the invite link itself — or a site go on the blocked list. An appeal the
+developer, having checked it, agrees does a channel, group or account go on
+the public list — under its ID, usernames and a SHA-256 fingerprint of the
+invite link, never the invite link itself; an account's profile name is not
+published — or a site go on the blocked list. An appeal the
 developer upholds takes the mark off again, for everyone.
 
 

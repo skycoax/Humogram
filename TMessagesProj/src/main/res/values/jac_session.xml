@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SessionGuard: a session Telegram ended, and sign-in paused after too many attempts. -->
+<resources>
+    <string name="jac_session_end_title">Telegram ended this session</string>
+    <string name="jac_session_end_revoked">It was ended from another device: under Devices in Telegram, or with “It’s not me” on the notice about a new sign-in.</string>
+    <string name="jac_session_end_expired">The session expired: it was not used for a long time.</string>
+    <string name="jac_session_end_deactivated">Telegram deleted or blocked this account. @SpamBot can tell you why, or write to recover@telegram.org.</string>
+    <string name="jac_session_end_unknown">Usual reasons: it was ended from another device, it was not used for a long time, or many identical messages were sent from the account in a short time, which Telegram treats as spam.</string>
+    <string name="jac_session_end_advice">If it was not you, someone else may have your account. Sign in again right away, end unknown sessions under Settings → Devices (a device that has just signed in cannot end older ones for up to 24 hours) and turn on two-step verification. Do not tell anyone the code.</string>
+    <string name="jac_session_end_saved">The reason has been saved: after signing in you can send it to Humogram with “Send feedback” in Settings.</string>
+    <string name="jac_session_share">Share</string>
+    <string name="jac_session_report">Session ended. %1$s, %2$s, Telegram: %3$s</string>
+    <string name="jac_login_pause_title">Sign-in paused</string>
+    <string name="jac_login_pause_attempts">Telegram has paused sign-in for this number after too many attempts. You can try again in:</string>
+    <string name="jac_login_pause_codes">A code was requested for this number too many times. Telegram asks you to wait a few hours, sometimes up to a day.</string>
+    <string name="jac_login_pause_password">The password was entered wrong too many times. Try again a little later.</string>
+    <string name="jac_login_pause_scam">If you did not try this many times yourself, someone is trying to sign in with your number: scammers do this on purpose to lock the owner out. Do not tell anyone codes from SMS or Telegram. When the time is up, sign in and turn on two-step verification right away.</string>
+    <string name="jac_login_pause_until">at %1$s</string>
+    <string name="jac_login_pause_done">You can try again now</string>
+</resources>

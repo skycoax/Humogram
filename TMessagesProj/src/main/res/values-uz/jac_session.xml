@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SessionGuard: Telegram yakunlagan seans va ko‘p urinishdan keyin kirishning to‘xtatilishi. -->
+<resources>
+    <string name="jac_session_end_title">Telegram seansni yakunladi</string>
+    <string name="jac_session_end_revoked">Seans boshqa qurilmadan yakunlangan: Telegram’ning «Qurilmalar» bo‘limida yoki yangi kirish haqidagi xabardagi «Bu men emasman» tugmasi bilan.</string>
+    <string name="jac_session_end_expired">Seans muddati tugagan: u uzoq vaqt ishlatilmagan.</string>
+    <string name="jac_session_end_deactivated">Telegram bu akkauntni o‘chirgan yoki bloklagan. Sababini @SpamBot aytishi mumkin yoki recover@telegram.org manziliga yozing.</string>
+    <string name="jac_session_end_unknown">Odatdagi sabablar: seans boshqa qurilmadan yakunlangan, u uzoq vaqt ishlatilmagan yoki akkauntdan qisqa vaqtda ko‘p bir xil xabarlar yuborilgan — Telegram buni spam deb hisoblaydi.</string>
+    <string name="jac_session_end_advice">Buni siz qilmagan bo‘lsangiz, akkauntingiz boshqa birovning qo‘lida bo‘lishi mumkin. Darhol qayta kiring, Sozlamalar → Qurilmalar’da begona seanslarni yakunlang (endigina kirgan qurilma eskilarini 24 soatgacha yopolmaydi) va ikki bosqichli parolni yoqing. Kodni hech kimga aytmang.</string>
+    <string name="jac_session_end_saved">Sabab yozib qo‘yildi: kirgandan keyin uni Sozlamalar’dagi «Taklif va fikr yuborish» orqali Humogram’ga yuborishingiz mumkin.</string>
+    <string name="jac_session_share">Ulashish</string>
+    <string name="jac_session_report">Seans yakunlandi. %1$s, %2$s, Telegram: %3$s</string>
+    <string name="jac_login_pause_title">Kirish vaqtincha to‘xtatildi</string>
+    <string name="jac_login_pause_attempts">Juda ko‘p urinish bo‘lgani uchun Telegram bu raqamdan kirishni vaqtincha to‘xtatdi. Qayta urinish mumkin:</string>
+    <string name="jac_login_pause_codes">Bu raqam uchun kod juda ko‘p marta so‘raldi. Telegram bir necha soat, ba’zan bir kungacha kutishni so‘raydi.</string>
+    <string name="jac_login_pause_password">Parol juda ko‘p marta noto‘g‘ri kiritildi. Birozdan keyin urinib ko‘ring.</string>
+    <string name="jac_login_pause_scam">Agar siz o‘zingiz shuncha marta urinmagan bo‘lsangiz, kimdir sizning raqamingiz bilan kirishga urinmoqda: firibgarlar egasini o‘z akkauntiga kirolmaydigan qilish uchun ataylab shunday qilishadi. SMS va Telegram kodlarini hech kimga aytmang. Vaqt tugagach, kiring va darhol ikki bosqichli parolni yoqing.</string>
+    <string name="jac_login_pause_until">%1$s da</string>
+    <string name="jac_login_pause_done">Endi qayta urinib ko‘rishingiz mumkin</string>
+</resources>

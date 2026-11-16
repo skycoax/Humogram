@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.ChatObject;
+import org.telegram.messenger.UserObject;
 import org.telegram.tgnet.TLRPC;
 
 import java.util.ArrayList;
@@ -17,8 +18,17 @@ import uz.jac.secure.core.link.ChatLists;
 
 /**
  * Which channels and groups the app warns about before they are opened or
- * joined, and which ones the user has already been warned about and chose to
- * go into anyway. {@link ChatGuardUi} does the asking.
+ * joined — and which accounts and bots before a chat with them is opened —
+ * and which ones the user has already been warned about and chose to go into
+ * anyway. {@link ChatGuardUi} does the asking.
+ *
+ * <h3>Accounts are chats too</h3>
+ *
+ * The way the Bot API counts them: a private chat's id is the account's own
+ * id, positive, where a channel's or group's is negative. So one list holds
+ * both, one set of approvals keys both, and a "bank employee", a "customs
+ * officer" or a hacked friend asking to borrow money is warned about the way
+ * a fake-bonus channel is.
  *
  * <h3>Two sources</h3>
  *
@@ -111,6 +121,52 @@ public final class ChatGuard {
         return out;
     }
 
+    /** The account's or bot's public usernames, the editable one first; empty when it has none. */
+    public static List<String> usernamesOf(TLRPC.User user) {
+        final ArrayList<String> out = new ArrayList<>(2);
+        if (user == null) {
+            return out;
+        }
+        if (user.username != null && !user.username.isEmpty()) {
+            out.add(user.username);
+        }
+        if (user.usernames != null) {
+            for (TLRPC.TL_username u : user.usernames) {
+                if (u != null && u.active && u.username != null && !u.username.isEmpty() && !out.contains(u.username)) {
+                    out.add(u.username);
+                }
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Why a chat with this account or bot is warned about, or null: the
+     * switch is off, it is the user's own account or one of Telegram's
+     * service accounts, or neither the owner's list nor Telegram marks it.
+     * Never throws.
+     */
+    public static Flag flagOf(TLRPC.User user) {
+        if (user == null || user.id <= 0 || user.self || UserObject.isService(user.id) || !isOn()) {
+            return null;
+        }
+        try {
+            final ChatLists.Entry entry = LinkGuard.chatLists().match(
+                    ChatLists.peerOfUser(user.id), usernamesOf(user), null);
+            if (entry != null) {
+                return new Flag(SOURCE_LIST, entry.getReason());
+            }
+            if (user.scam) {
+                return new Flag(SOURCE_TELEGRAM_SCAM, null);
+            }
+            if (user.fake) {
+                return new Flag(SOURCE_TELEGRAM_FAKE, null);
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
     /**
      * Why this chat is warned about, or null: the switch is off, or neither
      * the owner's list nor Telegram marks it. Never throws.
@@ -198,6 +254,25 @@ public final class ChatGuard {
         }
         synchronized (LOCK) {
             return approvedPeers.contains(peerOf(chat));
+        }
+    }
+
+    public static boolean isApproved(TLRPC.User user) {
+        if (user == null) {
+            return false;
+        }
+        synchronized (LOCK) {
+            return approvedPeers.contains(ChatLists.peerOfUser(user.id));
+        }
+    }
+
+    /** Both confirmations given for a chat with this account: do not ask again until the app restarts. */
+    static void approve(TLRPC.User user) {
+        if (user == null) {
+            return;
+        }
+        synchronized (LOCK) {
+            approvedPeers.add(ChatLists.peerOfUser(user.id));
         }
     }
 

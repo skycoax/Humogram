@@ -6988,6 +6988,8 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
         // Humogram: a threat a scan found while the app was away (or locked)
         // is waiting for its alarm; show it now that the app is in front.
         uz.jac.secure.android.ThreatAlert.onResume(this);
+        // Humogram: a session Telegram ended while no screen was up is told now.
+        uz.jac.secure.android.SessionGuard.showPending(this);
         MessagesController.getInstance(currentAccount).sortDialogs(null);
         showLanguageAlert(false);
         Utilities.stageQueue.postRunnable(() -> {

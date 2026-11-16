@@ -1158,6 +1158,10 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
         if (text == null || getParentActivity() == null) {
             return;
         }
+        // Humogram: "too many attempts" becomes a countdown that also warns about lockouts by scammers.
+        if (uz.jac.secure.android.SessionGuard.replaceLoginAlert(this, text)) {
+            return;
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
         builder.setTitle(title);
         builder.setMessage(text);

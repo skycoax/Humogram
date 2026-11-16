@@ -39,8 +39,10 @@ import javax.net.ssl.SSLSocketFactory;
  * A chat report or appeal carries what identifies the chat — its id, its
  * public usernames, its title, whether it is a channel or a group — the reason
  * picked, and, when the user reached it by an invite link, that link: without
- * it the owner cannot see a private group to judge it. The dialog says so
- * before anything is sent. Never the user's messages, never who they are.
+ * it the owner cannot see a private group to judge it. A report about an
+ * account or a bot carries its id, its public usernames and the name its
+ * profile shows, and whether it is a bot. The dialog says so before anything
+ * is sent. Never the user's messages, never who they are.
  *
  * <h3>What goes, and when</h3>
  *
@@ -181,15 +183,22 @@ final class ReviewRequest {
         show(fragment, pick);
     }
 
-    /** What a chat report or appeal names. */
+    /** What a chat report or appeal names — a channel or group, or an account or bot. */
     static final class ChatRef {
-        /** The Bot API id, or 0 when only an invite link is known (a group not joined yet). */
+        static final int KIND_UNKNOWN = -1, KIND_GROUP = 0, KIND_CHANNEL = 1, KIND_ACCOUNT = 2, KIND_BOT = 3;
+
+        /**
+         * The Bot API id — negative for a channel or group, the account's own
+         * (positive) id for an account or bot — or 0 when only an invite link
+         * is known (a group not joined yet).
+         */
         final long peer;
         final List<String> usernames;
         /** The invite link's hash the user reached it by, or null. */
         final String invite;
+        /** A chat's title, or an account's name as its profile shows it. */
         final String title;
-        /** 1 a channel, 0 a group, -1 not known (an invite link not opened yet). */
+        /** {@code KIND_*}: -1 not known (an invite link not opened yet). */
         final int kind;
 
         ChatRef(long peer, List<String> usernames, String invite, String title, int kind) {
@@ -200,9 +209,30 @@ final class ReviewRequest {
             this.kind = kind;
         }
 
-        /** The chat as a sentence names it: its title in quotes, or "this group or channel". */
+        boolean account() {
+            return kind == KIND_ACCOUNT || kind == KIND_BOT;
+        }
+
+        /** What the server calls it: "channel", "group", "user", "bot", or "" when not known. */
+        String type() {
+            switch (kind) {
+                case KIND_CHANNEL:
+                    return "channel";
+                case KIND_GROUP:
+                    return "group";
+                case KIND_ACCOUNT:
+                    return "user";
+                case KIND_BOT:
+                    return "bot";
+                default:
+                    return "";
+            }
+        }
+
+        /** The chat as a sentence names it: its title in quotes, or "this group or channel" / "this account". */
         String name(Context context) {
-            return title.isEmpty() ? JacStrings.get(context, R.string.jac_report_chat_unnamed)
+            return title.isEmpty() ? JacStrings.get(context, account()
+                    ? R.string.jac_report_user_unnamed : R.string.jac_report_chat_unnamed)
                     : JacStrings.get(context, R.string.jac_report_chat_named, title);
         }
 
@@ -216,7 +246,8 @@ final class ReviewRequest {
                 append(out, JacStrings.get(context, R.string.jac_report_sends_id));
             }
             if (!title.isEmpty()) {
-                append(out, JacStrings.get(context, R.string.jac_report_sends_title));
+                append(out, JacStrings.get(context, account()
+                        ? R.string.jac_report_sends_name : R.string.jac_report_sends_title));
             }
             if (invite != null) {
                 append(out, JacStrings.get(context, R.string.jac_report_sends_invite));
@@ -267,28 +298,53 @@ final class ReviewRequest {
     }
 
     /**
-     * Report a channel or group as a scam: the reason first, then what will be
-     * sent. UI thread.
+     * Report a channel, group, account or bot as a scam: the reason first,
+     * then what will be sent. UI thread.
      */
     static void confirmChatReport(Activity activity, BaseFragment fragment, ChatRef chat) {
         if (activity == null || chat == null) {
             return;
         }
-        final String[] reasons = ChatGuardUi.REASONS;
+        final String[] reasons = chat.account() ? ChatGuardUi.USER_REASONS : ChatGuardUi.REASONS;
         final CharSequence[] items = new CharSequence[reasons.length];
         for (int i = 0; i < items.length; i++) {
             items[i] = ChatGuardUi.reasonLabel(activity, reasons[i]);
         }
+        final int titleRes;
+        switch (chat.kind) {
+            case ChatRef.KIND_CHANNEL:
+                titleRes = R.string.jac_report_channel_title;
+                break;
+            case ChatRef.KIND_GROUP:
+                titleRes = R.string.jac_report_group_title;
+                break;
+            case ChatRef.KIND_ACCOUNT:
+                titleRes = R.string.jac_report_user_title;
+                break;
+            case ChatRef.KIND_BOT:
+                titleRes = R.string.jac_report_bot_title;
+                break;
+            default:
+                titleRes = R.string.jac_report_chat_title;
+                break;
+        }
         final AlertDialog pick = new AlertDialog.Builder(activity)
-                .setTitle(JacStrings.get(activity, chat.kind == 1 ? R.string.jac_report_channel_title
-                        : chat.kind == 0 ? R.string.jac_report_group_title : R.string.jac_report_chat_title))
+                .setTitle(JacStrings.get(activity, titleRes))
                 .setItems(items, (d, which) -> {
                     if (which < 0 || which >= reasons.length) {
                         return;
                     }
-                    String body = JacStrings.get(activity, R.string.jac_report_chat_body,
+                    String body = JacStrings.get(activity, chat.account()
+                                    ? R.string.jac_report_user_body : R.string.jac_report_chat_body,
                             chat.name(activity), items[which], chat.sentList(activity));
-                    if (chat.peer != 0) {
+                    if (chat.kind == ChatRef.KIND_BOT) {
+                        // Upstream offers "Report" on a bot's messages.
+                        body += "\n\n" + JacStrings.get(activity, R.string.jac_report_bot_telegram);
+                    } else if (chat.account()) {
+                        // A private chat with a person has no "Report" of
+                        // Telegram's own; impersonators go to @NoToScam (Telegram FAQ).
+                        body += "\n\n" + JacStrings.get(activity, R.string.jac_report_user_telegram);
+                    } else if (chat.peer != 0) {
                         // Opened from the chat's menu, where Telegram's own report sits too.
                         body += "\n\n" + JacStrings.get(activity, R.string.jac_report_chat_telegram);
                     }
@@ -339,7 +395,7 @@ final class ReviewRequest {
                 body.put("invite", chat.invite);
             }
             body.put("title", chat.title.length() > 128 ? chat.title.substring(0, 128) : chat.title);
-            body.put("type", chat.kind == 1 ? "channel" : chat.kind == 0 ? "group" : "");
+            body.put("type", chat.type());
             if (reason != null) {
                 body.put("reason", reason);
             }

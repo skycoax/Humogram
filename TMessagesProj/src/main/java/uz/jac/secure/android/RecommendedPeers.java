@@ -148,7 +148,9 @@ public final class RecommendedPeers {
         }
         if (item.id == ID_FEEDBACK) {
             // A t.me link, as for the rows above: upstream opens the chat inside the app.
-            Browser.openUrl(context, "https://t.me/" + FEEDBACK_USERNAME);
+            // After a session Telegram ended, the chat opens with that event typed in
+            // (?text=), for the user to send or delete (SessionGuard).
+            Browser.openUrl(context, "https://t.me/" + FEEDBACK_USERNAME + SessionGuard.feedbackQuery(context));
             return true;
         }
         final int index = item.id - ID_BASE;
